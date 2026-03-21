@@ -291,13 +291,13 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .library-row-meta { font-family: 'Inconsolata', monospace; font-size: 0.62rem; color: #666; margin-top: 2px; }
 .library-empty { padding: 24px; font-family: 'Inconsolata', monospace; font-size: 0.72rem; color: #555; text-align: center; }
 
-/* Mic pitch detection */
+/* Mic recording */
 .mic-btn { background: none; border: 2px solid #444; color: #888; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
 .mic-btn:hover { border-color: var(--accent); color: var(--accent); }
-.mic-btn.recording { border-color: #e55; color: #e55; animation: pulse 1s infinite; }
-.mic-btn.recording:hover { border-color: #e55; }
-@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(221,85,85,0.4); } 50% { box-shadow: 0 0 0 6px rgba(221,85,85,0); } }
-.mic-status { font-family: 'Inconsolata', monospace; font-size: 0.65rem; color: #666; margin-top: 3px; text-align: center; min-height: 14px; }
+.mic-btn.recording { border-color: #e55; color: #e55; animation: micpulse 1s infinite; }
+@keyframes micpulse { 0%,100%{box-shadow:0 0 0 0 rgba(221,85,85,0.4);}50%{box-shadow:0 0 0 8px rgba(221,85,85,0);} }
+.mic-status { font-family: 'Inconsolata', monospace; font-size: 0.62rem; color: #888; margin-top: 2px; text-align: center; min-height: 13px; max-width: 80px; }
+.mic-wrap { display: flex; flex-direction: column; align-items: center; gap: 1px; }
 </style>
 </head>
 <body>
@@ -377,7 +377,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   <div class="kb-block">
     <div class="kb-header">
       <div class="kb-prompt" id="kb-prompt">Select a note grouping, then enter your passage</div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:2px"><button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Record pitch">🎙</button><div class="mic-status" id="mic-status"></div></div><button class="clear-btn" onclick="clearNotes()">Clear</button>
+      <div class="mic-wrap"><button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Record passage">🎙</button><div class="mic-status" id="mic-status"></div></div><button class="clear-btn" onclick="clearNotes()">Clear</button>
     </div>
     <div class="piano-wrap">
       <svg id="piano-svg" viewBox="0 0 1008 130" preserveAspectRatio="none"></svg>
@@ -519,6 +519,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   }
   var AC = null;
   function playNote(n) {
+    if (window._micActive) return;
     try {
       if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
       // iOS Safari requires resume() after user gesture
@@ -1535,103 +1536,121 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   updateProfileBtn();
 
 
-  // PITCH DETECTION
-  var micStream = null, micCtx = null, micAnalyser = null, micSource = null;
-  var micRecording = false, micTimer = null, lastNote = null, lastNoteTime = 0;
+  // MIC: Pitch detection with onset detection
+  var _micActive = false;
+  var _micStream = null, _micCtx = null, _micAnalyser = null;
+  var _micTimer = null;
+  var _prevRms = 0;
+  var _noteActive = false;
+  var _onsetThresh = 0.04;
+  var _releaseThresh = 0.015;
+  var _stableCount = 0;
+  var _stableNeeded = 4;
+  var _lastFreq = 0;
   var NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
-  function freqToNote(freq) {
-    if (!freq || freq < 40 || freq > 4200) return null;
-    var midi = Math.round(12 * Math.log2(freq / 440) + 69);
-    var octave = Math.floor(midi / 12) - 1;
-    var name = NOTE_NAMES[midi % 12];
-    return name + octave;
+  function autoCorr(buf, sr) {
+    var SIZE = buf.length, rms = 0;
+    for (var i=0;i<SIZE;i++) rms+=buf[i]*buf[i];
+    rms = Math.sqrt(rms/SIZE);
+    if (rms < 0.008) return {freq:-1, rms:rms};
+    var r1=0, r2=SIZE-1, th=0.2;
+    for (var i=0;i<SIZE/2;i++){if(Math.abs(buf[i])<th){r1=i;break;}}
+    for (var i=1;i<SIZE/2;i++){if(Math.abs(buf[SIZE-i])<th){r2=SIZE-i;break;}}
+    var b2=buf.slice(r1,r2); var SZ=b2.length;
+    var c=new Float32Array(SZ);
+    for(var i=0;i<SZ;i++) for(var j=0;j<SZ-i;j++) c[i]+=b2[j]*b2[j+i];
+    var d=0; while(c[d]>c[d+1]) d++;
+    var mx=-1,mp=-1;
+    for(var i=d;i<SZ;i++){if(c[i]>mx){mx=c[i];mp=i;}}
+    if(mp<2||mp>=SZ-1) return {freq:-1,rms:rms};
+    var x1=c[mp-1],x2=c[mp],x3=c[mp+1];
+    var a=(x1+x3-2*x2)/2,b=(x3-x1)/2;
+    var T=a?mp-b/(2*a):mp;
+    return {freq:sr/T, rms:rms};
   }
 
-  function autoCorrelate(buf, sampleRate) {
-    var SIZE = buf.length, rms = 0;
-    for (var i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
-    rms = Math.sqrt(rms / SIZE);
-    if (rms < 0.01) return -1;
-    var r1=0, r2=SIZE-1, thres=0.2;
-    for (var i=0; i<SIZE/2; i++) { if (Math.abs(buf[i])<thres) {r1=i; break;} }
-    for (var i=1; i<SIZE/2; i++) { if (Math.abs(buf[SIZE-i])<thres) {r2=SIZE-i; break;} }
-    buf = buf.slice(r1, r2);
-    SIZE = buf.length;
-    var c = new Float32Array(SIZE).fill(0);
-    for (var i=0; i<SIZE; i++) for (var j=0; j<SIZE-i; j++) c[i] += buf[j]*buf[j+i];
-    var d=0; while (c[d]>c[d+1]) d++;
-    var maxval=-1, maxpos=-1;
-    for (var i=d; i<SIZE; i++) { if (c[i]>maxval) {maxval=c[i]; maxpos=i;} }
-    var T0=maxpos;
-    var x1=c[T0-1], x2=c[T0], x3=c[T0+1];
-    var a=(x1+x3-2*x2)/2, b=(x3-x1)/2;
-    if (a) T0 = T0 - b/(2*a);
-    return sampleRate / T0;
+  function freqToNote(freq) {
+    if (!freq||freq<60||freq>2000) return null;
+    var midi = Math.round(12*Math.log2(freq/440)+69);
+    if (midi<24||midi>96) return null;
+    var oct = Math.floor(midi/12)-1;
+    return NOTE_NAMES[midi%12] + oct;
   }
 
   function toggleMic() {
-    if (micRecording) { stopMic(); return; }
-    var cv = parseInt(document.getElementById('compound-input') ? document.getElementById('compound-input').value : '0');
-    if (!activeGroup && cv < 6) {
-      document.getElementById('mic-status').textContent = 'Select a note grouping first';
+    if (_micActive) { stopMic(); return; }
+    if (!activeGroup) {
+      document.getElementById('mic-status').textContent='Choose grouping first';
       return;
     }
-    navigator.mediaDevices.getUserMedia({audio: true, video: false})
-    .then(function(stream) {
-      micStream = stream;
-      micCtx = new (window.AudioContext || window.webkitAudioContext)();
-      micAnalyser = micCtx.createAnalyser();
-      micAnalyser.fftSize = 2048;
-      micSource = micCtx.createMediaStreamSource(stream);
-      micSource.connect(micAnalyser);
-      micRecording = true;
+    navigator.mediaDevices.getUserMedia({audio:true,video:false})
+    .then(function(stream){
+      _micStream=stream;
+      _micCtx=new(window.AudioContext||window.webkitAudioContext)();
+      _micAnalyser=_micCtx.createAnalyser();
+      _micAnalyser.fftSize=2048;
+      _micCtx.createMediaStreamSource(stream).connect(_micAnalyser);
+      _micActive=true; window._micActive=true;
+      _noteActive=false; _stableCount=0; _lastFreq=0; _prevRms=0;
       document.getElementById('mic-btn').classList.add('recording');
-      document.getElementById('mic-status').textContent = 'Listening...';
-      detectPitch();
+      document.getElementById('mic-status').textContent='Play notes one at a time';
+      detectLoop();
     })
-    .catch(function() {
-      document.getElementById('mic-status').textContent = 'Mic access denied';
+    .catch(function(){
+      document.getElementById('mic-status').textContent='Mic access denied';
     });
   }
 
   function stopMic() {
-    micRecording = false;
-    if (micTimer) clearTimeout(micTimer);
-    if (micStream) micStream.getTracks().forEach(function(t){t.stop();});
-    if (micCtx) micCtx.close();
-    micStream = micCtx = micAnalyser = micSource = null;
-    lastNote = null;
+    _micActive=false; window._micActive=false;
+    if(_micTimer) clearTimeout(_micTimer);
+    if(_micStream) _micStream.getTracks().forEach(function(t){t.stop();});
+    if(_micCtx) _micCtx.close();
+    _micStream=_micCtx=_micAnalyser=null;
     document.getElementById('mic-btn').classList.remove('recording');
-    document.getElementById('mic-status').textContent = '';
+    document.getElementById('mic-status').textContent='';
   }
 
-  function detectPitch() {
-    if (!micRecording) return;
-    var buf = new Float32Array(micAnalyser.fftSize);
-    micAnalyser.getFloatTimeDomainData(buf);
-    var freq = autoCorrelate(buf, micCtx.sampleRate);
-    var note = freqToNote(freq);
-    var now = Date.now();
-    if (note && note !== lastNote && (now - lastNoteTime) > 180) {
-      lastNote = note;
-      lastNoteTime = now;
-      // Convert to app note format (e.g. C#4 -> C#4)
-      var noteName = note.slice(0,-1);
-      var octave = note.slice(-1);
-      var spelled = noteName + octave;
-      selNotes.push(spelled);
-      updateChips(); upPrompt(); upHint(); checkReady();
-      playNote(spelled);
-      document.getElementById('mic-status').textContent = note;
-    } else if (!note) {
-      lastNote = null;
+  function detectLoop() {
+    if (!_micActive) return;
+    var buf=new Float32Array(_micAnalyser.fftSize);
+    _micAnalyser.getFloatTimeDomainData(buf);
+    var res=autoCorr(buf,_micCtx.sampleRate);
+    var rms=res.rms, freq=res.freq;
+
+    if (!_noteActive) {
+      if (rms > _onsetThresh && rms > _prevRms * 1.5) {
+        _noteActive=true;
+        _stableCount=0; _lastFreq=freq;
+        document.getElementById('mic-status').textContent='...';
+      }
+    } else {
+      if (rms < _releaseThresh) {
+        _noteActive=false; _stableCount=0;
+      } else if (freq > 0) {
+        var note=freqToNote(freq);
+        var lastNote=freqToNote(_lastFreq);
+        if (note && note===lastNote) {
+          _stableCount++;
+          if (_stableCount === _stableNeeded) {
+            selNotes.push(note);
+            updateChips(); upPrompt(); upHint(); checkReady();
+            document.getElementById('mic-status').textContent=note;
+          }
+        } else {
+          _stableCount=1; _lastFreq=freq;
+        }
+      }
+      if (_stableCount >= _stableNeeded && rms < _releaseThresh * 1.5) {
+        _noteActive=false; _stableCount=0;
+      }
     }
-    micTimer = setTimeout(detectPitch, 30);
+    _prevRms=rms;
+    _micTimer=setTimeout(detectLoop,25);
   }
 
-  window.toggleMic = toggleMic;
-  window.stopMic = stopMic;
+  window.toggleMic=toggleMic;
 
   buildPiano();
   // Unlock AudioContext on first touch for iOS Safari
