@@ -1639,10 +1639,21 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
         if (note && note===lastNote) {
           _stableCount++;
           if (_stableCount === _stableNeeded) {
-            // Confirmed — log note and set lockout
-            selNotes.push(note);
+            // Confirmed - log note, applying reverse transposition to get written pitch
+            var offset = transposeOffset();
+            var writtenNote = note;
+            if (offset !== 0) {
+              var nn = NOTE_NAMES;
+              var nm = writtenNote.slice(0,-1), oc = parseInt(writtenNote.slice(-1));
+              var ix = nn.indexOf(nm);
+              if (ix !== -1) {
+                var midi = (oc+1)*12 + ix - offset;
+                writtenNote = nn[((midi%12)+12)%12] + (Math.floor(midi/12)-1);
+              }
+            }
+            selNotes.push(writtenNote);
             updateChips(); upPrompt(); upHint(); checkReady();
-            document.getElementById('mic-status').textContent=note;
+            document.getElementById('mic-status').textContent=writtenNote;
             _lockoutUntil = now + _lockoutMs;
             _noteActive=false; _stableCount=0;
           }
