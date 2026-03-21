@@ -287,6 +287,11 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .library-results { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .library-row { padding: 10px 24px; border-bottom: 1px solid #1a1410; cursor: pointer; }
 .library-row:hover { background: #111009; }
+.library-row { display: flex; align-items: center; justify-content: space-between; }
+.library-row-content { flex: 1; min-width: 0; cursor: pointer; }
+.library-delete-btn { background: none; border: 1px solid #333; color: #555; font-size: 0.65rem; padding: 3px 8px; cursor: pointer; white-space: nowrap; font-family: 'Inconsolata', monospace; flex-shrink: 0; margin-left: 12px; }
+.library-delete-btn:hover { border-color: #e55; color: #e55; }
+
 .library-row-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.08em; color: var(--cream); }
 .library-row-meta { font-family: 'Inconsolata', monospace; font-size: 0.62rem; color: #666; margin-top: 2px; }
 .library-empty { padding: 24px; font-family: 'Inconsolata', monospace; font-size: 0.72rem; color: #555; text-align: center; }
@@ -1460,12 +1465,30 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
           var meta = [row.composer,prof.instrument,row.grouping,row.clef,row.key,date].filter(Boolean).join(' · ');
           var div = document.createElement('div');
           div.className = 'library-row';
-          div.innerHTML = '<div class="library-row-title">'+(row.doc_name||'Untitled')+'</div>'
+          var content = document.createElement('div');
+          content.className = 'library-row-content';
+          content.innerHTML = '<div class="library-row-title">'+(row.doc_name||'Untitled')+'</div>'
             +'<div class="library-row-meta">'+meta+'</div>';
-          div.addEventListener('click',(function(idx){return function(){
+          content.addEventListener('click',(function(idx){return function(){
             var r=window._libRows[idx];
             loadFromLibrary({notes:r.notes,docName:r.doc_name,clef:r.clef,key:r.key,grouping:r.grouping});
           };})(i));
+          div.appendChild(content);
+          // Show delete button only for own exercises
+          var prof = getProfile();
+          if (prof.email && row.user_email === prof.email) {
+            var del = document.createElement('button');
+            del.className = 'library-delete-btn';
+            del.textContent = 'Delete';
+            del.addEventListener('click',(function(rowId){
+              return function(e){
+                e.stopPropagation();
+                if (!confirm('Delete this exercise?')) return;
+                deleteExercise(rowId);
+              };
+            })(row.id));
+            div.appendChild(del);
+          }
           results.appendChild(div);
         });
       })
@@ -1733,6 +1756,17 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   }
   window.onKeyChange = onKeyChange;
 
+
+  function deleteExercise(id) {
+    var prof = getProfile();
+    fetch(SB_URL + '/rest/v1/exercises?id=eq.' + id + '&user_email=eq.' + encodeURIComponent(prof.email), {
+      method: 'DELETE',
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    })
+    .then(function() { doLibrarySearch(); })
+    .catch(function(e) { console.log('delete error', e); });
+  }
+  window.deleteExercise = deleteExercise;
 
   buildPiano();
   // Unlock AudioContext on first touch for iOS Safari
