@@ -763,7 +763,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   function upPrompt() {
     var el = document.getElementById('kb-prompt');
     if (!activeGroup) el.innerHTML = '';
-    else if (!selNotes.length) el.innerHTML = 'Articulate each note clearly into the mic 🎙 or tap keys on the keyboard';
+    else if (!selNotes.length) el.innerHTML = 'Record each note by articulating one by one clearly 🎙 or tap keys on the keyboard';
     else el.innerHTML = '<strong>' + selNotes.length + '</strong> note' + (selNotes.length !== 1 ? 's' : '') + ' entered';
   }
   function upHint() {
