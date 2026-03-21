@@ -381,7 +381,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   <!-- Keyboard — full width row -->
   <div class="kb-block">
     <div class="kb-header">
-      <div class="kb-prompt" id="kb-prompt">Select a note grouping, then enter your passage</div>
+      <div class="kb-prompt" id="kb-prompt">Choose: Note Grouping → Clef → Key → Instrument</div>
       <div class="mic-wrap"><button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Record passage">🎙</button><div class="mic-status" id="mic-status"></div></div><button class="clear-btn" onclick="clearNotes()">Clear</button>
     </div>
     <div class="piano-wrap">
@@ -763,7 +763,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   function upPrompt() {
     var el = document.getElementById('kb-prompt');
     if (!activeGroup) el.innerHTML = '';
-    else if (!selNotes.length) el.innerHTML = 'Enter your passage';
+    else if (!selNotes.length) el.innerHTML = 'Record each note one by one 🎙 or tap keys on the keyboard';
     else el.innerHTML = '<strong>' + selNotes.length + '</strong> note' + (selNotes.length !== 1 ? 's' : '') + ' entered';
   }
   function upHint() {
@@ -832,7 +832,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
       }
       if (!k || !k.getAttribute || !k.getAttribute('data-note')) return;
       if (!activeGroup) {
-        document.getElementById('kb-prompt').innerHTML = '<strong>Select a note grouping first</strong>';
+        document.getElementById('kb-prompt').innerHTML = '<strong>Choose a note grouping first</strong>';
         return;
       }
       var raw = k.getAttribute('data-note'), isBlack = raw.indexOf('#') !== -1;
@@ -1570,8 +1570,10 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   var _stableCount = 0;
   var _stableNeeded = 4;
   var _lastFreq = 0;
-  var _lockoutUntil = 0;       // timestamp — ignore onsets until this time
-  var _lockoutMs = 400;        // ms to wait after logging a note before accepting next onset
+  var _lockoutUntil = 0;
+  var _lockoutMs = 400;
+  var _lastSoundTime = 0;      // last time we heard sound above threshold
+  var _autoStopMs = 3000;      // auto-stop after 3s of silence
   var NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
   function autoCorr(buf, sr) {
@@ -1617,7 +1619,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
       _micAnalyser.fftSize=2048;
       _micCtx.createMediaStreamSource(stream).connect(_micAnalyser);
       _micActive=true; window._micActive=true;
-      _noteActive=false; _stableCount=0; _lastFreq=0; _prevRms=0; _lockoutUntil=0;
+      _noteActive=false; _stableCount=0; _lastFreq=0; _prevRms=0; _lockoutUntil=0; _lastSoundTime=0;
       document.getElementById('mic-btn').classList.add('recording');
       document.getElementById('mic-status').textContent='Play notes one at a time';
       detectLoop();
@@ -1686,6 +1688,12 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
       }
     }
     _prevRms=rms;
+    // Auto-stop after silence
+    if (rms > 0.008) _lastSoundTime = Date.now();
+    if (_lastSoundTime > 0 && Date.now() - _lastSoundTime > _autoStopMs) {
+      document.getElementById('mic-status').textContent='Stopped (silence)';
+      stopMic(); return;
+    }
     _micTimer=setTimeout(detectLoop,25);
   }
 
