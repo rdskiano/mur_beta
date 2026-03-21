@@ -1542,8 +1542,8 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   var _micTimer = null;
   var _prevRms = 0;
   var _noteActive = false;
-  var _onsetThresh = 0.04;
-  var _releaseThresh = 0.015;
+  var _onsetThresh = 0.02;
+  var _releaseThresh = 0.008;
   var _stableCount = 0;
   var _stableNeeded = 4;
   var _lastFreq = 0;
@@ -1555,7 +1555,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     var SIZE = buf.length, rms = 0;
     for (var i=0;i<SIZE;i++) rms+=buf[i]*buf[i];
     rms = Math.sqrt(rms/SIZE);
-    if (rms < 0.008) return {freq:-1, rms:rms};
+    if (rms < 0.004) return {freq:-1, rms:rms};
     var r1=0, r2=SIZE-1, th=0.2;
     for (var i=0;i<SIZE/2;i++){if(Math.abs(buf[i])<th){r1=i;break;}}
     for (var i=1;i<SIZE/2;i++){if(Math.abs(buf[SIZE-i])<th){r2=SIZE-i;break;}}
@@ -1573,9 +1573,9 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   }
 
   function freqToNote(freq) {
-    if (!freq||freq<60||freq>2000) return null;
+    if (!freq||freq<25||freq>4200) return null;
     var midi = Math.round(12*Math.log2(freq/440)+69);
-    if (midi<24||midi>96) return null;
+    if (midi<33||midi>108) return null;
     var oct = Math.floor(midi/12)-1;
     return NOTE_NAMES[midi%12] + oct;
   }
