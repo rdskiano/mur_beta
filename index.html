@@ -1759,11 +1759,13 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 
   function deleteExercise(id) {
     var prof = getProfile();
+    console.log('deleting id:', id, 'email:', prof.email);
     fetch(SB_URL + '/rest/v1/exercises?id=eq.' + id + '&user_email=eq.' + encodeURIComponent(prof.email), {
       method: 'DELETE',
-      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': 'return=representation'}
     })
-    .then(function() { doLibrarySearch(); })
+    .then(function(r){ console.log('delete status:', r.status); return r.text(); })
+    .then(function(t){ console.log('delete response:', t); doLibrarySearch(); })
     .catch(function(e) { console.log('delete error', e); });
   }
   window.deleteExercise = deleteExercise;
