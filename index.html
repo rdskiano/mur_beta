@@ -66,8 +66,10 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .kb-prompt strong { color: white; }
 .clear-btn { background: none; border: none; color: #888; font-family: 'Inconsolata', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; text-decoration: underline; }
 .clear-btn:hover { color: var(--accent); }
-.piano-wrap { width: 100%; height: 130px; user-select: none; -webkit-user-select: none; }
-#piano-svg { width: 100%; height: 100%; display: block; cursor: pointer; touch-action: none; }
+.piano-wrap { width: 1400px; height: 180px; user-select: none; -webkit-user-select: none; overflow: hidden; }
+.piano-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+#piano-svg { width: 1400px; height: 180px; display: block; }
+#piano-svg { cursor: pointer; touch-action: none; }
 
 /* Note chips */
 .chips-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; min-height: 28px; align-items: center; }
@@ -309,6 +311,56 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 #live-staff-desktop svg line { stroke: #1a1612; }
 #live-staff-desktop svg text { fill: #1a1612; }
 #live-staff-desktop-render { display: inline-block; min-width: 100%; }
+
+.chip-ins-btn {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: none; border: 1px solid var(--rule);
+  color: var(--light); font-size: 0.7rem; line-height: 1;
+  cursor: pointer; padding: 0; vertical-align: middle;
+  transition: all 0.1s;
+}
+.chip-ins-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+.chip-ins-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.input-tab {
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  color: rgba(255,255,255,0.35);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.input-tab.active {
+  background: var(--cream);
+  color: var(--ink);
+  border-color: var(--rule);
+}
+@keyframes rec-pulse-desktop {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(229,53,53,0.5); }
+  50% { box-shadow: 0 0 0 12px rgba(229,53,53,0); }
+}
+#rec-btn-desktop.recording { animation: rec-pulse-desktop 1.4s ease-in-out infinite; }
+
+#kb-drag-band {
+  width: 100%;
+  height: 36px;
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+#kb-drag-band span {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: rgba(245,240,232,0.5);
+}
 </style>
 </head>
 <body>
@@ -327,7 +379,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 
 <div class="controls">
   <div class="ctl-block">
-    <div class="ctl-label">Note Grouping</div>
+    <div class="ctl-label">Note Grouping of Passage</div>
     <div class="group-btns">
       <button class="group-btn" data-n="3"><svg viewBox="0 0 52 36" width="52" height="28" xmlns="http://www.w3.org/2000/svg"><line x1="11" y1="7" x2="39" y2="7" stroke="#f5f0e8" stroke-width="2.5"/><line x1="11" y1="7" x2="11" y2="28" stroke="#f5f0e8" stroke-width="1.8"/><ellipse cx="6" cy="30" rx="5.5" ry="3.5" fill="#f5f0e8" transform="rotate(-20,6,30)"/><line x1="25" y1="7" x2="25" y2="28" stroke="#f5f0e8" stroke-width="1.8"/><ellipse cx="20" cy="30" rx="5.5" ry="3.5" fill="#f5f0e8" transform="rotate(-20,20,30)"/><line x1="39" y1="7" x2="39" y2="28" stroke="#f5f0e8" stroke-width="1.8"/><ellipse cx="34" cy="30" rx="5.5" ry="3.5" fill="#f5f0e8" transform="rotate(-20,34,30)"/></svg><span class="btn-num">3</span></button>
       <button class="group-btn" data-n="4"><svg viewBox="0 0 54 36" width="54" height="28" xmlns="http://www.w3.org/2000/svg"><line x1="10" y1="7" x2="49" y2="7" stroke="#f5f0e8" stroke-width="2.5"/><line x1="10" y1="12" x2="49" y2="12" stroke="#f5f0e8" stroke-width="2.5"/><line x1="10" y1="7" x2="10" y2="28" stroke="#f5f0e8" stroke-width="1.8"/><ellipse cx="5" cy="30" rx="5.5" ry="3.5" fill="#f5f0e8" transform="rotate(-20,5,30)"/><line x1="23" y1="7" x2="23" y2="28" stroke="#f5f0e8" stroke-width="1.8"/><ellipse cx="18" cy="30" rx="5.5" ry="3.5" fill="#f5f0e8" transform="rotate(-20,18,30)"/><line x1="36" y1="7" x2="36" y2="28" stroke="#f5f0e8" stroke-width="1.8"/><ellipse cx="31" cy="30" rx="5.5" ry="3.5" fill="#f5f0e8" transform="rotate(-20,31,30)"/><line x1="49" y1="7" x2="49" y2="28" stroke="#f5f0e8" stroke-width="1.8"/><ellipse cx="44" cy="30" rx="5.5" ry="3.5" fill="#f5f0e8" transform="rotate(-20,44,30)"/></svg><span class="btn-num">4</span></button>
@@ -349,37 +401,33 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
       <span class="sel-arrow">▾</span>
     </div>
   </div>
-  <div class="ctl-block">
-    <div class="ctl-label">Key</div>
-    <div class="sel-wrap">
-      <select class="app-sel" id="key-sel">
-        <option value="C">C major / A minor</option>
-        <option value="G">G major / E minor</option>
-        <option value="D">D major / B minor</option>
-        <option value="A">A major / F# minor</option>
-        <option value="E">E major / C# minor</option>
-        <option value="B">B major / G# minor</option>
-        <option value="Fs">F# major / D# minor</option>
-        <option value="F">F major / D minor</option>
-        <option value="Bb">Bb major / G minor</option>
-        <option value="Eb">Eb major / C minor</option>
-        <option value="Ab">Ab major / F minor</option>
-        <option value="Db">Db major / Bb minor</option>
-        <option value="Gb">Gb major / Eb minor</option>
-      </select>
-      <span class="sel-arrow">▾</span>
-    </div>
-  </div>
+  <input type="hidden" id="key-sel" value="C">
   <div class="ctl-block">
     <div class="ctl-label">Instrument</div>
     <div class="sel-wrap">
       <select class="app-sel" id="instrument-sel">
-        <option value="0" selected>Concert pitch</option>
-        <option value="-2">Bb Clarinet / Trumpet / Tenor Sax</option>
-        <option value="-3">A Clarinet / A Trumpet</option>
-        <option value="3">Eb Alto Sax / Eb Clarinet</option>
-        <option value="-5">F Horn</option>
-        <option value="9">Eb Baritone Sax</option>
+        <option value="0" selected>Select instrument...</option>
+        <option value="0">Flute</option>
+        <option value="0">Oboe</option>
+        <option value="-2">Bb Clarinet</option>
+        <option value="-3">A Clarinet</option>
+        <option value="0">Bassoon</option>
+        <option value="3">Eb Alto Saxophone</option>
+        <option value="-2">Tenor Saxophone</option>
+        <option value="-7">Eb Baritone Saxophone</option>
+        <option value="-5">Horn in F</option>
+        <option value="-2">Bb Trumpet</option>
+        <option value="-3">A Trumpet</option>
+        <option value="0">Trombone</option>
+        <option value="0">Tuba</option>
+        <option value="0">Violin</option>
+        <option value="0">Viola</option>
+        <option value="0">Cello</option>
+        <option value="0">Double Bass</option>
+        <option value="0">Harp</option>
+        <option value="0">Piano</option>
+        <option value="0">Voice</option>
+        <option value="0">Other (Concert Pitch)</option>
       </select>
       <span class="sel-arrow">▾</span>
     </div>
@@ -388,12 +436,33 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   <div class="kb-block">
     <div class="kb-header">
       <div class="kb-prompt" id="kb-prompt">Select a note grouping, then enter your passage</div>
-      <button class="clear-btn" onclick="clearNotes()">Clear</button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button id="input-tab-keys" class="input-tab active" onclick="switchInputTab('keys')">&#127929; Keyboard</button>
+        <button id="input-tab-mic" class="input-tab" onclick="switchInputTab('mic')"><span style="color:#e53535;">&#9679;</span> Record</button>
+      </div>
+      <button id="acc-toggle-desktop" onclick="toggleAccidentalDesktop()" style="margin-left:8px;background:none;border:1px solid var(--rule);color:var(--mid);font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;padding:3px 10px;cursor:pointer;">Sharps</button>
+      <button onclick="clearNotes()" style="margin-left:4px;background:none;border:1px solid var(--rule);color:var(--mid);font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;padding:3px 10px;cursor:pointer;">Clear</button>
     </div>
-    <div class="piano-wrap">
-      <svg id="piano-svg" viewBox="0 0 1008 130" preserveAspectRatio="none"></svg>
+    <div class="piano-scroll" id="piano-scroll-area">
+      <div class="piano-wrap">
+        <svg id="piano-svg" viewBox="0 0 1008 130" preserveAspectRatio="none" width="1400" height="180"></svg>
+      </div>
+    </div>
+    <div id="kb-drag-band"><span>&#8592; DRAG TO SCROLL KEYBOARD &#8594;</span></div>
+    <!-- Mic input panel -->
+    <div id="mic-panel-desktop" style="display:none;padding:20px;text-align:center;background:#fdfaf5;border:1px solid var(--rule);margin-bottom:0;">
+      <button id="rec-btn-desktop" onclick="toggleRecDesktop()" style="width:72px;height:72px;border-radius:50%;background:#e53535;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 rgba(229,53,53,0.4);transition:transform 0.1s;">
+        <div id="rec-inner-desktop" style="width:24px;height:24px;background:white;border-radius:3px;opacity:0;transition:opacity 0.2s;"></div>
+      </button>
+      <div id="rec-label-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:var(--mid);margin-top:10px;">TAP TO RECORD</div>
+      <div id="rec-status-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);min-height:2.5rem;margin-top:4px;"></div>
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.9rem;color:var(--mid);max-width:380px;margin:8px auto 0;line-height:1.5;">
+        Play each note separately and clearly &mdash; one at a time with a brief silence between each note.
+        The app detects each pitch automatically and stops after 3 seconds of silence.
+      </div>
     </div>
     <div id="live-staff-desktop"><div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.85rem;color:#888;padding:10px 16px;">Notes will appear here as you enter them</div></div>
+    <div id="insert-hint-desktop" style="display:none;background:var(--ink);color:var(--cream);padding:6px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.85rem;display:none;align-items:center;justify-content:space-between;"><span>Tap a key to insert note at marked position</span><button onclick="cancelInsertDesktop()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);padding:2px 8px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;">Cancel</button></div>
     <div class="chips-row" id="chips"><span class="no-notes">No notes entered</span></div>
     <div class="count-hint" id="count-hint"></div>
     <button class="play-btn" id="play-btn" onclick="playPassage()">&#9654; Play Passage</button>
@@ -427,12 +496,13 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   <div class="settings-panel">
     <div class="sp-h2">How to Use <button class="close-btn" onclick="closeHelp()">&#x2715;</button></div>
     <div class="sp-sec"><div class="sp-h3">What is this?</div><div class="sp-p">Mixed Up Rhythms is a rhythm practice tool for working musicians and serious students. Enter a melodic passage from a piece you are working on, and the app generates that passage written in every rhythm pattern for a given note grouping — a complete systematic workout in all rhythms.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 1 — Choose a note grouping</div><div class="sp-p">Choose a note grouping by tapping one of the six buttons above.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 2 — Set clef, key, and instrument</div><div class="sp-p">Choose the clef your instrument reads in and the key of your passage. The instrument setting transposes the audio preview to concert pitch — so if you play B♭ clarinet, what you hear matches what you sound.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 3 — Name and enter your passage</div><div class="sp-p">Type a document name, then tap notes on the keyboard. Tap a chip's spelling button to cycle enharmonics. Use <strong>&#x25BA; Play Passage</strong> to hear your entry back.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 4 — Generate</div><div class="sp-p">Tap <strong>Generate Exercises</strong> to produce the full set of rhythm patterns.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 5 — Save &amp; explore</div><div class="sp-p">Tap <strong>▲ Save Exercise</strong> to save your exercise to your personal library. You'll be asked for your name, email, and instrument once — the app remembers you after that. Use <strong>☰ Library</strong> to browse your saved exercises or search the community library by instrument or composer.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Tips</div><div class="sp-p">— Your passage plays once through each pattern, stopping when all notes are used.<br>— Any passage length works — a few notes or an entire phrase.<br>— Tap <strong>&#x21BB; Start Over</strong> to reset and begin a new passage.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 1 — Choose a note grouping</div><div class="sp-p">Choose how many notes are in your passage by clicking one of the six buttons — 3 through 8. The app will generate every rhythm pattern for that grouping.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 2 — Set clef and instrument</div><div class="sp-p">Choose the clef your instrument reads in. Select your instrument from the list — the app transposes the audio preview so what you hear matches what you sound. For example, a B♭ clarinet player will hear concert pitch.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 3 — Enter your passage</div><div class="sp-p">Tap notes on the scrollable keyboard. Use the <strong>Sharps</strong> / <strong>Flats</strong> toggle to control how accidentals are spelled. Use <strong>Clear</strong> to start over.<br><br>Each note appears as a chip above the keyboard and on the live staff so you can see exactly what you've entered. Tap <strong>&#x25BA; Play Passage</strong> to hear it back.<br><br>Alternatively, switch to <strong>Record</strong> mode and play each note into your microphone — one at a time, clearly, with a brief silence between each note.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Editing your passage</div><div class="sp-p">Click the <strong>×</strong> on any chip to remove a note. Click <strong>+</strong> between chips to insert a note at that position — then tap the key you want. Click the enharmonic spelling on a chip to cycle through equivalent spellings (e.g. F# → Gb).</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 4 — Generate</div><div class="sp-p">Click <strong>Generate Exercises</strong> to produce the complete set of rhythm patterns for your passage. The exercises appear below — your passage is written out in every rhythm pattern for the chosen grouping.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 5 — Save &amp; explore</div><div class="sp-p">Click <strong>▲ Save Exercise</strong> to save to your personal library. You'll be asked for your name, email, and instrument once — the app remembers you after that. Use <strong>☰ Library</strong> to browse your saved exercises or search the community library.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Tips</div><div class="sp-p">— Your passage plays once through each pattern, stopping when all notes are used.<br>— Any passage length works — a few notes or an entire phrase.<br>— The keyboard scrolls — drag the black band below the keys to navigate the full range.<br>— Click <strong>&#x21BB; Start Over</strong> to reset everything.</div></div>
     <div class="sp-sec"><div class="sp-h3">About</div><div class="sp-p">Created by Ralph Skiano, Principal Clarinet of the Detroit Symphony Orchestra.<br><br><a href="/cdn-cgi/l/email-protection#384a5c4b5351595657785f55595154165b5755" style="color:var(--accent)"><span class="__cf_email__" data-cfemail="710315021a18101f1e31161c10181d5f121e1c">[email&#160;protected]</span></a></div></div>
   </div>
 </div>
@@ -844,9 +914,15 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
       var raw = k.getAttribute('data-note'), isBlack = raw.indexOf('#') !== -1;
       k.setAttribute('fill', '#c8601a');
       setTimeout(function() { k.setAttribute('fill', isBlack ? '#1a1612' : '#fdfaf5'); }, 160);
-      var spelled = raw;
+      var notePart = raw.slice(0,-1), octPart = raw.slice(-1);
+      var spelled = applyAccModeDesktop(notePart) + octPart;
+      if (_insertAtDesktop >= 0 && _insertAtDesktop <= selNotes.length) {
+        selNotes.splice(_insertAtDesktop, 0, spelled);
+        cancelInsertDesktop();
+      } else {
+        selNotes.push(spelled);
+      }
       playNote(spelled);
-      selNotes.push(spelled);
       updateChips(); upPrompt(); upHint(); checkReady();
     }
 
@@ -871,11 +947,16 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     renderLiveStaffDesktop();
     var el = document.getElementById('chips');
     if (!selNotes.length) { el.innerHTML = '<span class="no-notes">No notes entered</span>'; return; }
-    el.innerHTML = selNotes.map(function(n, i) {
+    var html = '';
+    selNotes.forEach(function(n, i) {
+      var isActive = _insertAtDesktop === i;
+      html += '<button class="chip-ins-btn' + (isActive ? ' active' : '') + '" onclick="startInsertDesktop(' + i + ')">+</button>';
       var cl=hasEnharm(n)?dn(flipEnh(n)).slice(0,-1):'';
       var eb=cl?'<button class="enh" onclick="flipNote('+i+')" title="Respell (same pitch)">'+cl+'</button>':'';
-      return '<div class="chip">'+dn(n)+eb+'<button class="rm" onclick="removeNote('+i+')">&#215;</button></div>';
-    }).join('');
+      html += '<div class="chip">'+dn(n)+eb+'<button class="rm" onclick="removeNote('+i+')">&#215;</button></div>';
+    });
+    html += '<button class="chip-ins-btn' + (_insertAtDesktop === selNotes.length ? ' active' : '') + '" onclick="startInsertDesktop(' + selNotes.length + ')">+</button>';
+    el.innerHTML = html;
   }
 
   // ── ABC NOTATION CONVERSION ───────────────────────────
@@ -1368,6 +1449,210 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     } catch(e) { console.log('live staff error:', e); }
   }
 
+
+  // Sharps/Flats toggle
+  var _accModeDesktop = 'sharp';
+  var S2F = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
+  var F2S = {'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#'};
+  function toggleAccidentalDesktop() {
+    _accModeDesktop = _accModeDesktop === 'sharp' ? 'flat' : 'sharp';
+    var btn = document.getElementById('acc-toggle-desktop');
+    if (btn) {
+      btn.textContent = _accModeDesktop === 'sharp' ? 'Sharps' : 'Flats';
+      btn.style.color = _accModeDesktop === 'flat' ? '#6050a0' : 'var(--mid)';
+      btn.style.borderColor = _accModeDesktop === 'flat' ? '#9080c0' : 'var(--rule)';
+    }
+  }
+  function applyAccModeDesktop(name) {
+    if (_accModeDesktop === 'flat' && S2F[name]) return S2F[name];
+    if (_accModeDesktop === 'sharp' && F2S[name]) return F2S[name];
+    return name;
+  }
+  window.toggleAccidentalDesktop = toggleAccidentalDesktop;
+  window.startInsertDesktop = startInsertDesktop;
+  window.cancelInsertDesktop = cancelInsertDesktop;
+
+  // Insert note functionality
+  var _insertAtDesktop = -1;
+  function startInsertDesktop(idx) {
+    _insertAtDesktop = idx;
+    updateChips();
+    // Show hint
+    var hint = document.getElementById('insert-hint-desktop');
+    if (hint) { hint.style.display = 'block'; }
+  }
+  function cancelInsertDesktop() {
+    _insertAtDesktop = -1;
+    var hint = document.getElementById('insert-hint-desktop');
+    if (hint) hint.style.display = 'none';
+    updateChips();
+  }
+
+
+  // Input tab switching
+  function switchInputTab(tab) {
+    document.getElementById('input-tab-keys').classList.toggle('active', tab === 'keys');
+    document.getElementById('input-tab-mic').classList.toggle('active', tab === 'mic');
+    var pianoWrap = document.querySelector('.piano-wrap');
+    var micPanel = document.getElementById('mic-panel-desktop');
+    var accToggle = document.getElementById('acc-toggle-desktop');
+    if (pianoWrap) pianoWrap.style.display = tab === 'keys' ? '' : 'none';
+    if (micPanel) micPanel.style.display = tab === 'mic' ? 'block' : 'none';
+    if (accToggle) accToggle.style.display = tab === 'keys' ? '' : 'none';
+    if (tab === 'mic' && _micActive) stopMicDesktop();
+  }
+  window.switchInputTab = switchInputTab;
+
+  // Mic pitch detection
+  var _micActive = false, _micStream = null, _micCtx = null, _micAnalyser = null, _micTimer = null;
+  var _prevRms = 0, _noteActive = false, _stableCount = 0, _lastFreq = 0;
+  var _lockoutUntil = 0, _lockoutMs = 400, _lastSoundTime = 0, _autoStopMs = 3000;
+  var _onsetThresh = 0.04, _releaseThresh = 0.015, _stableNeeded = 4;
+  var NOTE_NAMES_MIC_D = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  function autoCorr(buf, sr) {
+    var SIZE = buf.length, rms = 0;
+    for (var i=0; i<SIZE; i++) rms += buf[i]*buf[i];
+    rms = Math.sqrt(rms/SIZE);
+    if (rms < 0.008) return {freq:-1, rms:rms};
+    var r1=0, r2=SIZE-1, th=0.2;
+    for (var i=0; i<SIZE/2; i++) { if (Math.abs(buf[i])<th) { r1=i; break; } }
+    for (var i=1; i<SIZE/2; i++) { if (Math.abs(buf[SIZE-i])<th) { r2=SIZE-i; break; } }
+    var b2=buf.slice(r1,r2), SZ=b2.length;
+    var c=new Float32Array(SZ);
+    for (var i=0; i<SZ; i++) for (var j=0; j<SZ-i; j++) c[i]+=b2[j]*b2[j+i];
+    var d=0; while(c[d]>c[d+1]) d++;
+    var mx=-1, mp=-1;
+    for (var i=d; i<SZ; i++) { if (c[i]>mx) { mx=c[i]; mp=i; } }
+    if (mp<2||mp>=SZ-1) return {freq:-1, rms:rms};
+    var x1=c[mp-1], x2=c[mp], x3=c[mp+1];
+    var a=(x1+x3-2*x2)/2, b=(x3-x1)/2;
+    var T=a ? mp-b/(2*a) : mp;
+    return {freq: sr/T, rms: rms};
+  }
+
+  function freqToNoteDesktop(freq) {
+    if (!freq||freq<25||freq>4200) return null;
+    var midi = Math.round(12*Math.log2(freq/440)+69);
+    if (midi<33||midi>108) return null;
+    var oct = Math.floor(midi/12)-1;
+    return NOTE_NAMES_MIC_D[midi%12] + oct;
+  }
+
+  function transposeNoteForMicDesktop(noteName) {
+    var offset = transposeOffset();
+    if (!offset) return noteName;
+    var name = noteName.slice(0,-1), oct = parseInt(noteName.slice(-1));
+    var idx = NOTE_NAMES_MIC_D.indexOf(name);
+    if (idx === -1) return noteName;
+    var midi = (oct+1)*12 + idx - offset;
+    return NOTE_NAMES_MIC_D[((midi%12)+12)%12] + (Math.floor(midi/12)-1);
+  }
+
+  function toggleRecDesktop() {
+    if (_micActive) { stopMicDesktop(); return; }
+    navigator.mediaDevices.getUserMedia({audio:true, video:false})
+    .then(function(stream) {
+      _micStream = stream;
+      _micCtx = new (window.AudioContext||window.webkitAudioContext)();
+      _micAnalyser = _micCtx.createAnalyser();
+      _micAnalyser.fftSize = 2048;
+      _micCtx.createMediaStreamSource(stream).connect(_micAnalyser);
+      _micActive = true;
+      _noteActive=false; _stableCount=0; _lastFreq=0; _prevRms=0; _lockoutUntil=0; _lastSoundTime=0;
+      var btn = document.getElementById('rec-btn-desktop');
+      var inner = document.getElementById('rec-inner-desktop');
+      if (btn) btn.classList.add('recording');
+      if (inner) inner.style.opacity = '0';
+      document.getElementById('rec-label-desktop').textContent = 'RECORDING \u2014 TAP TO STOP';
+      detectLoopDesktop();
+    })
+    .catch(function() {
+      document.getElementById('rec-status-desktop').textContent = 'Mic access denied';
+    });
+  }
+  window.toggleRecDesktop = toggleRecDesktop;
+
+  function stopMicDesktop() {
+    _micActive = false;
+    if (_micTimer) clearTimeout(_micTimer);
+    if (_micStream) _micStream.getTracks().forEach(function(t){t.stop();});
+    if (_micCtx) _micCtx.close();
+    _micStream = _micCtx = _micAnalyser = null;
+    var btn = document.getElementById('rec-btn-desktop');
+    var inner = document.getElementById('rec-inner-desktop');
+    if (btn) btn.classList.remove('recording');
+    if (inner) inner.style.opacity = '0';
+    document.getElementById('rec-label-desktop').textContent = 'TAP TO RECORD';
+    document.getElementById('rec-status-desktop').textContent = '';
+  }
+
+  function detectLoopDesktop() {
+    if (!_micActive) return;
+    var buf = new Float32Array(_micAnalyser.fftSize);
+    _micAnalyser.getFloatTimeDomainData(buf);
+    var res = autoCorr(buf, _micCtx.sampleRate);
+    var rms = res.rms, freq = res.freq, now = Date.now();
+
+    if (!_noteActive) {
+      if (now > _lockoutUntil && rms > _onsetThresh && rms > _prevRms * 1.5) {
+        _noteActive=true; _stableCount=0; _lastFreq=freq;
+        document.getElementById('rec-status-desktop').textContent = '...';
+      }
+    } else {
+      if (rms < _releaseThresh) {
+        _noteActive=false; _stableCount=0;
+      } else if (freq > 0) {
+        var note = freqToNoteDesktop(freq);
+        var lastNote = freqToNoteDesktop(_lastFreq);
+        if (note && note === lastNote) {
+          _stableCount++;
+          if (_stableCount === _stableNeeded) {
+            var written = transposeNoteForMicDesktop(note);
+            // Apply sharps/flats mode
+            written = applyAccModeDesktop(written.slice(0,-1)) + written.slice(-1);
+            selNotes.push(written);
+            updateChips(); upPrompt(); upHint(); checkReady();
+            document.getElementById('rec-status-desktop').textContent = written;
+            _lockoutUntil = now + _lockoutMs;
+            _noteActive=false; _stableCount=0;
+          }
+        } else {
+          _stableCount=1; _lastFreq=freq;
+        }
+      }
+    }
+    if (rms > 0.008) _lastSoundTime = now;
+    if (_lastSoundTime > 0 && (now - _lastSoundTime) > _autoStopMs) {
+      stopMicDesktop(); return;
+    }
+    _prevRms = rms;
+    _micTimer = setTimeout(detectLoopDesktop, 25);
+  }
+
+  // Keyboard drag scroll
+  (function() {
+    var band = document.getElementById('kb-drag-band');
+    var scroll = document.getElementById('piano-scroll-area');
+    if (!band || !scroll) return;
+    var _x = 0;
+    band.addEventListener('touchstart', function(e) { _x = e.touches[0].clientX; }, {passive:true});
+    band.addEventListener('touchmove', function(e) {
+      var dx = _x - e.touches[0].clientX;
+      scroll.scrollLeft += dx;
+      _x = e.touches[0].clientX;
+      e.preventDefault();
+    }, {passive:false});
+    band.addEventListener('mousedown', function(e) {
+      var sx = e.clientX, ss = scroll.scrollLeft;
+      function mv(e2) { scroll.scrollLeft = ss + (sx - e2.clientX); }
+      function up() { document.removeEventListener('mousemove', mv); document.removeEventListener('mouseup', up); }
+      document.addEventListener('mousemove', mv);
+      document.addEventListener('mouseup', up);
+    });
+    // Scroll to C4 on load
+    setTimeout(function() { scroll.scrollLeft = 450; }, 300);
+  })();
 // ── INIT ──────────────────────────────────────────────
   // PROFILE / SAVE / LIBRARY
   var SB_URL = 'https://twjdatheptwcskqhinie.supabase.co';
