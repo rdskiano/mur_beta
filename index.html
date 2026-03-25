@@ -26,12 +26,12 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .rotate-icon { font-size: 3rem; animation: tilt 2s ease-in-out infinite; }
 @keyframes tilt { 0%,100%{transform:rotate(0deg)} 40%,60%{transform:rotate(90deg)} }
 .rotate-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.14em; color: var(--cream); }
-.rotate-sub { font-family: 'Inconsolata', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: #666; }
+.rotate-sub { font-family: 'Inconsolata', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
 
 /* Top bar */
 .topbar { background: var(--ink); border-bottom: 3px solid var(--accent); padding: 0 14px; height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 8px; overflow: hidden; }
 .app-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.14em; color: var(--cream); }
-.settings-btn { background: none; border: 1px solid #444; color: #888; height: 30px; padding: 0 12px; cursor: pointer; font-size: 0.75rem; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; white-space: nowrap; transition: all 0.12s; }
+.settings-btn { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); height: 30px; padding: 0 12px; cursor: pointer; font-size: 0.75rem; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; white-space: nowrap; transition: all 0.12s; }
 .settings-btn:hover { border-color: var(--accent); color: var(--accent); }
 .settings-btn.x { border-color: var(--accent); color: var(--accent); }
 
@@ -43,7 +43,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .ctl-block { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
 .ctl-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.68rem; letter-spacing: 0.2em; color: var(--accent); }
 .group-btns { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
-.group-btn { min-width: 52px; height: 72px; border: 2px solid #2a231d; background: transparent; color: #666; cursor: pointer; transition: all 0.12s; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 6px 4px; gap: 3px; }
+.group-btn { min-width: 52px; height: 72px; border: 2px solid #2a231d; background: transparent; color: rgba(245,240,232,0.75); cursor: pointer; transition: all 0.12s; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 6px 4px; gap: 3px; }
 .group-btn:hover { border-color: var(--accent); color: var(--accent); }
 .group-btn:hover svg { opacity: 1; }
 .group-btn .btn-num { font-family: 'Bebas Neue', sans-serif; font-size: 15px; font-weight: bold; color: var(--accent); letter-spacing: 0.05em; }
@@ -55,16 +55,16 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .sel-wrap { position: relative; }
 .app-sel { appearance: none; -webkit-appearance: none; background: #1a1410; border: 1px solid #333; color: var(--cream); padding: 7px 26px 7px 10px; font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; cursor: pointer; }
 .app-sel:focus { outline: 1px solid var(--accent); }
-.sel-arrow { pointer-events: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #666; font-size: 0.65rem; }
+.sel-arrow { pointer-events: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: rgba(245,240,232,0.75); font-size: 0.65rem; }
 #key-sel { min-width: 140px; max-width: 100%; }
 #instrument-sel { min-width: 180px; max-width: 100%; }
 
 /* Keyboard block — full width */
 .kb-block { flex-basis: 100%; width: 100%; }
 .kb-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-.kb-prompt { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: #ddd; }
+.kb-prompt { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: var(--cream); }
 .kb-prompt strong { color: white; }
-.clear-btn { background: none; border: none; color: #888; font-family: 'Inconsolata', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; text-decoration: underline; }
+.clear-btn { background: none; border: none; color: rgba(245,240,232,0.75); font-family: 'Inconsolata', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; text-decoration: underline; }
 .clear-btn:hover { color: var(--accent); }
 .piano-wrap { width: 1400px; height: 180px; user-select: none; -webkit-user-select: none; overflow: hidden; }
 .piano-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
@@ -77,10 +77,10 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .chip .enh { background: rgba(255,255,255,0.18); border: none; color: rgba(255,255,255,0.8); font-family: 'Inconsolata', monospace; font-size: 0.58rem; padding: 1px 4px; cursor: pointer; border-radius: 1px; }
 .chip .enh:hover { background: rgba(255,255,255,0.32); }
-.chip .rm { background: none; border: none; color: rgba(255,255,255,0.45); cursor: pointer; font-size: 0.9rem; line-height: 1; padding: 0 0 0 2px; }
+.chip .rm { background: none; border: none; color: rgba(255,255,255,0.75); cursor: pointer; font-size: 0.9rem; line-height: 1; padding: 0 0 0 2px; }
 .chip .rm:hover { color: white; }
-.no-notes { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: #888; }
-.count-hint { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: #aaa; margin-top: 5px; }
+.no-notes { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.75); }
+.count-hint { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.7); margin-top: 5px; }
 .count-hint strong { color: white; }
 
 /* Generate button inline with controls */
@@ -95,12 +95,12 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 
 .gen-btn { background: var(--accent); color: white; border: none; padding: 12px; font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.12em; cursor: pointer; transition: all 0.15s; width: 100%; display: block; }
 .gen-btn:hover { background: #a04520; }
-.gen-btn:disabled { background: #2a231d; color: #444; cursor: not-allowed; }
+.gen-btn:disabled { background: #2a231d; color: var(--cream); cursor: not-allowed; }
 
 /* Export bar */
 .export-bar { background: #0d0b09; border-bottom: 2px solid #2a231d; padding: 12px 28px; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
 .export-bar.visible { display: flex; }
-.export-label { font-family: 'Inconsolata', monospace; font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: #666; white-space: nowrap; }
+.export-label { font-family: 'Inconsolata', monospace; font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,240,232,0.75); white-space: nowrap; }
 
 .export-pdf-btn { background: var(--accent); color: white; border: none; padding: 8px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; }
 .export-pdf-btn:hover { background: #a04520; }
@@ -109,13 +109,13 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 
 /* Output area */
 .output-area { background: var(--cream-dark); padding: 28px 32px 60px; min-height: 50vh; }
-.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; color: var(--light); text-align: center; gap: 10px; opacity: 0.35; }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; color: rgba(245,240,232,0.75); text-align: center; gap: 10px; opacity: 0.35; }
 .empty-clef { font-size: 5rem; line-height: 1; color: var(--accent); }
-.empty-p { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.12em; color: #aaa; text-transform: uppercase; }
+.empty-p { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.12em; color: rgba(245,240,232,0.7); text-transform: uppercase; }
 
 /* Exercises sheet */
 .sheet { background: var(--paper); max-width: 860px; margin: 0 auto; padding: 36px 44px 48px; box-shadow: 0 4px 40px rgba(0,0,0,0.15); }
-.sheet-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.1em; color: var(--ink); border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 16px; }
+.sheet-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.1em; color: var(--cream); border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 16px; }
 
 /* Pattern ID label */
 .ex-id-label { display: none; }
@@ -161,17 +161,17 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 }
 .pdf-share-hint {
   font-family: "Inconsolata", monospace; font-size: 0.65rem;
-  letter-spacing: 0.08em; text-transform: uppercase; color: #888;
+  letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,240,232,0.75);
 }
 .pdf-close-btn {
-  background: none; border: 1px solid #444; color: #888;
+  background: none; border: 1px solid #444; color: rgba(245,240,232,0.75);
   padding: 6px 14px; font-family: "Bebas Neue", sans-serif;
   font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer;
 }
 .pdf-close-btn:hover { border-color: var(--accent); color: var(--accent); }
 .pdf-frame { flex: 1; border: none; width: 100%; display: block; }/* Fullscreen button on export bar */
 .start-over-btn {
-  background: #2a231d; color: #aaa; border: 1px solid #444;
+  background: #2a231d; color: rgba(245,240,232,0.7); border: 1px solid #444;
   padding: 8px 18px; font-family: 'Bebas Neue', sans-serif;
   font-size: 0.95rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap;
 }
@@ -184,9 +184,9 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .print-toolbar-title { font-family:'Bebas Neue',sans-serif; font-size:0.95rem; letter-spacing:0.12em; color:#f5f0e8; flex:1; }
 .print-toolbar-btns { display:flex; gap:8px; }
 .print-action-btn { background:#8b3a1a; color:white; border:none; padding:8px 16px; font-family:'Bebas Neue',sans-serif; font-size:0.85rem; letter-spacing:0.1em; cursor:pointer; white-space:nowrap; }
-.print-close-btn { background:none; border:1px solid #888; color:#ccc; padding:8px 14px; font-family:'Bebas Neue',sans-serif; font-size:0.85rem; letter-spacing:0.1em; cursor:pointer; }
+.print-close-btn { background:none; border:1px solid #888; color:rgba(245,240,232,0.6); padding:8px 14px; font-family:'Bebas Neue',sans-serif; font-size:0.85rem; letter-spacing:0.1em; cursor:pointer; }
 .print-content { padding:70px 32px 60px; max-width:760px; margin:0 auto; }
-.print-content h1 { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:0.1em; color:#1a1612; border-bottom:2px solid #1a1612; padding-bottom:8px; margin-bottom:12px; }
+.print-content h1 { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:0.1em; color:var(--cream); border-bottom:2px solid var(--cream); padding-bottom:8px; margin-bottom:12px; }
 .print-row { margin-bottom:24px; overflow:visible; page-break-inside:avoid; break-inside:avoid; }
 .print-row svg { display:block; width:100%; height:auto; overflow:visible; }
 .print-row svg path, .print-row svg rect, .print-row svg ellipse, .print-row svg circle, .print-row svg polygon, .print-row svg line, .print-row svg text { fill:black!important; stroke:black!important; }
@@ -206,22 +206,22 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 /* Settings panel */
 .settings-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; justify-content: flex-end; }
 .settings-overlay.open { display: flex; }
-.settings-panel { background: var(--paper); width: 360px; height: 100vh; overflow-y: auto; padding: 26px 22px; box-shadow: -4px 0 30px rgba(0,0,0,0.2); color: var(--ink); }
+.settings-panel { background: var(--paper); width: 360px; height: 100vh; overflow-y: auto; padding: 26px 22px; box-shadow: -4px 0 30px rgba(0,0,0,0.2); color: var(--cream); }
 .sp-h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.14em; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: center; }
-.close-btn { background: none; border: none; color: var(--light); font-size: 1.1rem; cursor: pointer; }
+.close-btn { background: none; border: none; color: rgba(245,240,232,0.75); font-size: 1.1rem; cursor: pointer; }
 .close-btn:hover { color: var(--accent); }
 .sp-sec { margin-bottom: 20px; }
 .sp-h3 { font-family: 'Inconsolata', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; padding-bottom: 3px; border-bottom: 1px solid var(--rule); }
-.sp-p { font-size: 0.86rem; color: var(--mid); line-height: 1.6; margin-bottom: 10px; }
+.sp-p { font-size: 0.86rem; color: rgba(245,240,232,0.7); line-height: 1.6; margin-bottom: 10px; }
 .upload-zone { border: 2px dashed var(--rule); padding: 14px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; }
 .upload-zone:hover { border-color: var(--accent); }
 .upload-zone.loaded { border-color: #3a8e4a; }
 .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
-.uz-lbl { font-family: 'Inconsolata', monospace; font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--light); }
+.uz-lbl { font-family: 'Inconsolata', monospace; font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
 .upload-zone.loaded .uz-lbl { color: #3a8e4a; }
-.uz-sub { font-size: 0.78rem; color: var(--light); margin-top: 3px; font-style: italic; }
-.db-stats { font-family: 'Inconsolata', monospace; font-size: 0.64rem; color: var(--mid); margin-top: 10px; line-height: 1.9; }
-.db-stats strong { color: var(--ink); }
+.uz-sub { font-size: 0.78rem; color: rgba(245,240,232,0.75); margin-top: 3px; font-style: italic; }
+.db-stats { font-family: 'Inconsolata', monospace; font-size: 0.64rem; color: rgba(245,240,232,0.7); margin-top: 10px; line-height: 1.9; }
+.db-stats strong { color: var(--cream); }
 
 
   body { background: white !important; }
@@ -237,7 +237,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 }
 
 /* Profile & Save & Library */
-.profile-btn { background: none; border: 1px solid #444; color: #888; padding: 0 12px; height: 30px; font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; transition: all 0.12s; }
+.profile-btn { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 0 12px; height: 30px; font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; transition: all 0.12s; }
 .profile-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 .topbar-btns { display: flex; gap: 6px; align-items: center; flex-shrink: 1; flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
@@ -270,7 +270,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .modal-select { width: 100%; background: #111009; border: 1px solid #333; color: var(--cream); padding: 8px 10px; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; box-sizing: border-box; appearance: none; -webkit-appearance: none; }
 .modal-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
 .modal-btn-primary { background: var(--accent); color: white; border: none; padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer; }
-.modal-btn-secondary { background: none; border: 1px solid #444; color: #888; padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer; }
+.modal-btn-secondary { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer; }
 .modal-msg { font-family: 'Inconsolata', monospace; font-size: 0.72rem; margin-top: 10px; min-height: 16px; }
 .modal-msg.ok { color: #4caf50; } .modal-msg.err { color: #e57373; }
 .library-panel { display: none; position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.75); align-items: flex-start; justify-content: center; padding-top: 60px; }
@@ -282,16 +282,16 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .library-search { background: #111009; border: 1px solid #333; color: var(--cream); padding: 5px 10px; font-family: 'Inconsolata', monospace; font-size: 0.75rem; width: 140px; }
 .library-sel { background: #111009; border: 1px solid #333; color: var(--cream); padding: 5px 8px; font-family: 'Inconsolata', monospace; font-size: 0.75rem; appearance: none; -webkit-appearance: none; }
 .library-search-btn { background: var(--accent); color: white; border: none; padding: 5px 12px; font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 0.08em; cursor: pointer; }
-.library-close { background: none; border: 1px solid #444; color: #888; padding: 5px 12px; font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 0.08em; cursor: pointer; }
+.library-close { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 5px 12px; font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 0.08em; cursor: pointer; }
 .library-tabs { display: flex; border-bottom: 1px solid #2a231d; }
-.library-tab { padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; color: #666; cursor: pointer; border-bottom: 2px solid transparent; }
+.library-tab { padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.75); cursor: pointer; border-bottom: 2px solid transparent; }
 .library-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 .library-results { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .library-row { padding: 10px 24px; border-bottom: 1px solid #1a1410; cursor: pointer; }
 .library-row:hover { background: #111009; }
 .library-row-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.08em; color: var(--cream); }
-.library-row-meta { font-family: 'Inconsolata', monospace; font-size: 0.62rem; color: #666; margin-top: 2px; }
-.library-empty { padding: 24px; font-family: 'Inconsolata', monospace; font-size: 0.72rem; color: #555; text-align: center; }
+.library-row-meta { font-family: 'Inconsolata', monospace; font-size: 0.62rem; color: rgba(245,240,232,0.75); margin-top: 2px; }
+.library-empty { padding: 24px; font-family: 'Inconsolata', monospace; font-size: 0.72rem; color: rgba(245,240,232,0.7); text-align: center; }
 
 /* Live staff desktop */
 #live-staff-desktop {
@@ -315,7 +315,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .chip-ins-btn {
   width: 16px; height: 16px; border-radius: 50%;
   background: none; border: 1px solid var(--rule);
-  color: var(--light); font-size: 0.7rem; line-height: 1;
+  color: rgba(245,240,232,0.75); font-size: 0.7rem; line-height: 1;
   cursor: pointer; padding: 0; vertical-align: middle;
   transition: all 0.1s;
 }
@@ -325,7 +325,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .input-tab {
   background: var(--ink);
   border: 1px solid var(--ink);
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.7);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.1em;
@@ -335,8 +335,8 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 }
 .input-tab.active {
   background: var(--cream);
-  color: var(--ink);
-  border-color: var(--rule);
+  color: var(--cream);
+  border-color: rgba(245,240,232,0.65);
 }
 @keyframes rec-pulse-desktop {
   0%, 100% { box-shadow: 0 0 0 0 rgba(229,53,53,0.5); }
@@ -359,7 +359,15 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   font-family: 'Bebas Neue', sans-serif;
   font-size: 0.6rem;
   letter-spacing: 0.18em;
-  color: rgba(245,240,232,0.5);
+  color: rgba(245,240,232,0.7);
+}
+
+/* Phone portrait support */
+@media screen and (max-width: 500px) {
+  .piano-wrap { height: 140px !important; }
+  #piano-svg { height: 140px !important; }
+  .ctl-row { flex-wrap: wrap; }
+  .ctl-block { flex-basis: 45%; }
 }
 </style>
 </head>
@@ -373,7 +381,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 </div>
 
 <div class="topbar">
-  <div style="display:flex;flex-direction:column;gap:1px"><div class="app-title">Mixed Up Rhythms</div><div style="font-family:'Inconsolata',monospace;font-size:0.65rem;letter-spacing:0.16em;text-transform:uppercase;color:#aaa">Rhythm Pattern Generator</div></div>
+  <div style="display:flex;flex-direction:column;gap:1px"><div class="app-title">Mixed Up Rhythms</div><div style="font-family:'Inconsolata',monospace;font-size:0.65rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(245,240,232,0.55)">Rhythm Pattern Generator</div></div>
   <div class="topbar-btns"><button class="settings-btn" onclick="openProfile()" id="profile-topbar-btn">△ Profile</button><button class="settings-btn" onclick="openLibrary()">☰ Library</button><button class="settings-btn" onclick="openHelp()">Instructions</button></div>
 </div>
 
@@ -440,8 +448,8 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
         <button id="input-tab-keys" class="input-tab active" onclick="switchInputTab('keys')">&#127929; Keyboard</button>
         <button id="input-tab-mic" class="input-tab" onclick="switchInputTab('mic')"><span style="color:#e53535;">&#9679;</span> Record</button>
       </div>
-      <button id="acc-toggle-desktop" onclick="toggleAccidentalDesktop()" style="margin-left:8px;background:none;border:1px solid var(--rule);color:var(--mid);font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;padding:3px 10px;cursor:pointer;">Sharps</button>
-      <button onclick="clearNotes()" style="margin-left:4px;background:none;border:1px solid var(--rule);color:var(--mid);font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;padding:3px 10px;cursor:pointer;">Clear</button>
+      <button id="acc-toggle-desktop" onclick="toggleAccidentalDesktop()" style="margin-left:8px;background:none;border:1px solid var(--rule);color:rgba(245,240,232,0.7);font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;padding:3px 10px;cursor:pointer;">Sharps</button>
+      <button onclick="clearNotes()" style="margin-left:4px;background:none;border:1px solid var(--rule);color:rgba(245,240,232,0.7);font-family:'Bebas Neue',sans-serif;font-size:0.68rem;letter-spacing:0.1em;padding:3px 10px;cursor:pointer;">Clear</button>
     </div>
     <div class="piano-scroll" id="piano-scroll-area">
       <div class="piano-wrap">
@@ -449,19 +457,20 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
       </div>
     </div>
     <div id="kb-drag-band"><span>&#8592; DRAG TO SCROLL KEYBOARD &#8594;</span></div>
+    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.78rem;color:rgba(245,240,232,0.55);padding:4px 0 2px;text-align:center;">&#128276; Please ensure your device is not muted or in silent mode to hear audio</div>
     <!-- Mic input panel -->
     <div id="mic-panel-desktop" style="display:none;padding:20px;text-align:center;background:#fdfaf5;border:1px solid var(--rule);margin-bottom:0;">
       <button id="rec-btn-desktop" onclick="toggleRecDesktop()" style="width:72px;height:72px;border-radius:50%;background:#e53535;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 rgba(229,53,53,0.4);transition:transform 0.1s;">
         <div id="rec-inner-desktop" style="width:24px;height:24px;background:white;border-radius:3px;opacity:0;transition:opacity 0.2s;"></div>
       </button>
-      <div id="rec-label-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:var(--mid);margin-top:10px;">TAP TO RECORD</div>
+      <div id="rec-label-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.7);margin-top:10px;">TAP TO RECORD</div>
       <div id="rec-status-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);min-height:2.5rem;margin-top:4px;"></div>
-      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.9rem;color:var(--mid);max-width:380px;margin:8px auto 0;line-height:1.5;">
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.9rem;color:rgba(245,240,232,0.7);max-width:380px;margin:8px auto 0;line-height:1.5;">
         Play each note separately and clearly &mdash; one at a time with a brief silence between each note.
         The app detects each pitch automatically and stops after 3 seconds of silence.
       </div>
     </div>
-    <div id="live-staff-desktop"><div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.85rem;color:#888;padding:10px 16px;">Notes will appear here as you enter them</div></div>
+    <div id="live-staff-desktop"><div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.85rem;color:rgba(245,240,232,0.55);padding:10px 16px;">Notes will appear here as you enter them</div></div>
     <div id="insert-hint-desktop" style="display:none;background:var(--ink);color:var(--cream);padding:6px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.85rem;display:none;align-items:center;justify-content:space-between;"><span>Tap a key to insert note at marked position</span><button onclick="cancelInsertDesktop()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);padding:2px 8px;font-family:'Bebas Neue',sans-serif;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;">Cancel</button></div>
     <div class="chips-row" id="chips"><span class="no-notes">No notes entered</span></div>
     <div class="count-hint" id="count-hint"></div>
@@ -473,7 +482,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 <!-- Export bar (shown after generate) -->
 <div class="export-bar" id="export-bar">
   <button class="export-pdf-btn" onclick="doExport()" style="display:none">&#x1F5A8; Export / Print PDF</button>
-  <button class="save-btn" onclick="openSave()">▲ Save Exercise</button>  <button class="save-btn" onclick="openLibrary()" style="border-color:#555;color:#888">☰ Library</button>  <button class="start-over-btn" id="start-over-btn">&#8635; Start Over</button>
+  <button class="save-btn" onclick="openSave()">▲ Save Exercise</button>  <button class="save-btn" onclick="openLibrary()" style="border-color:rgba(245,240,232,0.4);color:#888">☰ Library</button>  <button class="start-over-btn" id="start-over-btn">&#8635; Start Over</button>
 </div>
 
 <!-- Output -->
@@ -1418,12 +1427,9 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 
   // ── ORIENTATION ───────────────────────────────────────
   function checkOrientation() {
-    // Show rotate prompt on any narrow portrait screen (phones)
-    // Use innerWidth for reliable cross-browser detection
-    var isPortrait = window.innerHeight > window.innerWidth;
-    var isNarrow = window.innerWidth < 600;
+    // Rotation prompt disabled - app works in portrait on all devices
     var overlay = document.getElementById('rotate-overlay');
-    if (overlay) overlay.style.display = (isNarrow && isPortrait) ? 'flex' : 'none';
+    if (overlay) overlay.style.display = 'none';
   }
 
   
@@ -1432,7 +1438,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     var div = document.getElementById('live-staff-desktop');
     if (!div) return;
     if (!selNotes.length) {
-      div.innerHTML = '<div style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:0.85rem;color:#888;padding:10px 16px;">Notes will appear here as you enter them</div>';
+      div.innerHTML = '<div style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:0.85rem;color:rgba(245,240,232,0.55);padding:10px 16px;">Notes will appear here as you enter them</div>';
       return;
     }
     var clef = cClef();
@@ -1937,7 +1943,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 <div class="modal-overlay" id="signin-modal">
   <div class="modal-box">
     <div class="modal-title">Sign In</div>
-    <div class="sp-p" style="font-size:0.82rem;color:#888;margin-bottom:16px;">Enter your email to access your saved exercises on any device.</div>
+    <div class="sp-p" style="font-size:0.82rem;color:rgba(245,240,232,0.55);margin-bottom:16px;">Enter your email to access your saved exercises on any device.</div>
     <div class="modal-field"><label class="modal-label">Email</label><input class="modal-input" id="signin-email" type="email" placeholder="you@example.com"></div>
     <div class="modal-msg" id="signin-msg"></div>
     <div class="modal-btns"><button class="modal-btn-secondary" onclick="closeSignin()">Cancel</button><button class="modal-btn-primary" onclick="submitSignin()">Sign In</button></div>
