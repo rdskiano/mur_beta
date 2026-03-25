@@ -603,16 +603,21 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   function playNote(n) {
     try {
       if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
-      // iOS Safari requires resume() after user gesture
-      if (AC.state === 'suspended') AC.resume();
-      var f = 440 * Math.pow(2, (midi(n) + transposeOffset() - 69) / 12);
-      var o = AC.createOscillator(), g = AC.createGain();
-      o.connect(g); g.connect(AC.destination); o.type = 'triangle';
-      o.frequency.setValueAtTime(f, AC.currentTime);
-      g.gain.setValueAtTime(0, AC.currentTime);
-      g.gain.linearRampToValueAtTime(0.35, AC.currentTime + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.75);
-      o.start(AC.currentTime); o.stop(AC.currentTime + 0.75);
+      var doPlay = function() {
+        var f = 440 * Math.pow(2, (midi(n) + transposeOffset() - 69) / 12);
+        var o = AC.createOscillator(), g = AC.createGain();
+        o.connect(g); g.connect(AC.destination); o.type = 'triangle';
+        o.frequency.setValueAtTime(f, AC.currentTime);
+        g.gain.setValueAtTime(0, AC.currentTime);
+        g.gain.linearRampToValueAtTime(0.35, AC.currentTime + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.75);
+        o.start(AC.currentTime); o.stop(AC.currentTime + 0.75);
+      };
+      if (AC.state === 'suspended') {
+        AC.resume().then(doPlay);
+      } else {
+        doPlay();
+      }
     } catch(e) {}
   }
 
@@ -1870,6 +1875,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   }
   document.addEventListener('touchstart', unlockAudio, {passive: true});
   document.addEventListener('touchend', unlockAudio, {passive: true});
+  document.addEventListener('click', unlockAudio, {once: true});
 
   updateStats();
   upPrompt();
