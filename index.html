@@ -71,8 +71,8 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   cursor: grab;
 }
 #piano-scroll-area::-webkit-scrollbar { display: none; }
-.piano-wrap { width: 1400px; height: 180px; user-select: none; -webkit-user-select: none; }
-#piano-svg { width: 1400px; height: 180px; display: block; cursor: pointer; touch-action: none; }
+.piano-wrap { width: 2200px; height: 200px; user-select: none; -webkit-user-select: none; }
+#piano-svg { width: 2200px; height: 200px; display: block; cursor: pointer; touch-action: none; }
 
 /* Note chips */
 .chips-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; min-height: 28px; align-items: center; }
@@ -338,8 +338,8 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 .wizard-step {
   border-bottom: 1px solid #1e1a15;
   overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
-  max-height: 400px;
+  transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
+  max-height: 1200px;
   opacity: 1;
 }
 .wizard-step-hidden {
@@ -348,7 +348,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   pointer-events: none;
 }
 .wizard-step.revealing {
-  max-height: 400px;
+  max-height: 1200px;
   opacity: 1;
   pointer-events: auto;
 }
@@ -536,7 +536,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
       <div class="kb-block" id="kb-area">
         <div class="piano-scroll" id="piano-scroll-area">
           <div class="piano-wrap">
-            <svg id="piano-svg" viewBox="0 0 1008 130" preserveAspectRatio="none" width="1400" height="180"></svg>
+            <svg id="piano-svg" viewBox="0 0 1008 130" preserveAspectRatio="none" width="2200" height="200"></svg>
           </div>
         </div>
         <div id="kb-drag-band"><span>&#8592; DRAG TO SCROLL KEYBOARD &#8594;</span></div>
@@ -2230,7 +2230,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   function initPianoScroll() {
     var scrollArea = document.getElementById('piano-scroll-area');
     if (!scrollArea) return;
-    setTimeout(function() { scrollArea.scrollLeft = 480; }, 100);
+    setTimeout(function() { scrollArea.scrollLeft = 700; }, 100);
     var dragBand = document.getElementById('kb-drag-band');
     if (dragBand) {
       var _tx = 0;
