@@ -30,7 +30,7 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 .rotate-sub { font-family: 'Inconsolata', monospace; font-size: 1rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
 
 /* Top bar */
-.topbar { background: var(--ink); border-bottom: 3px solid var(--accent); padding: 0 14px; height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 8px; overflow: hidden; }
+.topbar { background: var(--ink); border-bottom: 3px solid var(--accent); padding: 0 14px; min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .app-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.14em; color: var(--cream); }
 .settings-btn { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); height: 30px; padding: 0 12px; cursor: pointer; font-size: 1rem; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; white-space: nowrap; transition: all 0.12s; }
 .settings-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -435,6 +435,47 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 .chip-clickable { cursor: pointer; transition: background 0.12s, transform 0.1s; user-select: none; -webkit-tap-highlight-color: transparent; }
 .chip-clickable:hover { background: #a04420; transform: translateY(-1px); }
 .chip-clickable:active { transform: translateY(0); }
+
+@media screen and (max-width: 600px) {
+  .topbar { padding: 8px 12px; }
+  .topbar-btns { gap: 4px; }
+  .settings-btn { font-size: 0.75rem !important; padding: 4px 8px !important; }
+  .app-title { font-size: 1.4rem !important; }
+}
+
+/* Phone exercise fullscreen */
+@media screen and (max-width: 767px) {
+  body.showing-exercises #controls { display: none; }
+  body.showing-exercises .topbar { flex-shrink: 0; }
+  body.showing-exercises #ex-nav-bar { flex-shrink: 0; }
+  body.showing-exercises #sheet-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 10;
+    background: white;
+  }
+  body.showing-exercises .sheet {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.showing-exercises #ex-nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+  }
+  body.showing-exercises #export-bar {
+    display: none !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -596,6 +637,10 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 
 <!-- Export bar (shown after generate) -->
 <div class="export-bar" id="export-bar">
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.15em;color:rgba(245,240,232,0.6);">BPM</span>
+    <input id="tempo-input" type="number" min="40" max="240" value="80" style="width:54px;background:#1a1410;border:1px solid #444;color:var(--cream);padding:4px 6px;font-family:'Inconsolata',monospace;font-size:0.85rem;text-align:center;">
+  </div>
   <button class="save-btn" onclick="openSave()">&#9651; Save Exercise</button>
   <button class="save-btn" onclick="openLibrary()" style="border-color:rgba(245,240,232,0.3);">&#9776; Library</button>
   <button class="start-over-btn" id="start-over-btn">&#8635; Start Over</button>
@@ -609,9 +654,12 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
   </div>
 <!-- Phone exercise navigator -->
 <div id="ex-nav-bar" style="display:none;background:var(--ink);padding:8px 16px;align-items:center;justify-content:space-between;flex-shrink:0;">
+  <button onclick="exitPhoneExercises()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);padding:0 10px;height:38px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;border-radius:4px;">&#9664; Edit</button>
+  <button id="phone-play-btn" onclick="playCurrentPhoneExercise()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1rem;padding-left:2px;">&#9654;</button>
   <button id="ex-prev" onclick="exPrev()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:44px;height:38px;font-size:1.2rem;cursor:pointer;border-radius:4px;">&#8592;</button>
   <span id="ex-counter" style="font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.15em;color:var(--cream);">1 / 0</span>
   <button id="ex-next" onclick="exNext()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:44px;height:38px;font-size:1.2rem;cursor:pointer;border-radius:4px;">&#8594;</button>
+  <button onclick="openSave()" style="background:var(--accent);border:none;color:white;padding:0 10px;height:38px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;border-radius:4px;">&#9651; Save</button>
 </div>
 
   <div id="sheet-wrap" style="display:none">
@@ -1963,6 +2011,110 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
   window.deletePopoverNote = deletePopoverNote;
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeChipPopover(); });
 
+
+  // Exercise playback
+  var _playTimer = null;
+  var _playingIdx = -1;
+
+  // Duration codes to beat fractions (1 beat = quarter note)
+  var DUR_BEATS = {
+    'w':4, 'h.':3, 'h':2, 'q.':1.5, 'q':1,
+    '8.':0.75, '8':0.5, '16.':0.375, '16':0.25, '32':0.125
+  };
+
+  function getTempo() {
+    var inp = document.getElementById('tempo-input');
+    return inp ? Math.max(40, Math.min(240, parseInt(inp.value) || 80)) : 80;
+  }
+
+  function stopPlayback() {
+    if (_playTimer) { clearTimeout(_playTimer); _playTimer = null; }
+    // Reset all play buttons
+    document.querySelectorAll('[id^="play-ex-"]').forEach(function(btn) {
+      btn.innerHTML = '&#9654;';
+      btn.style.color = '#c8b89a';
+      btn.style.borderColor = '#c8b89a';
+    });
+    var phoneBtn = document.getElementById('phone-play-btn');
+    if (phoneBtn) phoneBtn.innerHTML = '&#9654;';
+    _playingIdx = -1;
+  }
+
+  function playExercise(pat, uiIdx) {
+    stopPlayback();
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    AC.resume().then(function() {
+      _playingIdx = uiIdx;
+      // Mark button as playing
+      var btn = document.getElementById('play-ex-' + uiIdx);
+      if (btn) { btn.innerHTML = '&#9632;'; btn.style.color = 'var(--accent)'; btn.style.borderColor = 'var(--accent)'; }
+
+      var bpm = getTempo();
+      var secPerBeat = 60 / bpm;
+      var notes = pat.notes;
+      var pitches = selNotes.slice();
+      var pi = 0;
+      var scheduledNotes = []; // {time, freq}
+      var t = 0;
+
+      notes.forEach(function(code) {
+        var isRest = code.slice(-1) === 'r';
+        var isTup = code.indexOf('t') !== -1 && !isRest;
+        var base = code.replace('.','').replace('r','').replace('t','');
+        var dotted = code.indexOf('.') !== -1;
+        var durKey = base + (dotted ? '.' : '');
+        var beats = (DUR_BEATS[durKey] || DUR_BEATS[base] || 0.5) * (isTup ? 2/3 : 1);
+        var dur = beats * secPerBeat;
+
+        if (!isRest && pi < pitches.length) {
+          var note = pitches[pi];
+          // Strip forced accidental for MIDI
+          var m = note.match(/^([A-G])(##|bb|#|b|n)?(\d)$/);
+          if (m) {
+            var freq = 440 * Math.pow(2, (midi(note) + transposeOffset() - 69) / 12);
+            scheduledNotes.push({time: t, freq: freq, dur: dur * 0.85});
+          }
+          pi++;
+          if (pi >= pitches.length) pi = 0; // loop pitches if pattern is longer
+        }
+        t += dur;
+      });
+
+      var totalTime = t * 1000;
+
+      // Schedule all notes
+      scheduledNotes.forEach(function(n) {
+        var startT = AC.currentTime + n.time;
+        var o = AC.createOscillator(), g = AC.createGain();
+        o.connect(g); g.connect(AC.destination);
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(n.freq, startT);
+        g.gain.setValueAtTime(0, startT);
+        g.gain.linearRampToValueAtTime(0.3, startT + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.001, startT + n.dur);
+        o.start(startT); o.stop(startT + n.dur + 0.05);
+      });
+
+      _playTimer = setTimeout(stopPlayback, totalTime + 200);
+    });
+  }
+
+  function playCurrentPhoneExercise() {
+    var phoneBtn = document.getElementById('phone-play-btn');
+    if (_playingIdx >= 0) {
+      stopPlayback();
+      if (phoneBtn) phoneBtn.innerHTML = '&#9654;';
+      return;
+    }
+    var item = _allExercises[_exIdx];
+    if (!item) return;
+    if (phoneBtn) phoneBtn.innerHTML = '&#9632;';
+    playExercise(item.pat, -1); // -1 = phone mode
+    _playingIdx = _exIdx;
+  }
+  window.playCurrentPhoneExercise = playCurrentPhoneExercise;
+  window.stopPlayback = stopPlayback;
+
 // ── INIT ──────────────────────────────────────────────
   // PROFILE / SAVE / LIBRARY
   var SB_URL = 'https://twjdatheptwcskqhinie.supabase.co';
@@ -2270,7 +2422,12 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 
   function exPrev() { if (_exIdx > 0) { _exIdx--; renderPhoneExercise(); } }
   function exNext() { if (_exIdx < _allExercises.length - 1) { _exIdx++; renderPhoneExercise(); } }
-  window.exPrev = exPrev; window.exNext = exNext;
+  function exitPhoneExercises() {
+    document.body.classList.remove('showing-exercises');
+    document.getElementById('sheet-wrap').style.display = 'none';
+    document.getElementById('ex-nav-bar').style.display = 'none';
+  }
+  window.exPrev = exPrev; window.exNext = exNext; window.exitPhoneExercises = exitPhoneExercises;
   window.addEventListener('resize', function() {
     if (_allExercises.length && isPhone()) renderPhoneExercise();
   });
