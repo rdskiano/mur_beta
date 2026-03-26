@@ -26,7 +26,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .rotate-icon { font-size: 3rem; animation: tilt 2s ease-in-out infinite; }
 @keyframes tilt { 0%,100%{transform:rotate(0deg)} 40%,60%{transform:rotate(90deg)} }
 .rotate-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.14em; color: var(--cream); }
-.rotate-sub { font-family: 'Inconsolata', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
+.rotate-sub { font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
 
 /* Top bar */
 .topbar { background: var(--ink); border-bottom: 3px solid var(--accent); padding: 0 14px; height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 8px; overflow: hidden; }
@@ -37,7 +37,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 
 /* Controls bar */
 .ctl-block { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
-.ctl-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.6rem; letter-spacing: 0.25em; color: rgba(245,240,232,0.5); text-transform: uppercase; }
+.ctl-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.25em; color: rgba(245,240,232,0.5); text-transform: uppercase; }
 .group-btns { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
 .group-btn { min-width: 52px; height: 72px; border: 2px solid #2a231d; background: transparent; color: rgba(245,240,232,0.75); cursor: pointer; transition: all 0.12s; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 6px 4px; gap: 3px; }
 .group-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -51,7 +51,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .sel-wrap { position: relative; }
 .app-sel { appearance: none; -webkit-appearance: none; background: #1a1410; border: 1px solid #333; color: var(--cream); padding: 7px 26px 7px 10px; font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; cursor: pointer; }
 .app-sel:focus { outline: 1px solid var(--accent); }
-.sel-arrow { pointer-events: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: rgba(245,240,232,0.75); font-size: 0.65rem; }
+.sel-arrow { pointer-events: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: rgba(245,240,232,0.75); font-size: 0.75rem; }
 #key-sel { min-width: 140px; max-width: 100%; }
 #instrument-sel { min-width: 180px; max-width: 100%; }
 
@@ -60,7 +60,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .kb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
 .kb-prompt { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: var(--cream); }
 .kb-prompt strong { color: white; }
-.clear-btn { background: none; border: none; color: rgba(245,240,232,0.75); font-family: 'Inconsolata', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; text-decoration: underline; }
+.clear-btn { background: none; border: none; color: rgba(245,240,232,0.75); font-family: 'Inconsolata', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; text-decoration: underline; }
 .clear-btn:hover { color: var(--accent); }
 .piano-wrap { width: 1400px; height: 180px; user-select: none; -webkit-user-select: none; overflow: hidden; }
 .piano-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
@@ -68,20 +68,22 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 #piano-svg { cursor: pointer; touch-action: none; }
 
 /* Note chips */
-.chips-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; min-height: 28px; align-items: center; }
-.chip { background: var(--accent); color: white; font-family: 'Inconsolata', monospace; font-size: 0.7rem; letter-spacing: 0.04em; padding: 3px 7px 3px 9px; display: inline-flex; align-items: center; gap: 3px; animation: pop 0.1s ease; }
+.chips-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; min-height: 28px; align-items: center; padding: 4px 28px; }
+.chip { background: var(--accent); color: white; font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.04em; padding: 3px 7px 3px 9px; display: inline-flex; align-items: center; gap: 3px; animation: pop 0.1s ease; }
 @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.chip .enh { background: rgba(255,255,255,0.18); border: none; color: rgba(255,255,255,0.8); font-family: 'Inconsolata', monospace; font-size: 0.58rem; padding: 1px 4px; cursor: pointer; border-radius: 1px; }
+.chip .enh { background: rgba(255,255,255,0.18); border: none; color: rgba(255,255,255,0.8); font-family: 'Inconsolata', monospace; font-size: 0.75rem; padding: 1px 4px; cursor: pointer; border-radius: 1px; }
 .chip .enh:hover { background: rgba(255,255,255,0.32); }
 .chip .rm { background: none; border: none; color: rgba(255,255,255,0.75); cursor: pointer; font-size: 0.9rem; line-height: 1; padding: 0 0 0 2px; }
 .chip .rm:hover { color: white; }
 .no-notes { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.75); }
-.count-hint { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.7); margin-top: 5px; }
+.count-hint { padding: 0 28px; font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.7); margin-top: 5px; }
 .count-hint strong { color: white; }
 
 /* Generate button inline with controls */
 .play-btn {
   background: #2a231d; color: var(--cream); border: 1px solid #444;
+  margin: 8px 0 0;
+  width: 100%;
   padding: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem;
   letter-spacing: 0.12em; cursor: pointer; transition: all 0.15s;
   width: 100%; display: block; margin-top: 8px; margin-bottom: 4px;
@@ -96,7 +98,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 /* Export bar */
 .export-bar { background: #0d0b09; border-bottom: 2px solid #2a231d; padding: 12px 28px; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
 .export-bar.visible { display: flex; }
-.export-label { font-family: 'Inconsolata', monospace; font-size: 0.6rem; letter-spacing: 0.14em; text-transform: rm: uppercase; color: rgba(245,240,232,0.75); white-space: nowrap; }
+.export-label { font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: rm: uppercase; color: rgba(245,240,232,0.75); white-space: nowrap; }
 
 .export-pdf-btn { background: var(--accent); color: white; border: none; padding: 8px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; }
 .export-pdf-btn:hover { background: #a04520; }
@@ -111,7 +113,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 
 /* Exercises sheet */
 .sheet { background: var(--paper); max-width: 860px; margin: 0 auto; padding: 36px 44px 48px; box-shadow: 0 4px 40px rgba(0,0,0,0.15); }
-.sheet-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.1em; color: var(--cream); border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 16px; }
+.sheet-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.1em; color: var(--ink); border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 16px; }
 
 /* Pattern ID label */
 .ex-id-label { display: none; }
@@ -156,7 +158,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   letter-spacing: 0.12em; color: var(--cream); flex: 1;
 }
 .pdf-share-hint {
-  font-family: "Inconsolata", monospace; font-size: 0.65rem;
+  font-family: "Inconsolata", monospace; font-size: 0.75rem;
   letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,240,232,0.75);
 }
 .pdf-close-btn {
@@ -207,16 +209,16 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .close-btn { background: none; border: none; color: rgba(245,240,232,0.75); font-size: 1.1rem; cursor: pointer; }
 .close-btn:hover { color: var(--accent); }
 .sp-sec { margin-bottom: 20px; }
-.sp-h3 { font-family: 'Inconsolata', monospace; font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; padding-bottom: 3px; border-bottom: 1px solid var(--rule); }
+.sp-h3 { font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; padding-bottom: 3px; border-bottom: 1px solid var(--rule); }
 .sp-p { font-size: 0.86rem; color: rgba(245,240,232,0.7); line-height: 1.6; margin-bottom: 10px; }
 .upload-zone { border: 2px dashed var(--rule); padding: 14px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; }
 .upload-zone:hover { border-color: var(--accent); }
 .upload-zone.loaded { border-color: #3a8e4a; }
 .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
-.uz-lbl { font-family: 'Inconsolata', monospace; font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
+.uz-lbl { font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
 .upload-zone.loaded .uz-lbl { color: #3a8e4a; }
 .uz-sub { font-size: 0.78rem; color: rgba(245,240,232,0.75); margin-top: 3px; font-style: italic; }
-.db-stats { font-family: 'Inconsolata', monospace; font-size: 0.64rem; color: rgba(245,240,232,0.7); margin-top: 10px; line-height: 1.9; }
+.db-stats { font-family: 'Inconsolata', monospace; font-size: 0.75rem; color: rgba(245,240,232,0.7); margin-top: 10px; line-height: 1.9; }
 .db-stats strong { color: var(--cream); }
 
 
@@ -243,14 +245,14 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   .app-title { font-size: 1.1rem; letter-spacing: 0.08em; }
   .topbar > div:first-child > div:last-child { display: none; }
   .topbar-btns { gap: 4px; }
-  .topbar-btns .settings-btn { font-size: 0.58rem; padding: 0 6px; height: 24px; letter-spacing: 0.06em; }
+  .topbar-btns .settings-btn { font-size: 0.75rem; padding: 0 6px; height: 24px; letter-spacing: 0.06em; }
   .ctl-row { gap: 8px; flex-wrap: wrap; }
   .group-btn { min-width: 44px; height: 62px; }
   .group-btn svg { transform: scale(0.85); transform-origin: center bottom; }
 }
 @media (max-width: 400px) {
   .app-title { font-size: 0.95rem; }
-  .topbar-btns .settings-btn { font-size: 0.52rem; padding: 0 5px; height: 22px; }
+  .topbar-btns .settings-btn { font-size: 0.75rem; padding: 0 5px; height: 22px; }
 }
 .profile-btn.active { border-color: var(--accent); color: var(--accent); }
 .save-btn { background: none; border: 1px solid var(--accent); color: var(--accent); padding: 8px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; }
@@ -260,14 +262,14 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .modal-box { background: #1a1410; border: 1px solid #333; padding: 28px 32px; max-width: 420px; width: 90%; }
 .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.12em; color: var(--cream); margin-bottom: 20px; border-bottom: 1px solid #2a231d; padding-bottom: 10px; }
 .modal-field { margin-bottom: 14px; }
-.modal-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.68rem; letter-spacing: 0.2em; color: var(--accent); display: block; margin-bottom: 4px; }
+.modal-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--accent); display: block; margin-bottom: 4px; }
 .modal-input { width: 100%; background: #111009; border: 1px solid #333; color: var(--cream); padding: 8px 10px; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; box-sizing: border-box; }
 .modal-input:focus { outline: 1px solid var(--accent); }
 .modal-select { width: 100%; background: #111009; border: 1px solid #333; color: var(--cream); padding: 8px 10px; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; box-sizing: border-box; appearance: none; -webkit-appearance: none; }
 .modal-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
 .modal-btn-primary { background: var(--accent); color: white; border: none; padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer; }
 .modal-btn-secondary { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer; }
-.modal-msg { font-family: 'Inconsolata', monospace; font-size: 0.72rem; margin-top: 10px; min-height: 16px; }
+.modal-msg { font-family: 'Inconsolata', monospace; font-size: 0.75rem; margin-top: 10px; min-height: 16px; }
 .modal-msg.ok { color: #4caf50; } .modal-msg.err { color: #e57373; }
 .library-panel { display: none; position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.75); align-items: flex-start; justify-content: center; padding-top: 60px; }
 .library-panel.open { display: flex; }
@@ -286,8 +288,8 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .library-row { padding: 10px 24px; border-bottom: 1px solid #1a1410; cursor: pointer; }
 .library-row:hover { background: #111009; }
 .library-row-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.08em; color: var(--cream); }
-.library-row-meta { font-family: 'Inconsolata', monospace; font-size: 0.62rem; color: rgba(245,240,232,0.75); margin-top: 2px; }
-.library-empty { padding: 24px; font-family: 'Inconsolata', monospace; font-size: 0.72rem; color: rgba(245,240,232,0.7); text-align: center; }
+.library-row-meta { font-family: 'Inconsolata', monospace; font-size: 0.75rem; color: rgba(245,240,232,0.75); margin-top: 2px; }
+.library-empty { padding: 24px; font-family: 'Inconsolata', monospace; font-size: 0.75rem; color: rgba(245,240,232,0.7); text-align: center; }
 
 /* Live staff desktop */
 #live-staff-desktop {
@@ -311,7 +313,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .chip-ins-btn {
   width: 16px; height: 16px; border-radius: 50%;
   background: none; border: 1px solid var(--rule);
-  color: rgba(245,240,232,0.75); font-size: 0.7rem; line-height: 1;
+  color: rgba(245,240,232,0.75); font-size: 0.75rem; line-height: 1;
   cursor: pointer; padding: 0; vertical-align: middle;
   transition: all 0.1s;
 }
@@ -323,7 +325,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   border: 1px solid var(--ink);
   color: rgba(255,255,255,0.7);
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   padding: 3px 10px;
   cursor: pointer;
@@ -354,7 +356,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 }
 #kb-drag-band span {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   color: rgba(245,240,232,0.7);
 }
@@ -393,14 +395,6 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   padding: 12px 28px;
   flex-wrap: wrap;
 }
-.wizard-step-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.4rem;
-  color: var(--accent);
-  letter-spacing: 0.05em;
-  line-height: 1;
-  flex-shrink: 0;
-}
 .wizard-step-title {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 0.8rem;
@@ -420,7 +414,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   border: 1px solid rgba(245,240,232,0.25);
   color: rgba(245,240,232,0.7);
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   padding: 4px 12px;
   cursor: pointer;
@@ -433,9 +427,13 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 /* completed step gets a subtle tick */
 .wizard-step.done .wizard-step-num::after {
   content: ' \u2713';
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: rgba(245,240,232,0.4);
 }
+
+.chip-clickable { cursor: pointer; transition: background 0.12s, transform 0.1s; user-select: none; }
+.chip-clickable:hover { background: #a04420; transform: translateY(-1px); }
+.chip-clickable:active { transform: translateY(0); }
 </style>
 </head>
 <body>
@@ -457,7 +455,6 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   <!-- STEP 1: Note Grouping -->
   <div class="wizard-step" id="step1">
     <div class="wizard-step-header">
-      <span class="wizard-step-num">01</span>
       <span class="wizard-step-title">Note Grouping of Passage</span>
     </div>
     <div class="wizard-step-body">
@@ -475,7 +472,6 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   <!-- STEP 2: Clef + Instrument -->
   <div class="wizard-step wizard-step-hidden" id="step2">
     <div class="wizard-step-header">
-      <span class="wizard-step-num">02</span>
       <span class="wizard-step-title">Instrument Setup</span>
     </div>
     <div class="wizard-step-body" style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;">
@@ -528,7 +524,6 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   <!-- STEP 3: Enter Notes (keyboard lives here) -->
   <div class="wizard-step wizard-step-hidden" id="step3">
     <div class="wizard-step-header">
-      <span class="wizard-step-num">03</span>
       <span class="wizard-step-title">Enter Your Passage</span>
       <span id="kb-prompt" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.9rem;color:rgba(245,240,232,0.6);flex:1;"></span>
       <div class="wizard-step-tools">
@@ -575,18 +570,19 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
       <!-- Chips -->
       <div class="chips-row" id="chips"><span class="no-notes">No notes entered</span></div>
       <div class="count-hint" id="count-hint"></div>
-      <button class="play-btn" id="play-btn" onclick="playPassage()">&#9654; Play Passage</button>
+      <div style="padding:0 28px 16px;">
+        <button class="play-btn" id="play-btn" onclick="playPassage()">&#9654; Play Passage</button>
+      </div>
     </div>
   </div>
 
   <!-- STEP 4: Generate -->
   <div class="wizard-step wizard-step-hidden" id="step4">
     <div class="wizard-step-header">
-      <span class="wizard-step-num">04</span>
       <span class="wizard-step-title">Generate</span>
     </div>
-    <div class="wizard-step-body" style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
-      <div class="ctl-block" style="flex:1;min-width:200px;">
+    <div class="wizard-step-body">
+      <div class="ctl-block" style="width:100%;margin-bottom:10px;">
         <div class="ctl-label">Document Name</div>
         <input id="doc-name" type="text" placeholder="e.g. Brahms mvt 1" style="width:100%;background:#1a1410;border:1px solid #333;color:var(--cream);padding:7px 10px;font-family:'Inconsolata',monospace;font-size:0.82rem;outline:none;box-sizing:border-box">
       </div>
@@ -663,7 +659,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     'Fs':{'F':'F#','C':'C#','G':'G#','D':'D#','A':'A#','E':'E#'},
     'F':{'B':'Bb'}, 'Bb':{'B':'Bb','E':'Eb'}, 'Eb':{'B':'Bb','E':'Eb','A':'Ab'},
     'Ab':{'B':'Bb','E':'Eb','A':'Ab','D':'Db'},
-    'Db':{'B':'Bb:'Bb','E':'Eb','A':'Ab','D':'Db','G':'Gb'},
+    'Db':{'B':'Bb','E':'Eb','A':'Ab','D':'Db','G':'Gb'},
     'Gb':{'B':'Bb','E':'Eb','A':'Ab','D':'Db','G':'Gb','C':'Cb'},
   };
   var S2F = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
@@ -709,7 +705,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     return !!ENH_NEXT[m[1]+(m[2]||'')];
   }
   function isAcc(n) { return n.indexOf('#') !== -1 || /[A-G]b/.test(n); }
-  function dn(n) { return n.replace('##','𝄪').replace('bb','𝄫').replace('#','♯').replace(/([A-G])b/g,'$1♭'); }
+  function dn(n) { return n.replace('##','𝄪').replace('bb','𝄫').replace('#','♯').replace('n','♮').replace(/([A-G])b/g,'$1♭'); }
 
   // ── MIDI / AUDIO ─────────────────────────────────────
   var CHR = {'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'E#':5,'Fb':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'B#':12,'Cb':11};
@@ -869,7 +865,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     {id:116,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16","16","16","16","8"]},
     {id:117,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","8","16","16","16","16"]},
     {id:118,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","8","16","16","16","16","16"]},
-    {id:119:119,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","16.","32","16.","32","16.","32"]},
+    {id:119,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","16.","32","16.","32","16.","32"]},
     {id:120,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["32","16.","32","16.","32","16.","8"]},
     {id:121,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["q","16t","16t","16t","16t","16t","16t"]},
     {id:122,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16t","16t","16t","16t","16t","16t","q"]},
@@ -987,7 +983,9 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   }
   function checkReady() {
     var sec = g2s(activeGroup);
-    document.getElementById('gen-btn').disabled = !(activeGroup && DB.some(function(p) { return p.section === sec; }) && selNotes.length >= 1);
+    var ready = !!(activeGroup && DB.some(function(p) { return p.section === sec; }) && selNotes.length >= 1);
+    document.getElementById('gen-btn').disabled = !ready;
+    if (ready) { markDone('step3'); }
   }
 
   // ── PIANO ─────────────────────────────────────────────
@@ -1083,22 +1081,20 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   function updateChips() {
     renderLiveStaffDesktop();
     var el = document.getElementById('chips');
+    if (!el) return;
     if (!selNotes.length) { el.innerHTML = '<span class="no-notes">No notes entered</span>'; return; }
     var html = '';
     selNotes.forEach(function(n, i) {
       var isActive = _insertAtDesktop === i;
       html += '<button class="chip-ins-btn' + (isActive ? ' active' : '') + '" onclick="startInsertDesktop(' + i + ')">+</button>';
-      var cl=hasEnharm(n)?dn(flipEnh(n)).slice(0,-1):'';
-      var eb=cl?'<button class="enh" onclick="flipNote('+i+')" title="Respell (same pitch)">'+cl+'</button>':'';
-      html += '<div class="chip">'+dn(n)+eb+'<button class="rm" onclick="removeNote('+i+')">&#215;</button></div>';
+      html += '<div class="chip chip-clickable" onclick="openChipPopover(event,' + i + ')" title="Click to edit">' + dn(n) + '</div>';
     });
     html += '<button class="chip-ins-btn' + (_insertAtDesktop === selNotes.length ? ' active' : '') + '" onclick="startInsertDesktop(' + selNotes.length + ')">+</button>';
     el.innerHTML = html;
   }
-
   // ── ABC NOTATION CONVERSION ───────────────────────────
   // Duration table: with L:1/32, each unit = 1 thirty-second note
-  var DUR32 = {'32':1,'16':2,'16.':3,'8':4,'8.':6,'q':8,'q.':12,'h':16':16,'h.':24,'w':32};
+  var DUR32 = {'32':1,'16':2,'16.':3,'8':4,'8.':6,'q':8,'q.':12,'h':16,'h.':24,'w':32};
 
   function codeToAbc(code, pitchName, barAcc) {
     var dotted = code.slice(-1) === '.';
@@ -1111,7 +1107,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     if (rest) return 'z' + dur;
 
     // Convert pitch to ABC
-    var m = pitchName.match(/^([A-G])(##|bb|#|b)?(\d)$/);
+    var m = pitchName.match(/^([A-G])(##|bb|#|b|n)?(\d)$/);
     if (!m) return 'C' + dur;
     var pc = m[1], acc = m[2] || '', oct = parseInt(m[3]);
 
@@ -1128,6 +1124,9 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     } else if(acc==='b'){
       prefix='_';
       if(barAcc) barAcc[pc]='_';
+    } else if(acc==='n'){
+      prefix='=';
+      if(barAcc) barAcc[pc]='=';
     } else {
       // Natural note — check if this pitch class was altered earlier in bar
       // or is altered by the key signature
@@ -1807,16 +1806,152 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     if (el) el.classList.add('done');
   }
   function wizardCheckStep2() {
-    // Step 2 complete when instrument selected - reveal step 3
+    // Step 2 complete when instrument selected - reveal steps 3 and 4 together
     var instr = document.getElementById('instrument-sel');
     if (instr && instr.selectedIndex > 0) {
       markDone('step2');
       revealStep('step3');
+      revealStep('step4');
     }
   }
   window.wizardCheckStep2 = wizardCheckStep2;
   window.revealStep = revealStep;
   window.markDone = markDone;
+
+
+  // Chip popover
+  var _popoverIdx = -1;
+  var SEMI_SPELLINGS = [
+    ['C','B#','Dbb'],
+    ['C#','Db','B##'],
+    ['D','C##','Ebb'],
+    ['D#','Eb','Fbb'],
+    ['E','Fb','D##'],
+    ['F','E#','Gbb'],
+    ['F#','Gb','E##'],
+    ['G','F##','Abb'],
+    ['G#','Ab'],
+    ['A','G##','Bbb'],
+    ['A#','Bb','Cbb'],
+    ['B','Cb','A##']
+  ];
+  var SEMI_MAP = {
+    'C':0,'B#':0,'Dbb':0,'C#':1,'Db':1,'B##':1,'D':2,'C##':2,'Ebb':2,
+    'D#':3,'Eb':3,'Fbb':3,'E':4,'Fb':4,'D##':4,'F':5,'E#':5,'Gbb':5,
+    'F#':6,'Gb':6,'E##':6,'G':7,'F##':7,'Abb':7,'G#':8,'Ab':8,
+    'A':9,'G##':9,'Bbb':9,'A#':10,'Bb':10,'Cbb':10,'B':11,'Cb':11,'A##':11
+  };
+  function openChipPopover(e, idx) {
+    e.stopPropagation();
+    _popoverIdx = idx;
+    var note = selNotes[idx];
+    var m = note.match(/^([A-G](?:##|bb|#|b|n)?)(\d)$/);
+    if (!m) return;
+    var name = m[1], oct = m[2];
+    var nameForSemi = name.replace('n','');
+    var semi = SEMI_MAP[nameForSemi];
+    var spellings = (semi !== undefined) ? SEMI_SPELLINGS[semi] : [nameForSemi];
+    var spHTML = spellings.map(function(s) {
+      var isCurrent = (s === name);
+      return '<button onclick="applySpelling(\'' + s + '\')" style="'
+        + 'background:' + (isCurrent ? 'var(--accent)' : '#2a231d') + ';'
+        + 'color:' + (isCurrent ? 'white' : 'rgba(245,240,232,0.85)') + ';'
+        + 'border:1px solid ' + (isCurrent ? 'var(--accent)' : '#3a2e24') + ';'
+        + 'padding:6px 12px;font-family:\'Inconsolata\',monospace;font-size:1rem;'
+        + 'cursor:pointer;min-width:48px;text-align:center;">' + dn(s + oct) + '</button>';
+    }).join('');
+    document.getElementById('popover-spellings').innerHTML = spHTML;
+    document.getElementById('popover-custom-input').value = '';
+    var pop = document.getElementById('chip-popover');
+    var back = document.getElementById('chip-popover-backdrop');
+    pop.style.display = 'block';
+    back.style.display = 'block';
+    var rect = e.currentTarget.getBoundingClientRect();
+    var pw = 260;
+    var left = Math.min(rect.left, window.innerWidth - pw - 10);
+    var top = rect.bottom + 8;
+    if (top + 220 > window.innerHeight) top = rect.top - 220;
+    pop.style.left = Math.max(8, left) + 'px';
+    pop.style.top = top + 'px';
+    pop.style.width = pw + 'px';
+    // Highlight current forced accidental
+    var curAcc = m[1].slice(1) || '';
+    var accIds = {'':'fa-none','n':'fa-nat','#':'fa-sh','b':'fa-fl','##':'fa-dsh','bb':'fa-dfl'};
+    Object.keys(accIds).forEach(function(k) {
+      var btn = document.getElementById(accIds[k]);
+      if (btn) btn.style.background = (k === curAcc) ? 'var(--accent)' : '#2a231d';
+    });
+    setTimeout(function() { document.getElementById('popover-custom-input').focus(); }, 60);
+  }
+  function closeChipPopover() {
+    document.getElementById('chip-popover').style.display = 'none';
+    document.getElementById('chip-popover-backdrop').style.display = 'none';
+    _popoverIdx = -1;
+  }
+  function applySpelling(s) {
+    if (_popoverIdx < 0 || _popoverIdx >= selNotes.length) return;
+    var oct = selNotes[_popoverIdx].match(/\d$/)[0];
+    selNotes[_popoverIdx] = s + oct;
+    closeChipPopover();
+    updateChips(); upPrompt(); upHint(); checkReady();
+  }
+  function applyCustomSpelling() {
+    if (_popoverIdx < 0) return;
+    var val = document.getElementById('popover-custom-input').value.trim();
+    var m = val.match(/^([A-Ga-g])(##|bb|#|b)?([1-8])$/);
+    var inp = document.getElementById('popover-custom-input');
+    if (!m) { inp.style.borderColor = '#e53535'; setTimeout(function(){ inp.style.borderColor = '#3a2e24'; }, 800); return; }
+    selNotes[_popoverIdx] = m[1].toUpperCase() + (m[2] || '') + m[3];
+    closeChipPopover();
+    updateChips(); upPrompt(); upHint(); checkReady();
+  }
+  function deletePopoverNote() {
+    if (_popoverIdx < 0) return;
+    selNotes.splice(_popoverIdx, 1);
+    if (_insertAtDesktop > _popoverIdx) _insertAtDesktop--;
+    closeChipPopover();
+    updateChips(); upPrompt(); upHint(); checkReady();
+  }
+  function forceAccidental(acc) {
+    if (_popoverIdx < 0) return;
+    var note = selNotes[_popoverIdx];
+    var m = note.match(/^([A-G])(##|bb|#|b|n)?(\d)$/);
+    if (!m) return;
+    selNotes[_popoverIdx] = m[1] + acc + m[3];
+    // Update button highlights
+    var ids = {'':'fa-none','n':'fa-nat','#':'fa-sh','b':'fa-fl','##':'fa-dsh','bb':'fa-dfl'};
+    Object.keys(ids).forEach(function(k) {
+      var btn = document.getElementById(ids[k]);
+      if (btn) btn.style.background = (k === acc) ? 'var(--accent)' : '#2a231d';
+    });
+    updateChips(); upPrompt(); upHint(); checkReady();
+    // Keep popover open so user can see result
+    // Rebuild spellings for new note name
+    var newNote = selNotes[_popoverIdx];
+    var m2 = newNote.match(/^([A-G](?:##|bb|#|b|n)?)(\d)$/);
+    if (m2) {
+      var name2 = m2[1].replace('n',''), oct2 = m2[2];
+      var semi2 = SEMI_MAP[name2];
+      var spellings2 = (semi2 !== undefined) ? SEMI_SPELLINGS[semi2] : [name2];
+      var spHTML2 = spellings2.map(function(s) {
+        var isCurrent = (s === name2);
+        return '<button onclick="applySpelling(\'' + s + '\')" style="'
+          + 'background:' + (isCurrent ? 'var(--accent)' : '#2a231d') + ';'
+          + 'color:' + (isCurrent ? 'white' : 'rgba(245,240,232,0.85)') + ';'
+          + 'border:1px solid ' + (isCurrent ? 'var(--accent)' : '#3a2e24') + ';'
+          + 'padding:6px 12px;font-family:\'Inconsolata\',monospace;font-size:1rem;'
+          + 'cursor:pointer;min-width:48px;text-align:center;">' + dn(s + oct2) + '</button>';
+      }).join('');
+      document.getElementById('popover-spellings').innerHTML = spHTML2;
+    }
+  }
+  window.forceAccidental = forceAccidental;
+  window.openChipPopover = openChipPopover;
+  window.closeChipPopover = closeChipPopover;
+  window.applySpelling = applySpelling;
+  window.applyCustomSpelling = applyCustomSpelling;
+  window.deletePopoverNote = deletePopoverNote;
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeChipPopover(); });
 
 // ── INIT ──────────────────────────────────────────────
   // PROFILE / SAVE / LIBRARY
@@ -1878,7 +2013,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     var docName = document.getElementById('save-docname').value.trim();
     var msg = document.getElementById('save-msg');
     if (!email) { msg.textContent = 'Please enter your email.'; msg.className = 'modal-msg err'; return; }
-    if (!instrument) { msg.textContent = ' = 'Please select your instrument.'; msg.className = 'modal-msg err'; return; }
+    if (!instrument) { msg.textContent = 'Please select your instrument.'; msg.className = 'modal-msg err'; return; }
     setProfile({name:name, email:email, instrument:instrument});
     var composer = document.getElementById('save-composer').value.trim();
     msg.textContent = 'Saving...'; msg.className = 'modal-msg';
@@ -2031,7 +2166,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
     if (AC.state === 'suspended') AC.resume();
     document.removeEventListener('touchstart', unlockAudio);
-    document.removeEventListener('touchend'end', unlockAudio);
+    document.removeEventListener('touchend', unlockAudio);
   }
   document.addEventListener('touchstart', unlockAudio, {passive: true});
   document.addEventListener('touchend', unlockAudio, {passive: true});
@@ -2103,5 +2238,40 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     <div class="modal-btns"><button class="modal-btn-secondary" onclick="closeSignin()">Cancel</button><button class="modal-btn-primary" onclick="submitSignin()">Sign In</button></div>
   </div>
 </div>
+
+<!-- Chip edit popover -->
+<div id="chip-popover" style="display:none;position:fixed;z-index:500;background:#1a1410;border:1px solid #3a2e24;box-shadow:0 8px 32px rgba(0,0,0,0.6);min-width:240px;border-radius:3px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #2a231d;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.5);">Edit Note</div>
+    <button onclick="closeChipPopover()" style="background:none;border:none;color:rgba(245,240,232,0.5);font-size:1.1rem;cursor:pointer;padding:0 2px;line-height:1;" title="Close">&times;</button>
+  </div>
+  <div style="padding:10px 14px 10px;border-bottom:1px solid #2a231d;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Respell</div>
+    <div id="popover-spellings" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+  </div>
+  <div style="padding:10px 14px;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:6px;">Type any spelling</div>
+    <div style="display:flex;gap:6px;">
+      <input id="popover-custom-input" type="text" placeholder="e.g. B#4, Fb3, Dbb4"
+        style="flex:1;background:#0e0c09;border:1px solid #3a2e24;color:var(--cream);padding:6px 8px;font-family:'Inconsolata',monospace;font-size:0.85rem;outline:none;">
+      <button onclick="applyCustomSpelling()" style="background:var(--accent);color:white;border:none;padding:6px 12px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;">OK</button>
+    </div>
+  </div>
+  <div style="padding:8px 14px;border-top:1px solid #2a231d;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Force Accidental</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button onclick="forceAccidental('')" id="fa-none" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">&#9711;</button>
+      <button onclick="forceAccidental('n')" id="fa-nat" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">♮</button>
+      <button onclick="forceAccidental('#')" id="fa-sh" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">♯</button>
+      <button onclick="forceAccidental('b')" id="fa-fl" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">♭</button>
+      <button onclick="forceAccidental('##')" id="fa-dsh" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">𝄪</button>
+      <button onclick="forceAccidental('bb')" id="fa-dfl" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">𝄫</button>
+    </div>
+  </div>
+  <div style="padding:8px 14px 12px;border-top:1px solid #2a231d;">
+    <button onclick="deletePopoverNote()" style="width:100%;background:none;border:1px solid rgba(229,53,53,0.4);color:rgba(229,53,53,0.9);padding:7px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.15em;cursor:pointer;">Delete This Note</button>
+  </div>
+</div>
+<div id="chip-popover-backdrop" style="display:none;position:fixed;inset:0;z-index:499;" onclick="closeChipPopover()"></div>
 </body>
 </html>
