@@ -361,7 +361,17 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   0%, 100% { box-shadow: 0 0 0 0 rgba(229,53,53,0.5); }
   50% { box-shadow: 0 0 0 12px rgba(229,53,53,0); }
 }
-#rec-btn-desktop.recording { animation: rec-pulse-desktop 1.4s ease-in-out infinite; }
+#rec-btn-desktop.recording {
+  animation: rec-pulse-desktop 1.4s ease-in-out infinite;
+  background: #e53535;
+  border-color: #e53535;
+}
+#rec-btn-desktop.recording #rec-inner-desktop {
+  background: white;
+  border-radius: 3px;
+  width: 28px;
+  height: 28px;
+}
 
 /* Wizard steps */
 .controls { background: #0e0c09; border-bottom: 1px solid #2a231d; padding: 0; }
@@ -564,12 +574,12 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
           </div>
         </div>
         <div id="kb-drag-band"><span>&#8592; DRAG TO SCROLL KEYBOARD &#8594;</span></div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:0.15em;color:rgba(245,240,232,0.3);padding:4px 0 2px;text-align:center;">&#128276; Ensure device is not muted</div>
+        <div id="muted-notice" style="font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:0.15em;color:rgba(245,240,232,0.3);padding:4px 0 2px;text-align:center;">&#128276; Ensure device is not muted</div>
       </div>
       <!-- Mic panel -->
       <div id="mic-panel-desktop" style="display:none;padding:24px;text-align:center;background:#0e0c09;">
-        <button id="rec-btn-desktop" onclick="toggleRecDesktop()" style="width:72px;height:72px;border-radius:50%;background:#e53535;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 rgba(229,53,53,0.4);transition:transform 0.1s;">
-          <div id="rec-inner-desktop" style="width:24px;height:24px;background:white;border-radius:3px;opacity:0;transition:opacity 0.2s;"></div>
+        <button id="rec-btn-desktop" onclick="toggleRecDesktop()" style="width:80px;height:80px;border-radius:50%;background:rgba(229,53,53,0.15);border:3px solid #e53535;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 0.2s;">
+          <div id="rec-inner-desktop" style="width:32px;height:32px;background:#e53535;border-radius:50%;transition:all 0.2s;"></div>
         </button>
         <div id="rec-label-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.7);margin-top:10px;">TAP TO RECORD</div>
         <div id="rec-status-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);min-height:2.5rem;margin-top:4px;"></div>
@@ -1810,6 +1820,13 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     if (pianoWrap) pianoWrap.style.display = tab === 'keys' ? '' : 'none';
     if (micPanel) micPanel.style.display = tab === 'mic' ? 'block' : 'none';
     if (accToggle) accToggle.style.display = tab === 'keys' ? '' : 'none';
+    // Hide keyboard-specific elements when on mic tab
+    var dragBand = document.getElementById('kb-drag-band');
+    var scrollArea = document.getElementById('piano-scroll-area');
+    var mutedNote = document.getElementById('muted-notice');
+    if (dragBand) dragBand.style.display = tab === 'keys' ? '' : 'none';
+    if (scrollArea) scrollArea.style.display = tab === 'keys' ? '' : 'none';
+    if (mutedNote) mutedNote.style.display = tab === 'keys' ? '' : 'none';
     if (tab === 'mic' && _micActive) stopMicDesktop();
   }
   window.switchInputTab = switchInputTab;
@@ -1862,6 +1879,8 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
   function toggleRecDesktop() {
     if (_micActive) { stopMicDesktop(); return; }
+    // Unlock/create main AudioContext on user gesture (required for iOS)
+    unlockAudio();
     navigator.mediaDevices.getUserMedia({audio:true, video:false})
     .then(function(stream) {
       _micStream = stream;
@@ -2314,8 +2333,10 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   initPianoScroll();
   // Unlock AudioContext on first touch for iOS Safari
   function unlockAudio() {
-    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
-    if (AC.state === 'suspended') AC.resume();
+    try {
+      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === 'suspended' || AC.state === 'interrupted') AC.resume();
+    } catch(e) {}
     document.removeEventListener('touchstart', unlockAudio);
     document.removeEventListener('touchend', unlockAudio);
   }
