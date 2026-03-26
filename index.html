@@ -1028,6 +1028,8 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   });
   PN.push({name: 'C8', white: true});
 
+  var _insertAtDesktop = -1;
+  var _insertAtDesktop = -1;
   function buildPiano() {
     var svg = document.getElementById('piano-svg');
     var wh = PN.filter(function(n) { return n.white; });
@@ -1083,7 +1085,12 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
       setTimeout(function() { k.setAttribute('fill', isBlack ? '#1a1612' : '#fdfaf5'); }, 160);
       var spelled = raw;
       playNote(spelled);
-      selNotes.push(spelled);
+      if (_insertAtDesktop >= 0) {
+        selNotes.splice(_insertAtDesktop, 0, spelled);
+        _insertAtDesktop++;
+      } else {
+        selNotes.push(spelled);
+      }
       updateChips(); upPrompt(); upHint(); checkReady();
     }
 
@@ -1247,7 +1254,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
       var needsNatural = false;
       if(barAcc && barAcc[pc]) {
         needsNatural = true; // was altered earlier in this bar
-        barAcc[pc] = null;   // cancel — now natural
+        delete barAcc[pc];   // cancel — now natural
       } else {
         var ka=KEY_ACC[cKey()]||{};
         needsNatural=Object.keys(ka).some(function(k){return ka[k]===pc+'b'||ka[k]===pc+'#';});
@@ -1451,7 +1458,12 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   var _allExercises = [];
   var _exIdx = 0;
   var _activeOscillators = [];
-  function isPhone() { return window.innerWidth < 768; }
+  function isPhone() {
+    // Treat iPad as desktop - only use phone layout on true phones
+    var w = window.innerWidth;
+    if (navigator.maxTouchPoints > 1 && w >= 600) return false;
+    return w < 600;
+  }
 
   function renderPhoneExercise() {
     var nav = document.getElementById('ex-nav-bar');
@@ -1742,6 +1754,42 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     });
     document.getElementById('step1').classList.remove('done');
 
+    // Exit phone exercise view if active
+    _allExercises = [];
+    _exIdx = 0;
+    document.body.classList.remove('showing-exercises');
+    var exNav = document.getElementById('ex-nav-bar');
+    if (exNav) exNav.style.display = 'none';
+    // Force sheet-wrap hidden regardless of inline or !important CSS
+    var sw = document.getElementById('sheet-wrap');
+    if (sw) {
+      sw.style.cssText = 'display:none!important;position:static;';
+    }
+    // Reset insert mode
+    _insertAtDesktop = -1;
+    var ih = document.getElementById('insert-hint-desktop');
+    if (ih) ih.style.display = 'none';
+    // Reset doc name
+    document.getElementById('doc-name').value = '';
+    // Stop recording if active
+    if (typeof _micActive !== 'undefined' && _micActive) stopMicDesktop();
+    // Switch back to keyboard tab
+    switchInputTab('keys');
+    // Also reset insert mode and doc name
+    _insertAtDesktop = -1;
+    var ih = document.getElementById('insert-hint-desktop');
+    if (ih) ih.style.display = 'none';
+    document.getElementById('doc-name').value = '';
+    // Stop any active recording
+    if (typeof _micActive !== 'undefined' && _micActive) stopMicDesktop();
+    // Switch back to keyboard tab
+    switchInputTab('keys');
+    // Restore controls visibility
+    var ctrl = document.getElementById('controls');
+    if (ctrl) ctrl.style.display = '';
+    var tb = document.querySelector('.topbar');
+    if (tb) tb.style.display = '';
+
     // Scroll back to top
     window.scrollTo(0, 0);
   });
@@ -1794,13 +1842,12 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   }
 
   // Insert note functionality
-  var _insertAtDesktop = -1;
   function startInsertDesktop(idx) {
     _insertAtDesktop = idx;
     updateChips();
     // Show hint
     var hint = document.getElementById('insert-hint-desktop');
-    if (hint) { hint.style.display = 'block'; }
+    if (hint) { hint.style.display = 'flex'; }
   }
   function cancelInsertDesktop() {
     _insertAtDesktop = -1;
@@ -1889,24 +1936,52 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     if (_micActive) { stopMicDesktop(); return; }
     // Unlock/create main AudioContext on user gesture (required for iOS)
     unlockAudio();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      document.getElementById('rec-status-desktop').textContent = 'Mic not supported';
+      return;
+    }
+    document.getElementById('rec-status-desktop').textContent = 'Requesting mic...';
     navigator.mediaDevices.getUserMedia({audio:true, video:false})
     .then(function(stream) {
+      document.getElementById('rec-status-desktop').textContent = 'Got stream...';
       _micStream = stream;
-      _micCtx = new (window.AudioContext||window.webkitAudioContext)();
-      _micAnalyser = _micCtx.createAnalyser();
-      _micAnalyser.fftSize = 2048;
-      _micCtx.createMediaStreamSource(stream).connect(_micAnalyser);
-      _micActive = true;
-      _noteActive=false; _stableCount=0; _lastFreq=0; _prevRms=0; _lockoutUntil=0; _lastSoundTime=0;
-      var btn = document.getElementById('rec-btn-desktop');
-      var inner = document.getElementById('rec-inner-desktop');
-      if (btn) btn.classList.add('recording');
-      if (inner) inner.style.opacity = '1';
-      document.getElementById('rec-label-desktop').textContent = 'RECORDING \u2014 TAP TO STOP';
-      detectLoopDesktop();
+      try {
+        _micCtx = new (window.AudioContext||window.webkitAudioContext)();
+        // iOS requires explicit resume after creation
+        try { _micCtx.resume(); } catch(e) {}
+        var _setupAnalyser = function() {
+          _micAnalyser = _micCtx.createAnalyser();
+          _micAnalyser.fftSize = 2048;
+          _micCtx.createMediaStreamSource(stream).connect(_micAnalyser);
+          _micActive = true;
+          _noteActive=false; _stableCount=0; _lastFreq=0; _prevRms=0; _lockoutUntil=0; _lastSoundTime=0;
+          var btn = document.getElementById('rec-btn-desktop');
+          var inner = document.getElementById('rec-inner-desktop');
+          if (btn) btn.classList.add('recording');
+          if (inner) inner.style.opacity = '1';
+          document.getElementById('rec-label-desktop').textContent = 'RECORDING \u2014 TAP TO STOP';
+          document.getElementById('rec-status-desktop').textContent = '';
+          detectLoopDesktop();
+        };
+        if (_micCtx.state === 'suspended' || _micCtx.state === 'interrupted') {
+          _micCtx.resume().then(_setupAnalyser).catch(function(e) {
+            document.getElementById('rec-status-desktop').textContent = 'Resume error: '+e.message;
+          });
+        } else {
+          _setupAnalyser();
+        }
+        return; // _setupAnalyser handles the rest
+      } catch(acErr) {
+        document.getElementById('rec-status-desktop').textContent = 'AC error: '+acErr.message;
+        return;
+      }
     })
-    .catch(function() {
-      document.getElementById('rec-status-desktop').textContent = 'Mic access denied';
+    .catch(function(err) {
+      var msg = err && err.name === 'NotAllowedError' ? 'Mic access denied'
+              : err && err.name === 'NotFoundError' ? 'No mic found'
+              : 'Mic error: ' + (err && err.name || 'unknown');
+      document.getElementById('rec-status-desktop').textContent = msg;
+      console.log('getUserMedia error:', err);
     });
   }
   window.toggleRecDesktop = toggleRecDesktop;
@@ -1949,7 +2024,12 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
             var written = transposeNoteForMicDesktop(note);
             // Apply sharps/flats mode
             written = applyAccModeDesktop(written.slice(0,-1)) + written.slice(-1);
-            selNotes.push(written);
+            if (_insertAtDesktop >= 0) {
+              selNotes.splice(_insertAtDesktop, 0, written);
+              _insertAtDesktop++;
+            } else {
+              selNotes.push(written);
+            }
             updateChips(); upPrompt(); upHint(); checkReady();
             document.getElementById('rec-status-desktop').textContent = written;
             _lockoutUntil = now + _lockoutMs;
