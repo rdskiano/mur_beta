@@ -447,31 +447,29 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 /* Phone exercise fullscreen */
 @media screen and (max-width: 767px) {
   body.showing-exercises #controls { display: none; }
-  body.showing-exercises .topbar { flex-shrink: 0; }
-  body.showing-exercises #ex-nav-bar { flex-shrink: 0; }
-  body.showing-exercises #sheet-wrap {
+  body.showing-exercises .topbar { display: none; }
+  body.showing-exercises #ex-nav-bar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
+    z-index: 20;
+    height: 52px;
+  }
+  body.showing-exercises #sheet-wrap {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    right: 0;
     bottom: 0;
-    display: flex !important;
-    flex-direction: column;
-    overflow: hidden;
+    display: block !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     z-index: 10;
     background: white;
   }
   body.showing-exercises .sheet {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  body.showing-exercises #ex-nav-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 20;
+    padding-bottom: 20px;
   }
   body.showing-exercises #export-bar {
     display: none !important;
@@ -676,15 +674,16 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 <div class="settings-overlay" id="help-overlay" onclick="outsideCloseHelp(event)">
   <div class="settings-panel">
     <div class="sp-h2">How to Use <button class="close-btn" onclick="closeHelp()">&#x2715;</button></div>
-    <div class="sp-sec"><div class="sp-h3">What is this?</div><div class="sp-p">Mixed Up Rhythms is a rhythm practice tool for working musicians and serious students. Enter a melodic passage from a piece you are working on, and the app generates that passage written in every rhythm pattern for a given note grouping — a complete systematic workout in all rhythms.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 1 — Choose a note grouping</div><div class="sp-p">Choose how many notes are in your passage by clicking one of the six buttons — 3 through 8. The app will generate every rhythm pattern for that grouping.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 2 — Set clef and instrument</div><div class="sp-p">Choose the clef your instrument reads in. Select your instrument from the list — the app transposes the audio preview so what you hear matches what you sound. For example, a B♭ clarinet player will hear concert pitch.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 3 — Enter your passage</div><div class="sp-p">Tap notes on the scrollable keyboard. Use the <strong>Sharps</strong> / <strong>Flats</strong> toggle to control how accidentals are spelled. Use <strong>Clear</strong> to start over.<br><br>Each note appears as a chip above the keyboard and on the live staff so you can see exactly what you've entered. Tap <strong>&#x25BA; Play Passage</strong> to hear it back.<br><br>Alternatively, switch to <strong>Record</strong> mode and play each note into your microphone — one at a time, clearly, with a brief silence between each note.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Editing your passage</div><div class="sp-p">Click the <strong>×</strong> on any chip to remove a note. Click <strong>+</strong> between chips to insert a note at that position — then tap the key you want. Click the enharmonic spelling on a chip to cycle through equivalent spellings (e.g. F# → Gb).</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 4 — Generate</div><div class="sp-p">Click <strong>Generate Exercises</strong> to produce the complete set of rhythm patterns for your passage. The exercises appear below — your passage is written out in every rhythm pattern for the chosen grouping.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 5 — Save &amp; explore</div><div class="sp-p">Click <strong>▲ Save Exercise</strong> to save to your personal library. You'll be asked for your name, email, and instrument once — the app remembers you after that. Use <strong>☰ Library</strong> to browse your saved exercises or search the community library.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Tips</div><div class="sp-p">— Your passage plays once through each pattern, stopping when all notes are used.<br>— Any passage length works — a few notes or an entire phrase.<br>— The keyboard scrolls — drag the black band below the keys to navigate the full range.<br>— Click <strong>&#x21BB; Start Over</strong> to reset everything.</div></div>
-    <div class="sp-sec"><div class="sp-h3">About</div><div class="sp-p">Created by Ralph Skiano, Principal Clarinet of the Detroit Symphony Orchestra.<br><br><a href="/cdn-cgi/l/email-protection#384a5c4b5351595657785f55595154165b5755" style="color:var(--accent)"><span class="__cf_email__" data-cfemail="710315021a18101f1e31161c10181d5f121e1c">[email&#160;protected]</span></a></div></div>
+    <div class="sp-sec"><div class="sp-h3">What is this?</div><div class="sp-p">Mixed Up Rhythms is a rhythm practice tool for working musicians and serious students. Enter a melodic passage from a piece you are working on, and the app generates that passage written in every rhythm pattern for a given note grouping &mdash; a complete systematic workout in all rhythms.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 1 &mdash; Choose a note grouping</div><div class="sp-p">Click one of the six buttons to choose how many notes are in your passage &mdash; 3 through 8. The app will generate every rhythm pattern for that grouping.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 2 &mdash; Instrument setup</div><div class="sp-p">Choose the clef your instrument reads in, then select your instrument. The app transposes the audio preview to concert pitch &mdash; so if you play B&#9837; clarinet, what you hear matches what you sound. Steps 3 and 4 reveal once your instrument is selected.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 3 &mdash; Enter your passage</div><div class="sp-p">Tap notes on the scrollable keyboard. Use the <strong>Sharps / Flats</strong> toggle to control how accidentals are spelled. Drag the black band below the keys to scroll the keyboard. Use <strong>Clear</strong> to start over.<br><br>Your notes appear as chips below the keyboard and on the live staff. Tap <strong>&#9654; Play Passage</strong> to hear it back.<br><br>Switch to <strong>Record</strong> mode to play notes into your microphone &mdash; one at a time, clearly, with a brief silence between each. The app detects pitch automatically and stops after 3 seconds of silence.<br><br><em>Please ensure your device is not muted or in silent mode to hear audio.</em></div></div>
+    <div class="sp-sec"><div class="sp-h3">Editing your passage</div><div class="sp-p"><strong>Tap any chip</strong> to open the edit popover, which lets you:<br>&mdash; <strong>Respell</strong> the note &mdash; choose from all enharmonic equivalents for that pitch (e.g. C# vs D&#9837; vs B##)<br>&mdash; <strong>Force an accidental</strong> &mdash; add &#9838; &#9839; &#9837; &#119082; &#119083; regardless of key context, useful for courtesy accidentals in contemporary music<br>&mdash; <strong>Type any spelling</strong> directly (e.g. B#4, Fb3, Dbb4)<br>&mdash; <strong>Delete</strong> the note<br><br>Use the <strong>+</strong> buttons between chips to insert a note at any position &mdash; tap +, then tap a key on the keyboard.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 4 &mdash; Generate</div><div class="sp-p">Enter a document name, then click <strong>Generate Exercises</strong> to produce the complete set of rhythm patterns. On phone, exercises display one at a time with &#8592; &#8594; navigation. On iPad and desktop, all exercises scroll in a list.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Playback</div><div class="sp-p">Each exercise has a <strong>&#9654;</strong> play button. Use the <strong>BPM</strong> field in the toolbar to control the tempo. Click &#9632; or the same button again to stop. Starting a new exercise automatically stops any currently playing one.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Step 5 &mdash; Save &amp; explore</div><div class="sp-p">Click <strong>&#9651; Save Exercise</strong> to save to your personal library. You'll be asked for your name, email, and instrument once &mdash; the app remembers you. Use <strong>&#9776; Library</strong> to browse saved exercises or search the community library.</div></div>
+    <div class="sp-sec"><div class="sp-h3">Tips</div><div class="sp-p">&mdash; Any passage length works &mdash; a few notes or an entire phrase.<br>&mdash; Your passage cycles through each pattern until all notes are used.<br>&mdash; Click <strong>&#8635; Start Over</strong> to reset everything.</div></div>
+    <div class="sp-sec"><div class="sp-h3">About</div><div class="sp-p">Created by Ralph Skiano, Principal Clarinet of the Detroit Symphony Orchestra.<br><br><a href="mailto:rdskiano@gmail.com" style="color:var(--accent)">rdskiano@gmail.com</a></div></div>
   </div>
 </div>
 
