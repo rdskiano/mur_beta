@@ -83,19 +83,32 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   overflow-x: scroll;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  cursor: grab;
+  touch-action: none;
   width: 100%;
   box-sizing: border-box;
+  user-select: none;
+  cursor: ew-resize;
 }
+#staff-drag-handle {
+  width: 100%;
+  padding: 5px 0;
+  background: #0e0c09;
+  text-align: center;
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+}
+#live-staff-desktop::-webkit-scrollbar { height: 8px; }
+#live-staff-desktop::-webkit-scrollbar-track { background: #e8e0d4; }
+#live-staff-desktop::-webkit-scrollbar-thumb { background: #8b3a1a; border-radius: 4px; }
 #live-staff-desktop svg path,
 #live-staff-desktop svg rect,
 #live-staff-desktop svg ellipse,
 #live-staff-desktop svg line,
 #live-staff-desktop svg text { fill: #1a1208 !important; stroke: #1a1208 !important; }
-#live-staff-desktop svg { pointer-events: none; }
-#live-staff-desktop * { pointer-events: none; user-select: none; }
-#live-staff-desktop { user-select: none; }
+#live-staff-desktop * { user-select: none; pointer-events: none; }
+#live-staff-render { display: inline-block; white-space: nowrap; }
+#live-staff-render svg { display: block; }
 .chips-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; min-height: 28px; align-items: center; }
 .chip { background: var(--accent); color: white; font-family: 'Inconsolata', monospace; font-size: 0.7rem; letter-spacing: 0.04em; padding: 3px 7px 3px 9px; display: inline-flex; align-items: center; gap: 3px; animation: pop 0.1s ease; }
 @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -575,7 +588,10 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
         </div>
       </div>
       <!-- Live staff -->
+      <div id="live-staff-wrap" style="width:100%;">
       <div id="live-staff-desktop"><div style="font-family:'Bebas Neue',sans-serif;font-size:0.72rem;letter-spacing:0.18em;color:rgba(245,240,232,0.4);padding:10px 28px;text-transform:uppercase;">Tap a note to edit or delete  ·  Tap + to insert</div></div>
+      <div id="staff-drag-handle"><span style="font-family:'Bebas Neue',sans-serif;font-size:0.55rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);">&#8592; DRAG TO SCROLL NOTES &#8594;</span></div>
+      </div><!-- /live-staff-wrap -->
       <!-- Insert hint -->
       <div id="insert-hint-desktop" style="display:none;background:#1a1410;color:var(--cream);padding:6px 16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.85rem;align-items:center;justify-content:space-between;">
         <span>Tap a key to insert note at marked position</span>
@@ -1104,15 +1120,15 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     div.innerHTML = '<div id="live-staff-render"></div>';
     try {
       var w = Math.max(div.offsetWidth > 32 ? div.offsetWidth : window.innerWidth, 200);
+      var staffW = Math.max(selNotes.length * 80 + 200, w + 100);
       ABCJS.renderAbc('live-staff-render', abc, {
         scale: 1.3,
-        staffwidth: Math.max(w * 2, selNotes.length * 60 + 120),
+        staffwidth: staffW,
         paddingright: 20, paddingleft: 8, paddingtop: 8, paddingbottom: 6,
         add_classes: true,
         wrap: null,
         selectTypes: false
       });
-      setTimeout(function() { div.scrollLeft = div.scrollWidth; }, 60);
     } catch(e) {}
   }
   function updateChips() {
@@ -2280,27 +2296,44 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     if (!scrollArea) return;
     setTimeout(function() { scrollArea.scrollLeft = 700; }, 100);
 
-    // Mouse drag for live staff
+    // Staff drag handle - dedicated bar user grabs to scroll (phone-proven pattern)
     var staffDiv = document.getElementById('live-staff-desktop');
-    if (staffDiv) {
-      staffDiv.addEventListener('mousedown', function(e) {
+    var staffHandle = document.getElementById('staff-drag-handle');
+    if (staffHandle && staffDiv) {
+      var _sx = 0;
+      // Touch on the drag handle bar
+      staffHandle.addEventListener('touchstart', function(e) {
+        _sx = e.touches[0].clientX;
+      }, {passive: true});
+      staffHandle.addEventListener('touchmove', function(e) {
+        var dx = _sx - e.touches[0].clientX;
+        staffDiv.scrollLeft += dx;
+        _sx = e.touches[0].clientX;
+        e.preventDefault();
+      }, {passive: false});
+      // Also touch directly on the staff area itself
+      staffDiv.addEventListener('touchstart', function(e) {
+        _sx = e.touches[0].clientX;
+      }, {passive: true});
+      staffDiv.addEventListener('touchmove', function(e) {
+        var dx = _sx - e.touches[0].clientX;
+        staffDiv.scrollLeft += dx;
+        _sx = e.touches[0].clientX;
+        e.preventDefault();
+      }, {passive: false});
+      staffHandle.addEventListener('mousedown', function(e) {
         if (e.button !== 0) return;
         var startX = e.clientX, startScroll = staffDiv.scrollLeft;
-        var moved = false;
-        staffDiv.style.cursor = 'grabbing';
-        function onMove(e2) {
-          moved = true;
-          staffDiv.scrollLeft = startScroll - (e2.clientX - startX);
-        }
+        staffHandle.style.cursor = 'grabbing';
+        function onMove(e2) { staffDiv.scrollLeft = startScroll + (startX - e2.clientX); }
         function onUp() {
-          staffDiv.style.cursor = 'grab';
+          staffHandle.style.cursor = 'grab';
           document.removeEventListener('mousemove', onMove);
           document.removeEventListener('mouseup', onUp);
         }
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup', onUp);
         e.preventDefault();
-        e.stopPropagation();
       });
     }
     var dragBand = document.getElementById('kb-drag-band');
