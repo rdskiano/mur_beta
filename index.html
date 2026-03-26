@@ -30,7 +30,7 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 .rotate-sub { font-family: 'Inconsolata', monospace; font-size: 1rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
 
 /* Top bar */
-.topbar { background: var(--ink); border-bottom: 3px solid var(--accent); padding: 0 14px; min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.topbar { background: var(--ink); border-bottom: 3px solid var(--accent); padding: 6px 14px; min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: nowrap; }
 .app-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.14em; color: var(--cream); }
 .settings-btn { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); height: 30px; padding: 0 12px; cursor: pointer; font-size: 1rem; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; white-space: nowrap; transition: all 0.12s; }
 .settings-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -437,10 +437,11 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 .chip-clickable:active { transform: translateY(0); }
 
 @media screen and (max-width: 600px) {
-  .topbar { padding: 8px 12px; }
-  .topbar-btns { gap: 4px; }
-  .settings-btn { font-size: 0.75rem !important; padding: 4px 8px !important; }
-  .app-title { font-size: 1.4rem !important; }
+  .topbar { padding: 6px 10px; }
+  .topbar-btns { gap: 3px; }
+  .settings-btn { font-size: 0.7rem !important; padding: 3px 6px !important; }
+  .app-title { font-size: 1.2rem !important; }
+  .app-subtitle { display: none; }
 }
 
 /* Phone exercise fullscreen */
@@ -2015,6 +2016,7 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
   // Exercise playback
   var _playTimer = null;
   var _playingIdx = -1;
+  var _activeOscillators = [];
 
   // Duration codes to beat fractions (1 beat = quarter note)
   var DUR_BEATS = {
@@ -2029,6 +2031,11 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 
   function stopPlayback() {
     if (_playTimer) { clearTimeout(_playTimer); _playTimer = null; }
+    // Stop all active oscillators immediately
+    _activeOscillators.forEach(function(o) {
+      try { o.stop(); } catch(e) {}
+    });
+    _activeOscillators = [];
     // Reset all play buttons
     document.querySelectorAll('[id^="play-ex-"]').forEach(function(btn) {
       btn.innerHTML = '&#9654;';
@@ -2041,6 +2048,8 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
   }
 
   function playExercise(pat, uiIdx) {
+    // If clicking the same exercise that's playing, stop it
+    if (_playingIdx === uiIdx) { stopPlayback(); return; }
     stopPlayback();
     if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
     AC.resume().then(function() {
@@ -2108,6 +2117,7 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
         g.gain.linearRampToValueAtTime(0.3, startT + 0.01);
         g.gain.exponentialRampToValueAtTime(0.001, startT + n.dur);
         o.start(startT); o.stop(startT + n.dur + 0.05);
+        _activeOscillators.push(o);
       });
 
       _playTimer = setTimeout(stopPlayback, totalTime + 200);
@@ -2116,16 +2126,16 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 
   function playCurrentPhoneExercise() {
     var phoneBtn = document.getElementById('phone-play-btn');
+    // Toggle: if playing, stop
     if (_playingIdx >= 0) {
       stopPlayback();
-      if (phoneBtn) phoneBtn.innerHTML = '&#9654;';
       return;
     }
     var item = _allExercises[_exIdx];
     if (!item) return;
     if (phoneBtn) phoneBtn.innerHTML = '&#9632;';
-    playExercise(item.pat, -1); // -1 = phone mode
-    _playingIdx = _exIdx;
+    _playingIdx = _exIdx; // set before calling playExercise
+    playExercise(item.pat, 'phone');
   }
   window.playCurrentPhoneExercise = playCurrentPhoneExercise;
   window.stopPlayback = stopPlayback;
@@ -2434,7 +2444,7 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
         playExercise(pat, idx);
       }; })(p, i));
       var idLabel = document.createElement('div'); idLabel.className = 'ex-id-label';
-      idLabel.textContent = '#' + p.id + '  ·  ' + p.timeSig + (p.beaming ? '  ·  [' + p.beaming + ']' : '');
+      idLabel.textContent = '#' + p.id + '  ï¿½  ' + p.timeSig + (p.beaming ? '  ï¿½  [' + p.beaming + ']' : '');
       idRow.appendChild(playBtn); idRow.appendChild(idLabel);
       var staveDiv = document.createElement('div'); staveDiv.id = 'ex-' + i;
       row.appendChild(idRow); row.appendChild(staveDiv); exCont.appendChild(row);
@@ -3460,8 +3470,5 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
   </div>
 </div>
 <div id="chip-popover-backdrop" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:499;" onclick="closeChipPopover()"></div>
-</body>
-</
-</h
 </body>
 </html>
