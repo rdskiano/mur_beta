@@ -19,11 +19,7 @@ html{overflow-x:hidden;}
 body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);color:var(--cream); font-family: 'Cormorant Garamond', Georgia, serif; }
 
 /* Rotate overlay */
-.rotate-overlay {
-  display: none; position: fixed; inset: 0; z-index: 200;
-  background: var(--ink); flex-direction: column; align-items: center;
-  justify-content: center; gap: 18px; text-align: center; padding: 32px;
-}
+
 .rotate-icon { font-size: 3rem; animation: tilt 2s ease-in-out infinite; }
 @keyframes tilt { 0%,100%{transform:rotate(0deg)} 40%,60%{transform:rotate(90deg)} }
 .rotate-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.14em; color: var(--cream); }
@@ -466,12 +462,6 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 </head>
 <body>
 
-<!-- Rotate prompt -->
-<div class="rotate-overlay" id="rotate-overlay">
-  <div class="rotate-icon">📱</div>
-  <div class="rotate-title">Please rotate your device</div>
-  <div class="rotate-sub">This app works best in landscape orientation</div>
-</div>
 
 <div class="topbar">
   <div style="display:flex;flex-direction:column;gap:1px"><div class="app-title">Mixed Up Rhythms</div><div style="font-family:'Inconsolata',monospace;font-size:0.65rem;letter-spacing:0.16em;text-transform:uppercase;color:#aaa">Rhythm Pattern Generator</div></div>
@@ -600,6 +590,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
       <!-- Chips -->
       <div style="padding:8px 28px 16px;">
       <div class="chips-row" id="chips"><span class="no-notes">No notes entered</span></div>
+      <div id="chips-hint-line" style="font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:0.15em;color:rgba(245,240,232,0.3);margin-top:4px;display:none;">TAP A NOTE TO EDIT &nbsp;&middot;&nbsp; TAP + TO INSERT</div>
       <div class="count-hint" id="count-hint"></div>
       <button class="play-btn" id="play-btn" onclick="playPassage()">&#9654; Play Passage</button>
       </div>
@@ -1087,7 +1078,47 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     }
 
     svg.addEventListener('click', handlePress);
-    svg.addEventListener('touchstart', handlePress, {passive: false});
+
+    // Touch: short press = note, swipe = scroll keyboard
+    var _touchTimer = null, _touchStartX = 0, _touchStartY = 0, _touchKey = null, _touchSwiped = false;
+    svg.addEventListener('touchstart', function(e) {
+      var t = e.touches[0];
+      _touchStartX = t.clientX; _touchStartY = t.clientY;
+      _touchSwiped = false;
+      // Find the key under the finger now
+      var target = document.elementFromPoint(t.clientX, t.clientY);
+      var k = target;
+      while (k && k !== svg) {
+        if (k.getAttribute && k.getAttribute('data-note')) break;
+        k = k.parentNode;
+      }
+      _touchKey = (k && k !== svg && k.getAttribute && k.getAttribute('data-note')) ? k : null;
+      if (!_touchKey) return;
+      // Wait 150ms - if no swipe, fire the note
+      _touchTimer = setTimeout(function() {
+        if (!_touchSwiped) { handlePress(e); }
+        _touchTimer = null;
+      }, 150);
+      e.preventDefault();
+    }, {passive: false});
+
+    svg.addEventListener('touchmove', function(e) {
+      var t = e.touches[0];
+      var dx = Math.abs(t.clientX - _touchStartX);
+      var dy = Math.abs(t.clientY - _touchStartY);
+      if (dx > 8 || dy > 8) {
+        _touchSwiped = true;
+        if (_touchTimer) { clearTimeout(_touchTimer); _touchTimer = null; }
+      }
+    }, {passive: true});
+
+    svg.addEventListener('touchend', function(e) {
+      if (_touchTimer) {
+        clearTimeout(_touchTimer);
+        _touchTimer = null;
+        if (!_touchSwiped) { handlePress(e); }
+      }
+    }, {passive: true});
   }
 
   function mkS(tag, attrs) {
@@ -1135,6 +1166,25 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     renderLiveStaffDesktop();
     var el = document.getElementById('chips');
     if (!el) return;
+    if (!selNotes.length) { el.innerHTML = '<span class="no-notes">No notes entered</span>';
+      var hl2 = document.getElementById('chips-hint-line'); if (hl2) hl2.style.display = 'none';
+      return; }
+    var html = '';
+    selNotes.forEach(function(n, i) {
+      var isActive = _insertAtDesktop === i;
+      html += '<button class="chip-ins-btn' + (isActive ? ' active' : '') + '" onclick="startInsertDesktop(' + i + ')">+</button>';
+      html += '<button class="chip chip-clickable" onclick="openChipPopover(event,' + i + ')" title="Tap to edit">' + dn(n) + '</button>';
+    });
+    html += '<button class="chip-ins-btn' + (_insertAtDesktop === selNotes.length ? ' active' : '') + '" onclick="startInsertDesktop(' + selNotes.length + ')">+</button>';
+    el.innerHTML = html;
+    var hl = document.getElementById('chips-hint-line');
+    if (hl) hl.style.display = 'block';
+  }
+
+  function updateChips() {
+    renderLiveStaffDesktop();
+    var el = document.getElementById('chips');
+    if (!el) return;
     if (!selNotes.length) { el.innerHTML = '<span class="no-notes">No notes entered</span>'; return; }
     var html = '';
     selNotes.forEach(function(n, i) {
@@ -1145,6 +1195,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     html += '<button class="chip-ins-btn' + (_insertAtDesktop === selNotes.length ? ' active' : '') + '" onclick="startInsertDesktop(' + selNotes.length + ')">+</button>';
     el.innerHTML = html;
   }
+
   // ── ABC NOTATION CONVERSION ───────────────────────────
   // Duration table: with L:1/32, each unit = 1 thirty-second note
   var DUR32 = {'32':1,'16':2,'16.':3,'8':4,'8.':6,'q':8,'q.':12,'h':16,'h.':24,'w':32};
@@ -1715,21 +1766,8 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   }
   window.playPassage = playPassage;
 
-  // ── ORIENTATION ───────────────────────────────────────
-  function checkOrientation() {
-    // Show rotate prompt on any narrow portrait screen (phones)
-    // Use innerWidth for reliable cross-browser detection
-    var isPortrait = window.innerHeight > window.innerWidth;
-    var isNarrow = window.innerWidth < 600;
-    var overlay = document.getElementById('rotate-overlay');
-    if (overlay) overlay.style.display = (isNarrow && isPortrait) ? 'flex' : 'none';
-  }
 
-  
-  // Sharps/Flats toggle
-  var _accModeDesktop = 'sharp';
-  var S2F = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
-  var F2S = {'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#'};
+
   function toggleAccidentalDesktop() {
     _accModeDesktop = _accModeDesktop === 'sharp' ? 'flat' : 'sharp';
     var btn = document.getElementById('acc-toggle-desktop');
@@ -2286,10 +2324,6 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
   updateStats();
   upPrompt();
-  checkOrientation();
-  window.addEventListener('resize', checkOrientation);
-  window.addEventListener('orientationchange', function() { setTimeout(checkOrientation, 200); });
-
   // Piano drag scroll
   function initPianoScroll() {
     var scrollArea = document.getElementById('piano-scroll-area');
