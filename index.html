@@ -63,8 +63,16 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 .kb-prompt strong { color: white; }
 .clear-btn { background: none; border: none; color: #888; font-family: 'Inconsolata', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; text-decoration: underline; }
 .clear-btn:hover { color: var(--accent); }
-.piano-wrap { width: 100%; height: 130px; user-select: none; -webkit-user-select: none; }
-#piano-svg { width: 100%; height: 100%; display: block; cursor: pointer; touch-action: none; }
+#piano-scroll-area {
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+}
+#piano-scroll-area::-webkit-scrollbar { display: none; }
+.piano-wrap { width: 1400px; height: 180px; user-select: none; -webkit-user-select: none; }
+#piano-svg { width: 1400px; height: 180px; display: block; cursor: pointer; touch-action: none; }
 
 /* Note chips */
 .chips-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; min-height: 28px; align-items: center; }
@@ -397,8 +405,9 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
 #kb-drag-band {
   text-align: center;
-  padding: 5px 0;
+  padding: 6px 0;
   background: #0e0c09;
+  cursor: grab;
 }
 #kb-drag-band span {
   font-family: 'Bebas Neue', sans-serif;
@@ -2200,6 +2209,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   updateProfileBtn();
 
   buildPiano();
+  initPianoScroll();
   // Unlock AudioContext on first touch for iOS Safari
   function unlockAudio() {
     if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
@@ -2215,6 +2225,34 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   checkOrientation();
   window.addEventListener('resize', checkOrientation);
   window.addEventListener('orientationchange', function() { setTimeout(checkOrientation, 200); });
+
+  // Piano drag scroll
+  function initPianoScroll() {
+    var scrollArea = document.getElementById('piano-scroll-area');
+    if (!scrollArea) return;
+    setTimeout(function() { scrollArea.scrollLeft = 480; }, 100);
+    var dragBand = document.getElementById('kb-drag-band');
+    if (dragBand) {
+      var _tx = 0;
+      dragBand.addEventListener('touchstart', function(e) {
+        _tx = e.touches[0].clientX; e.preventDefault();
+      }, {passive: false});
+      dragBand.addEventListener('touchmove', function(e) {
+        var dx = _tx - e.touches[0].clientX;
+        scrollArea.scrollLeft += dx;
+        _tx = e.touches[0].clientX;
+        e.preventDefault();
+      }, {passive: false});
+      dragBand.addEventListener('mousedown', function(e) {
+        var startX = e.clientX, startScroll = scrollArea.scrollLeft;
+        function onMove(e2) { scrollArea.scrollLeft = startScroll + (startX - e2.clientX); }
+        function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        e.preventDefault();
+      });
+    }
+  }
 
 })();
 </script>
