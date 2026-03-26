@@ -431,7 +431,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   color: rgba(245,240,232,0.4);
 }
 
-.chip-clickable { cursor: pointer; transition: background 0.12s, transform 0.1s; user-select: none; }
+.chip-clickable { cursor: pointer; transition: background 0.12s, transform 0.1s; user-select: none; -webkit-tap-highlight-color: transparent; }
 .chip-clickable:hover { background: #a04420; transform: translateY(-1px); }
 .chip-clickable:active { transform: translateY(0); }
 </style>
@@ -1087,7 +1087,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     selNotes.forEach(function(n, i) {
       var isActive = _insertAtDesktop === i;
       html += '<button class="chip-ins-btn' + (isActive ? ' active' : '') + '" onclick="startInsertDesktop(' + i + ')">+</button>';
-      html += '<div class="chip chip-clickable" onclick="openChipPopover(event,' + i + ')" title="Click to edit">' + dn(n) + '</div>';
+      html += '<button class="chip chip-clickable" onclick="openChipPopover(event,' + i + ')" title="Tap to edit">' + dn(n) + '</button>';
     });
     html += '<button class="chip-ins-btn' + (_insertAtDesktop === selNotes.length ? ' active' : '') + '" onclick="startInsertDesktop(' + selNotes.length + ')">+</button>';
     el.innerHTML = html;
@@ -1881,7 +1881,8 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
       var btn = document.getElementById(accIds[k]);
       if (btn) btn.style.background = (k === curAcc) ? 'var(--accent)' : '#2a231d';
     });
-    setTimeout(function() { document.getElementById('popover-custom-input').focus(); }, 60);
+    // Don't auto-focus on mobile - causes keyboard to jump
+    if (window.innerWidth > 768) { setTimeout(function() { document.getElementById('popover-custom-input').focus(); }, 60); }
   }
   function closeChipPopover() {
     document.getElementById('chip-popover').style.display = 'none';
@@ -1897,6 +1898,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   }
   function applyCustomSpelling() {
     if (_popoverIdx < 0) return;
+    document.getElementById('popover-custom-input').blur();
     var val = document.getElementById('popover-custom-input').value.trim();
     var m = val.match(/^([A-Ga-g])(##|bb|#|b)?([1-8])$/);
     var inp = document.getElementById('popover-custom-input');
@@ -2240,7 +2242,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 </div>
 
 <!-- Chip edit popover -->
-<div id="chip-popover" style="display:none;position:fixed;z-index:500;background:#1a1410;border:1px solid #3a2e24;box-shadow:0 8px 32px rgba(0,0,0,0.6);min-width:240px;border-radius:3px;">
+<div id="chip-popover" style="display:none;position:fixed;z-index:500;background:#1a1410;border:1px solid #3a2e24;box-shadow:0 8px 32px rgba(0,0,0,0.6);min-width:240px;border-radius:3px;-webkit-overflow-scrolling:touch;overflow-y:auto;max-height:80vh;">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #2a231d;">
     <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.5);">Edit Note</div>
     <button onclick="closeChipPopover()" style="background:none;border:none;color:rgba(245,240,232,0.5);font-size:1.1rem;cursor:pointer;padding:0 2px;line-height:1;" title="Close">&times;</button>
@@ -2272,6 +2274,6 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     <button onclick="deletePopoverNote()" style="width:100%;background:none;border:1px solid rgba(229,53,53,0.4);color:rgba(229,53,53,0.9);padding:7px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.15em;cursor:pointer;">Delete This Note</button>
   </div>
 </div>
-<div id="chip-popover-backdrop" style="display:none;position:fixed;inset:0;z-index:499;" onclick="closeChipPopover()"></div>
+<div id="chip-popover-backdrop" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:499;" onclick="closeChipPopover()"></div>
 </body>
 </html>
