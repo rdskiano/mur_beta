@@ -446,6 +446,11 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
 
 /* Phone exercise fullscreen */
 @media screen and (max-width: 767px) {
+  body.showing-exercises {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
   body.showing-exercises #controls { display: none; }
   body.showing-exercises .topbar { display: none; }
   body.showing-exercises #ex-nav-bar {
@@ -463,13 +468,17 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
     right: 0;
     bottom: 0;
     display: block !important;
-    overflow-y: auto;
+    overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     z-index: 10;
     background: white;
   }
   body.showing-exercises .sheet {
-    padding-bottom: 20px;
+    padding-bottom: 40px;
+  }
+  body.showing-exercises #exercises {
+    min-height: 100%;
   }
   body.showing-exercises #export-bar {
     display: none !important;
@@ -1701,7 +1710,7 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
   var _micActive = false, _micStream = null, _micCtx = null, _micAnalyser = null, _micTimer = null;
   var _prevRms = 0, _noteActive = false, _stableCount = 0, _lastFreq = 0;
   var _lockoutUntil = 0, _lockoutMs = 400, _lastSoundTime = 0, _autoStopMs = 3000;
-  var _onsetThresh = 0.04, _releaseThresh = 0.015, _stableNeeded = 4;
+  var _onsetThresh = 0.02, _releaseThresh = 0.008, _stableNeeded = 4;
   var NOTE_NAMES_MIC_D = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
   function autoCorr(buf, sr) {
@@ -2406,20 +2415,25 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
     var next = document.getElementById('ex-next');
     if (prev) prev.style.opacity = _exIdx === 0 ? '0.3' : '1';
     if (next) next.style.opacity = _exIdx === _allExercises.length - 1 ? '0.3' : '1';
-    var row = document.createElement('div'); row.className = 'ex-row';
-    var idLabel = document.createElement('div'); idLabel.className = 'ex-id-label';
-    idLabel.textContent = (_exIdx + 1) + ' / ' + _allExercises.length + '  �  ' + item.pat.timeSig;
-    var staveDiv = document.createElement('div'); staveDiv.id = 'ex-phone-0';
-    row.appendChild(idLabel); row.appendChild(staveDiv); exCont.appendChild(row);
-    var w = Math.max((exCont.offsetWidth || window.innerWidth) - 20, 200);
-    try {
-      ABCJS.renderAbc('ex-phone-0', item.abc, {
-        scale: 1.1, staffwidth: w,
-        paddingright: 10, paddingleft: 10, paddingbottom: 10, paddingtop: 10,
-        add_classes: true,
-        wrap: {minSpacing: 1.5, maxSpacing: 2.5, preferredMeasuresPerLine: 4}
-      });
-    } catch(e) { row.innerHTML = '<div style="color:var(--accent);padding:8px">Render error</div>'; }
+
+    // No label, no wrapper div - render directly into exCont
+    var staveDiv = document.createElement('div');
+    staveDiv.id = 'ex-phone-0';
+    staveDiv.style.cssText = 'width:100%;background:white;';
+    exCont.appendChild(staveDiv);
+
+    // Delay render slightly to let layout settle
+    setTimeout(function() {
+      var w = Math.max((exCont.offsetWidth || window.innerWidth) - 4, 200);
+      try {
+        ABCJS.renderAbc('ex-phone-0', item.abc, {
+          scale: 1.1, staffwidth: w,
+          paddingright: 8, paddingleft: 8, paddingbottom: 16, paddingtop: 8,
+          add_classes: true,
+          wrap: {minSpacing: 1.5, maxSpacing: 2.5, preferredMeasuresPerLine: 4}
+        });
+      } catch(e) { staveDiv.innerHTML = '<div style="color:red;padding:8px">Render error</div>'; }
+    }, 50);
   }
 
   function renderAllExercisesDesktop(pats, clef) {
@@ -2466,6 +2480,7 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
     document.body.classList.remove('showing-exercises');
     document.getElementById('sheet-wrap').style.display = 'none';
     document.getElementById('ex-nav-bar').style.display = 'none';
+    window.scrollTo(0, window._savedScrollY || 0);
   }
   window.exPrev = exPrev; window.exNext = exNext; window.exitPhoneExercises = exitPhoneExercises;
   window.addEventListener('resize', function() {
@@ -2744,7 +2759,7 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
   var _micActive = false, _micStream = null, _micCtx = null, _micAnalyser = null, _micTimer = null;
   var _prevRms = 0, _noteActive = false, _stableCount = 0, _lastFreq = 0;
   var _lockoutUntil = 0, _lockoutMs = 400, _lastSoundTime = 0, _autoStopMs = 3000;
-  var _onsetThresh = 0.04, _releaseThresh = 0.015, _stableNeeded = 4;
+  var _onsetThresh = 0.02, _releaseThresh = 0.008, _stableNeeded = 4;
   var NOTE_NAMES_MIC_D = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
   function autoCorr(buf, sr) {
