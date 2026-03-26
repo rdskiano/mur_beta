@@ -606,6 +606,13 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     <div class="empty-clef">𝄞</div>
     <div class="empty-p">Select a group · enter your passage · generate</div>
   </div>
+<!-- Phone exercise navigator -->
+<div id="ex-nav-bar" style="display:none;background:var(--ink);padding:8px 16px;align-items:center;justify-content:space-between;flex-shrink:0;">
+  <button id="ex-prev" onclick="exPrev()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:44px;height:38px;font-size:1.2rem;cursor:pointer;border-radius:4px;">&#8592;</button>
+  <span id="ex-counter" style="font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.15em;color:var(--cream);">1 / 0</span>
+  <button id="ex-next" onclick="exNext()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:44px;height:38px;font-size:1.2rem;cursor:pointer;border-radius:4px;">&#8594;</button>
+</div>
+
   <div id="sheet-wrap" style="display:none">
     <div class="sheet" id="sheet">
       <div class="sheet-title" id="sheet-title"></div>
@@ -650,6 +657,1744 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 (function() {
+
+  // ── KEY SPELLING ─────────────────────────────────────
+  var KEY_ACC = {
+    'C':{}, 'G':{'F':'F#'}, 'D':{'F':'F#','C':'C#'},
+    'A':{'F':'F#','C':'C#','G':'G#'}, 'E':{'F':'F#','C':'C#','G':'G#','D':'D#'},
+    'B':{'F':'F#','C':'C#','G':'G#','D':'D#','A':'A#'},
+    'Fs':{'F':'F#','C':'C#','G':'G#','D':'D#','A':'A#','E':'E#'},
+    'F':{'B':'Bb'}, 'Bb':{'B':'Bb','E':'Eb'}, 'Eb':{'B':'Bb','E':'Eb','A':'Ab'},
+    'Ab':{'B':'Bb','E':'Eb','A':'Ab','D':'Db'},
+    'Db':{'B':'Bb','E':'Eb','A':'Ab','D':'Db','G':'Gb'},
+    'Gb':{'B':'Bb','E':'Eb','A':'Ab','D':'Db','G':'Gb','C':'Cb'},
+  };
+  var S2F = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
+  var F2S = {'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#','Cb':'B'};
+
+  function spellForKey(raw, key) {
+    var acc = KEY_ACC[key] || {};
+    var m = raw.match(/^([A-G])(#?)(\d)$/);
+    if (!m) return raw;
+    var pc = m[1], sharp = m[2], oct = m[3];
+    if (!sharp) {
+      var ff = pc + 'b', flatted = false;
+      Object.keys(acc).forEach(function(k) { if (acc[k] === ff) flatted = true; });
+      return flatted ? pc + 'b' + oct : raw;
+    } else {
+      var spc = pc + '#', useSharp = false;
+      Object.keys(acc).forEach(function(k) { if (acc[k] === spc) useSharp = true; });
+      if (useSharp) return spc + oct;
+      var fl = S2F[spc], useFlat = false;
+      if (fl) Object.keys(acc).forEach(function(k) { if (acc[k] === fl) useFlat = true; });
+      return useFlat ? fl + oct : spc + oct;
+    }
+  }
+
+  var ENH_NEXT = {
+    // Standard enharmonics (single accidentals)
+    'C':'B#',  'B#':'C##', 'C##':'Db', 'Db':'C#',  'C#':'Dbb', 'Dbb':'C',
+    'D':'D##', 'D##':'Ebb','Ebb':'D#', 'D#':'Eb',  'Eb':'D',
+    'E':'Fb',  'Fb':'Ebb', 'E#':'F',   'F':'E#',
+    'F#':'Gb', 'Gb':'F##', 'F##':'G',  'G':'Gbb',  'Gbb':'F#',
+    'G#':'Ab', 'Ab':'G##', 'G##':'A',  'A':'Abb',  'Abb':'G#',
+    'A#':'Bb', 'Bb':'A##', 'A##':'B',  'B':'Cbb',  'Cbb':'A#',
+    'B#':'C',  'Cb':'B'
+  };
+  function flipEnh(n) {
+    var m = n.match(/^([A-G])(##|bb|#|b)?(\d)$/); if (!m) return n;
+    var pc=m[1]+(m[2]||''),oct=parseInt(m[3]),next=ENH_NEXT[pc];
+    if(!next) return n;
+    return next+((pc==='B#')?oct+1:(pc==='Cb')?oct-1:oct);
+  }
+  function hasEnharm(n) {
+    var m=n.match(/^([A-G])(##|bb|#|b)?(\d)$/); if(!m) return false;
+    return !!ENH_NEXT[m[1]+(m[2]||'')];
+  }
+  function isAcc(n) { return n.indexOf('#') !== -1 || /[A-G]b/.test(n); }
+  function dn(n) { return n.replace('##','𝄪').replace('bb','𝄫').replace('#','♯').replace('n','♮').replace(/([A-G])b/g,'$1♭'); }
+
+  // ── MIDI / AUDIO ─────────────────────────────────────
+  var CHR = {'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'E#':5,'Fb':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'B#':12,'Cb':11};
+  function midi(n) {
+    var m = n.match(/^([A-G](?:##|bb|#|b)?)(\d)$/); if (!m) return 60;
+    var pc = m[1];
+    // Handle double accidentals in CHR lookup
+    var s;
+    if (CHR[pc] !== undefined) { s = CHR[pc]; }
+    else if (pc.slice(-2) === '##') { s = (CHR[pc.slice(0,-1)] || 0) + 1; }
+    else if (pc.slice(-2) === 'bb') { s = (CHR[pc.slice(0,-1)] || 0) - 1; }
+    else { s = 0; }
+    return (parseInt(m[2]) + 1) * 12 + ((s % 12) + 12) % 12;
+  }
+  function transposeOffset() {
+    var s = document.getElementById('instrument-sel'); return s ? parseInt(s.value) || 0 : 0;
+  }
+  var AC = null;
+  function playNote(n) {
+    try {
+      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+      var doPlay = function() {
+        var f = 440 * Math.pow(2, (midi(n) + transposeOffset() - 69) / 12);
+        var o = AC.createOscillator(), g = AC.createGain();
+        o.connect(g); g.connect(AC.destination); o.type = 'triangle';
+        o.frequency.setValueAtTime(f, AC.currentTime);
+        g.gain.setValueAtTime(0, AC.currentTime);
+        g.gain.linearRampToValueAtTime(0.35, AC.currentTime + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.75);
+        o.start(AC.currentTime); o.stop(AC.currentTime + 0.75);
+      };
+      if (AC.state === 'suspended') {
+        AC.resume().then(doPlay);
+      } else {
+        doPlay();
+      }
+    } catch(e) {}
+  }
+
+  // ── DATABASE ──────────────────────────────────────────
+  var DB = [
+    {id:1,section:"Three-Note Rhythm Patterns",timeSig:"2/8",beaming:"",notes:["8","16","16"]},
+    {id:2,section:"Three-Note Rhythm Patterns",timeSig:"2/8",beaming:"",notes:["16","16","8"]},
+    {id:3,section:"Three-Note Rhythm Patterns",timeSig:"2/8",beaming:"",notes:["16","8","16"]},
+    {id:4,section:"Three-Note Rhythm Patterns",timeSig:"2/8",beaming:"",notes:["8","16.","32"]},
+    {id:5,section:"Three-Note Rhythm Patterns",timeSig:"2/8",beaming:"",notes:["8.","32","32"]},
+    {id:6,section:"Three-Note Rhythm Patterns",timeSig:"2/8",beaming:"",notes:["32","32","8."]},
+    {id:7,section:"Three-Note Rhythm Patterns",timeSig:"2/8",beaming:"0",notes:["32","8.","32"]},
+    {id:8,section:"Three-Note Rhythm Patterns",timeSig:"3/8",beaming:"2+1",notes:["8.","16","8"]},
+    {id:9,section:"Three-Note Rhythm Patterns",timeSig:"3/8",beaming:"1+2",notes:["8","8.","16"]},
+    {id:10,section:"Three-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","16","8."]},
+    {id:11,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["q.","8","8"]},
+    {id:12,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","8","q."]},
+    {id:13,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","q.","8"]},
+    {id:14,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["q","q","8"]},
+    {id:15,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["q","8","q"]},
+    {id:16,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","16","q."]},
+    {id:17,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["q.","8.","16"]},
+    {id:18,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["16","16","h"]},
+    {id:19,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["h","16","16"]},
+    {id:20,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["q","8.","8."]},
+    {id:21,section:"Three-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","8.","q"]},
+    {id:22,section:"Three-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["h","q","8"]},
+    {id:23,section:"Three-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["q.","q","q"]},
+    {id:24,section:"Three-Note Rhythm Patterns",timeSig:"7/8",beaming:"3+2+2",notes:["q.","q.","8"]},
+    {id:25,section:"Four-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","8","16","16"]},
+    {id:26,section:"Four-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16","16","8","8"]},
+    {id:27,section:"Four-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","16","16","8"]},
+    {id:28,section:"Four-Note Rhythm Patterns",timeSig:"3/8",beaming:"3",notes:["16","8","8","16"]},
+    {id:29,section:"Four-Note Rhythm Patterns",timeSig:"3/8",beaming:"2+1",notes:["8.","16","16","16"]},
+    {id:30,section:"Four-Note Rhythm Patterns",timeSig:"3/8",beaming:"1+2",notes:["16","16","8.","16"]},
+    {id:31,section:"Four-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16","8.","16","16"]},
+    {id:32,section:"Four-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16","16","16","8."]},
+    {id:33,section:"Four-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8.","16","8","8"]},
+    {id:34,section:"Four-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","8","8.","16"]},
+    {id:35,section:"Four-Note Rhythm Patterns",timeSig:"2/4",beaming:"4",notes:["8","8.","16","8"]},
+    {id:36,section:"Four-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","8.","8","8"]},
+    {id:37,section:"Four-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8.","16","16","8."]},
+    {id:38,section:"Four-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","8.","8.","16"]},
+    {id:39,section:"Four-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["q","8","8","8"]},
+    {id:40,section:"Four-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","q","8","8"]},
+    {id:41,section:"Four-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["q","8.","16","8"]},
+    {id:42,section:"Four-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","16","q","8"]},
+    {id:43,section:"Four-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["q","8","q","q"]},
+    {id:44,section:"Four-Note Rhythm Patteatterns",timeSig:"7/8",beaming:"",notes:["q","q","8","q"]},
+    {id:45,section:"Four-Note Rhythm Patterns",timeSig:"7/8",beaming:"3+3+2",notes:["q.","8.","16","q"]},
+    {id:46,section:"Five-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","16","16","16","16"]},
+    {id:47,section:"Five-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16","16","16","16","8"]},
+    {id:48,section:"Five-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16","16","8","16","16"]},
+    {id:49,section:"Five-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","16.","32","16.","32"]},
+    {id:50,section:"Five-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16.","32","16.","32","8"]},
+    {id:51,section:"Five-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","8","16t","16t","16t"]},
+    {id:52,section:"Five-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16t","16t","16t","8","8"]},
+    {id:53,section:"Five-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","16t","16t","16t","8"]},
+    {id:54,section:"Five-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["q","16","16","16","16"]},
+    {id:55,section:"Five-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16","16","q"]},
+    {id:56,section:"Five-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","8","8t","8t","8t"]},
+    {id:57,section:"Five-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8t","8t","8t","8","8"]},
+    {id:58,section:"Five-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8.","16","8t","8t","8t"]},
+    {id:59,section:"Five-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8t","8t","8t","8.","16"]},
+    {id:60,section:"Five-Note Rhythm Patterns",timeSig:"5/16",beaming:"",notes:["16.","32","16","16","16"]},
+    {id:61,section:"Five-Note Rhythm Patterns",timeSig:"5/16",beaming:"",notes:["16","16","16","16.","32"]},
+    {id:62,section:"Five-Note Rhythm Patterns",timeSig:"5/16",beaming:"",notes:["8","16","16","32","32"]},
+    {id:63,section:"Five-Note Rhythm Patterns",timeSig:"5/16",beaming:"",notes:["32","32","16","16","8"]},
+    {id:64,section:"Five-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","16","8.","16","8"]},
+    {id:65,section:"Five-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","16","8","8.","16"]},
+    {id:66,section:"Five-Note Rhythm Patterns",timeSig:"7/16",beaming:"",notes:["8","8","16","16","16"]},
+    {id:67,section:"Five-Note Rhythm Patterns",timeSig:"7/16",beaming:"",notes:["8","16","16","8","16"]},
+    {id:68,section:"Five-Note Rhythm Patterns",timeSig:"7/16",beaming:"",notes:["8","16","16","16","8"]},
+    {id:69,section:"Five-Note Rhythm Patterns",timeSig:"7/16",beaming:"",notes:["16","16","8","8","16"]},
+    {id:70,section:"Five-Note Rhythm Patterns",timeSig:"7/16",beaming:"3+4",notes:["16","16","16","8.","16"]},
+    {id:71,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","8","16","16","16","16"]},
+    {id:72,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","16","16","16","16","8"]},
+    {id:73,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16","16","8","8"]},
+    {id:74,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","8","8","16","16"]},
+    {id:75,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","8","16","8","16","16"]},
+    {id:76,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","8","16","16","16","8"]},
+    {id:77,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","8","8","16","16","16"]},
+    {id:78,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","16","16","16","8","16"]},
+    {id:79,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"2+2",notes:["8","8","8","16t","16t","16t"]},
+    {id:80,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"2+2",notes:["8","8","16t","16t","16t","8"]},
+    {id:81,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"2+2",notes:["8","16t","16t","16t","8","8"]},
+    {id:82,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"2+2",notes:["16t","16t","16t","8","8","8"]},
+    {id:83,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8.","16","16","16","16","16"]},
+    {id:84,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"2",notes:["16","16","8.","16","16","16"]},
+    {id:85,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16","16","16","8."]},
+    {id:86,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","8.","16","16","16","16"]},
+    {id:87,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"2+2",notes:["8.","32t","32t","32t","8.","16"]},
+    {id:88,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"2+2",notes:["8.","16","8.","32t","32t","32t"]},
+    {id:89,section:"Six-Note Rhythm Patterns",timeSig:"2/4",beaming:"2+2",notes:["32t","32t","32t","8.","16","8."]},
+    {id:90,section:"Six-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","8","32","32","32","32"]},
+    {id:91,section:"Six-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["32","32","32","32","8","8"]},
+    {id:92,section:"Six-Note Rhythm Patterns",timeSig:"3/8",beaming:"3",notes:["32","32","8","8","32","32"]},
+    {id:93,section:"Six-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","16","16","16t","16t","16t"]},
+    {id:94,section:"Six-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16t","16t","16t","16","16","8"]},
+    {id:95,section:"Six-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16t","16t","16t","8.","32","32"]},
+    {id:96,section:"Six-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8","8","8","8.","16","8"]},
+    {id:97,section:"Six-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8.","16","8","8","8","8"]},
+    {id:98,section:"Six-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8","8.","16","8.","16","8"]},
+    {id:99,section:"Six-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8.","16","8","8","8.","16"]},
+    {id:100,section:"Six-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["16","16","8","8","8","8"]},
+    {id:101,section:"Six-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","16","16","8","8","8"]},
+    {id:102,section:"Six-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","8","16","16","8","8"]},
+    {id:103,section:"Six-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","8","8","16","16","8"]},
+    {id:104,section:"Six-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","8","8","8","16","16"]},
+    {id:105,section:"Six-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["16","16","8","8.","16","8"]},
+    {id:106,section:"Six-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","16","8","8","16","16"]},
+    {id:107,section:"Six-Note Rhythm Patterns",timeSig:"5/8",beaming:"3+2",notes:["16","16","8.","16","8.","16"]},
+    {id:108,section:"Six-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","16","8.","16","16","16"]},
+    {id:109,section:"Six-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["q","8","8","8","8","8"]},
+    {id:110,section:"Six-Note Rhythm Patterns",timeSig:"7/8",beaming:"3+2+2",notes:["8","8","8","q","8","8"]},
+    {id:111,section:"Six-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["8","q","8","8","8","8"]},
+    {id:112,section:"Six-Note Rhythm Patterns",timeSig:"7/8",beaming:"3+2+2",notes:["q","8","8.","16","8.","16"]},
+    {id:113,section:"Six-Note Rhythm Patterns",timeSig:"7/8",beaming:"3+2+2",notes:["8.","16","8","q","16","8."]},
+    {id:114,section:"Six-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["q","8.","16","8.","16","8"]},
+    {id:115,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","16","16","16","16","16","16"]},
+    {id:116,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16","16","16","16","8"]},
+    {id:117,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","8","16","16","16","16"]},
+    {id:118,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","8","16","16","16","16","16"]},
+    {id:119,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","16.","32","16.","32","16.","32"]},
+    {id:120,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["32","16.","32","16.","32","16.","8"]},
+    {id:121,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["q","16t","16t","16t","16t","16t","16t"]},
+    {id:122,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16t","16t","16t","16t","16t","16t","q"]},
+    {id:123,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16t","16t","16t","q","16t","16t","16t"]},
+    {id:124,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16","16","8t","8t","8t"]},
+    {id:125,section:"Seven-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8t","8t","8t","16","16","16","16"]},
+    {id:126,section:"Seven-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","16t","16t","16t","16t","16t","16t"]},
+    {id:127,section:"Seven-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16t","16t","16t","8","16t","16t","16t"]},
+    {id:128,section:"Seven-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["16t","16t","16t","16t","16t","16t","8"]},
+    {id:129,section:"Seven-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["8","16","16","32","32","32","32"]},
+    {id:130,section:"Seven-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["32","32","32","32","16","16","8"]},
+    {id:131,section:"Seven-Note Rhythm Patterns",timeSig:"3/8",beaming:"",notes:["32","32","32","32","8","16","16"]},
+    {id:132,section:"Seven-Note Rhythm Patterns",timeSig:"3/4",beaming:"",notes:["8.","16","16","8","16","16","8."]},
+    {id:133,section:"Seven-Note Rhythm Patterns",timeSig:"3/4",beaming:"4+2",notes:["16","8","8","8","16","8.","16"]},
+    {id:134,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","8","8","16","16","16","16"]},
+    {id:135,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["16","16","16","16","8","8","8"]},
+    {id:136,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","8","16","16","8","16","16"]},
+    {id:137,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","16","16","8","16","16","8"]},
+    {id:138,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["16","16","8","8","8","16","16"]},
+    {id:139,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"5",notes:["16","8","16","16","8","16","8"]},
+    {id:140,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"5",notes:["16","8","16","8","16","8","16"]},
+    {id:141,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"5",notes:["8.","16","16","8","16","16","16"]},
+    {id:142,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","16","8","16.","32","16.","32"]},
+    {id:143,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["16.","32","16.","32","8.","16","8"]},
+    {id:144,section:"Seven-Note Rhythm Patterns",timeSig:"5/8",beaming:"5",notes:["16","8","8","8","8","32","32"]},
+    {id:145,section:"Seven-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["8.","16","8.","16","8.","16","8"]},
+    {id:146,section:"Seven-Note Rhythm Patterns",timeSig:"7/8",beaming:"3+4",notes:["8.","16","8","8.","16","8.","16"]},
+    {id:147,section:"Seven-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["8.","16","8.","16","8","8.","16"]},
+    {id:148,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16.","32","16","16","16","16","16","16"]},
+    {id:149,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["32","16.","16","16","16","16","16","16"]},
+    {id:150,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16","16","16.","32","16","16"]},
+    {id:151,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16","16","16","16","32","16."]},
+    {id:152,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16.","32","16","16","16","16","32","16."]},
+    {id:153,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","32","16.","16.","32","16","16"]},
+    {id:154,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16","16","16.","32","16.","32"]},
+    {id:155,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["32","16.","32","16.","16","16","16","16"]},
+    {id:156,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16","16","16.","32","16.","32","16","16"]},
+    {id:157,section:"Eight-Note Rhythm Patterns",timeSig:"4/4",beaming:"",notes:["8.","16","8.","16","16","8.","16","8."]},
+    {id:158,section:"Eight-Note Rhythm Patterns",timeSig:"4/4",beaming:"",notes:["16","8.","16","8.","8.","16","8.","16"]},
+    {id:159,section:"Eight-Note Rhythm Patterns",timeSig:"4/4",beaming:"",notes:["8.","16","16","8.","16","8.","8.","16"]},
+    {id:160,section:"Eight-Note Rhythm Patterns",timeSig:"4/4",beaming:"",notes:["16","8.","8.","16","16","8.","8.","16"]},
+    {id:161,section:"Eight-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8","8","16","16","16","16","8","8"]},
+    {id:162,section:"Eight-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8","16","16","8","8","8","16","16"]},
+    {id:163,section:"Eight-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["16","16","8","8","8","16","16","8"]},
+    {id:164,section:"Eight-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8","16","16","16","16","8.","16","8"]},
+    {id:165,section:"Eight-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8.","16","16","16","16","16","16","8."]},
+    {id:166,section:"Eight-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8","8.","16","16","16","16","16","8"]},
+    {id:167,section:"Eight-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["16","8","8","16","16","16","8","8"]},
+    {id:168,section:"Eight-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["16","8","8","16","8","16.","32","8"]},
+    {id:169,section:"Eight-Note Rhythm Patterns",timeSig:"6/8",beaming:"",notes:["8","8","16","16","16","8","8","16"]},
+    {id:170,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","16t","16t","16t","16t","16t","16t","8"]},
+    {id:171,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16t","16t","16t","8","8","16t","16t","16t"]},
+    {id:172,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8","16t","16t","16t","16","16","16","16"]},
+    {id:173,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["16.","32","16.","32","16t","16t","16t","8"]},
+    {id:174,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["8t","8t","8t","8","32","32","32","32"]},
+    {id:175,section:"Eight-Note Rhythm Patterns",timeSig:"2/4",beaming:"",notes:["32","32","32","32","8","8t","8t","8t"]},
+    {id:176,section:"Eight-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","8","16","16","16","16","16","16"]},
+    {id:177,section:"Eight-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["16","16","16","16","8","16","16","8"]},
+    {id:178,section:"Eight-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["16.","32","16.","32","16.","32","8.","16"]},
+    {id:179,section:"Eight-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","16","16.","32","16.","32","16.","32"]},
+    {id:180,section:"Eight-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["16.","32","16.","32","8","16.","32","8"]},
+    {id:181,section:"Eight-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8","8","8","8","32","32","32","32"]},
+    {id:182,section:"Eight-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["8.","16","32","32","32","32","8.","16"]},
+    {id:183,section:"Eight-Note Rhythm Patterns",timeSig:"5/8",beaming:"",notes:["32","32","32","32","8","8.","16","8"]},
+    {id:184,section:"Eight-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["8","8","8","8","8","8","16","16"]},
+    {id:185,section:"Eight-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["8","8","8","16","16","8","8","8"]},
+    {id:186,section:"Eight-Note Rhythm Patternterns",timeSig:"7/8",beaming:"",notes:["8.","16","8.","16","8.","16","16","16"]},
+    {id:187,section:"Eight-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["16","8","8","16","8.","16","16","8."]},
+    {id:188,section:"Eight-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["16","16","8","8","8","8.","16","8"]},
+    {id:189,section:"Eight-Note Rhythm Patterns",timeSig:"7/8",beaming:"",notes:["8.","16","8","8.","16","8","16","16"]},
+    {id:190,section:"Eight-Note Rhythm Patterns",timeSig:"8/8",beaming:"",notes:["8.","16","8.","16","8","8.","16","8"]},
+    {id:191,section:"Eight-Note Rhythm Patterns",timeSig:"8/8",beaming:"",notes:["16","8","16","q","8","8.","16","8"]},
+    {id:192,section:"Eight-Note Rhythm Patterns",timeSig:"8/8",beaming:"",notes:["8.","16","8","8.","16","8.","16","8"]},
+    {id:193,section:"Eight-Note Rhythm Patterns",timeSig:"8/8",beaming:"",notes:["16","8","8","16","q","8","8","8"]}
+  ];
+
+  // ── STATE ─────────────────────────────────────────────
+  var activeGroup = null, selNotes = [];
+  function cKey()  { return document.getElementById('key-sel').value; }
+  function cClef() { return document.getElementById('clef-sel').value; }
+
+    document.getElementById('key-sel').addEventListener('change',function(){
+    // Key affects notation only
+  });
+
+  document.querySelectorAll('.group-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.group-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      activeGroup = parseInt(btn.dataset.n);
+        upPrompt(); upHint(); checkReady();
+        markDone('step1');
+        revealStep('step2');
+      });
+    });
+
+  function g2s(n) {
+    return {3:'Three-Note Rhythm Patterns',4:'Four-Note Rhythm Patterns',
+      5:'Five-Note Rhythm Patterns',6:'Six-Note Rhythm Patterns',
+      7:'Seven-Note Rhythm Patterns',8:'Eight-Note Rhythm Patterns'}[n] || '';
+  }
+  function upPrompt() {
+    var el = document.getElementById('kb-prompt');
+    if (!el) return;
+    if (!activeGroup) el.innerHTML = '';
+    else if (!selNotes.length) el.innerHTML = 'Enter your passage below';
+    else el.innerHTML = '<strong>' + selNotes.length + '</strong> note' + (selNotes.length !== 1 ? 's' : '') + ' entered';
+  }
+  function upHint() {
+    var el = document.getElementById('count-hint');
+    if (!el) return;
+    if (!activeGroup || !selNotes.length) { el.innerHTML = ''; return; }
+    var sec = g2s(activeGroup), ct = DB.filter(function(p) { return p.section === sec; }).length;
+    el.innerHTML = ct ? '<strong>' + selNotes.length + '</strong> pitches &middot; <strong>' + ct + '</strong> patterns' : '<span style="color:var(--accent)">No patterns for ' + sec + '</span>';
+  }
+  function checkReady() {
+    var sec = g2s(activeGroup);
+    var ready = !!(activeGroup && DB.some(function(p) { return p.section === sec; }) && selNotes.length >= 1);
+    document.getElementById('gen-btn').disabled = !ready;
+    if (ready) { markDone('step3'); }
+  }
+
+  // ── PIANO ─────────────────────────────────────────────
+  var PN = [{name:'A1',white:true},{name:'A#1',white:false},{name:'B1',white:true}];
+  ['2','3','4','5','6','7'].forEach(function(o) {
+    ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'].forEach(function(p) {
+      PN.push({name: p + o, white: p.indexOf('#') === -1});
+    });
+  });
+  PN.push({name: 'C8', white: true});
+
+  function buildPiano() {
+    var svg = document.getElementById('piano-svg');
+    var wh = PN.filter(function(n) { return n.white; });
+    var VW = 1008, VH = 130, ww = VW / wh.length, bw = ww * 0.58, bh = VH * 0.62;
+
+    wh.forEach(function(note, i) {
+      var r = mkS('rect', {x: i*ww+0.5, y: 0.5, width: ww-1, height: VH-1, rx: 2,
+        fill: '#fdfaf5', stroke: '#ccc', 'stroke-width': 0.7, 'data-note': note.name});
+      svg.appendChild(r);
+      if (note.name.charAt(0) === 'C' && note.name.indexOf('#') === -1) {
+        if (note.name === 'C4') {
+          var dot = mkS('circle', {cx: i*ww+ww/2, cy: VH-16, r: 3, fill: '#8b3a1a', 'pointer-events': 'none'});
+          svg.appendChild(dot);
+        }
+        var tFill = (note.name === 'C4') ? '#8b3a1a' : '#bbb';
+        var tSize = (note.name === 'C4') ? 8 : 6;
+        var t = mkS('text', {x: i*ww+ww/2, y: VH-5, 'text-anchor': 'middle', 'font-size': tSize,
+          fill: tFill, 'font-family': 'Inconsolata,monospace', 'pointer-events': 'none'});
+        t.textContent = note.name; svg.appendChild(t);
+      }
+    });
+
+    var wi = 0;
+    PN.forEach(function(note) {
+      if (note.white) { wi++; return; }
+      svg.appendChild(mkS('rect', {x: (wi-1)*ww+ww-bw/2+ww*0.07, y: 0, width: bw, height: bh,
+        rx: 2, fill: '#1a1612', stroke: '#111', 'stroke-width': 0.5, 'data-note': note.name}));
+    });
+
+    function handlePress(e) {
+      e.preventDefault();
+      var pt;
+      if (e.changedTouches && e.changedTouches.length) {
+        pt = {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
+      } else {
+        pt = {x: e.clientX, y: e.clientY};
+      }
+      var target = document.elementFromPoint(pt.x, pt.y);
+      // Walk up to find data-note
+      var k = target;
+      while (k && k !== svg) {
+        if (k.getAttribute && k.getAttribute('data-note')) break;
+        k = k.parentNode;
+      }
+      if (!k || !k.getAttribute || !k.getAttribute('data-note')) return;
+      if (!activeGroup) {
+        document.getElementById('kb-prompt').innerHTML = '<strong>Select a note grouping first</strong>';
+        return;
+      }
+      var raw = k.getAttribute('data-note'), isBlack = raw.indexOf('#') !== -1;
+      k.setAttribute('fill', '#c8601a');
+      setTimeout(function() { k.setAttribute('fill', isBlack ? '#1a1612' : '#fdfaf5'); }, 160);
+      var notePart = raw.slice(0,-1), octPart = raw.slice(-1);
+      var spelled = applyAccModeDesktop(notePart) + octPart;
+      if (_insertAtDesktop >= 0 && _insertAtDesktop <= selNotes.length) {
+        selNotes.splice(_insertAtDesktop, 0, spelled);
+        cancelInsertDesktop();
+      } else {
+        selNotes.push(spelled);
+      }
+      playNote(spelled);
+      updateChips(); upPrompt(); upHint(); checkReady();
+    }
+
+    svg.addEventListener('click', handlePress);
+    svg.addEventListener('touchstart', handlePress, {passive: false});
+  }
+
+  function mkS(tag, attrs) {
+    var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.keys(attrs).forEach(function(k) { el.setAttribute(k, attrs[k]); });
+    return el;
+  }
+
+  function clearNotes() { selNotes = []; updateChips(); upPrompt(); upHint(); checkReady(); }
+  window.clearNotes = clearNotes;
+  function removeNote(i) { selNotes.splice(i, 1); updateChips(); upPrompt(); upHint(); checkReady(); }
+  window.removeNote = removeNote;
+  function flipNote(i) { selNotes[i] = flipEnh(selNotes[i]); updateChips(); }
+  window.flipNote = flipNote;
+
+  function updateChips() {
+    renderLiveStaffDesktop();
+    var el = document.getElementById('chips');
+    if (!el) return;
+    if (!selNotes.length) { el.innerHTML = '<span class="no-notes">No notes entered</span>'; return; }
+    var html = '';
+    selNotes.forEach(function(n, i) {
+      var isActive = _insertAtDesktop === i;
+      html += '<button class="chip-ins-btn' + (isActive ? ' active' : '') + '" onclick="startInsertDesktop(' + i + ')">+</button>';
+      html += '<button class="chip chip-clickable" onclick="openChipPopover(event,' + i + ')" title="Tap to edit">' + dn(n) + '</button>';
+    });
+    html += '<button class="chip-ins-btn' + (_insertAtDesktop === selNotes.length ? ' active' : '') + '" onclick="startInsertDesktop(' + selNotes.length + ')">+</button>';
+    el.innerHTML = html;
+  }
+  // ── ABC NOTATION CONVERSION ───────────────────────────
+  // Duration table: with L:1/32, each unit = 1 thirty-second note
+  var DUR32 = {'32':1,'16':2,'16.':3,'8':4,'8.':6,'q':8,'q.':12,'h':16,'h.':24,'w':32};
+
+  function codeToAbc(code, pitchName, barAcc) {
+    var dotted = code.slice(-1) === '.';
+    var rest   = code.slice(-1) === 'r';
+    var tup    = code.indexOf('t') !== -1 && !rest;
+    var base   = code.replace('.','').replace('r','').replace('t','');
+    var durKey = base + (dotted ? '.' : '');
+    var dur    = DUR32[durKey] || DUR32[base] || 4;
+
+    if (rest) return 'z' + dur;
+
+    // Convert pitch to ABC
+    var m = pitchName.match(/^([A-G])(##|bb|#|b|n)?(\d)$/);
+    if (!m) return 'C' + dur;
+    var pc = m[1], acc = m[2] || '', oct = parseInt(m[3]);
+
+    var prefix;
+    if(acc==='##'){
+      prefix='^^';
+      if(barAcc) barAcc[pc]='^^';
+    } else if(acc==='bb'){
+      prefix='__';
+      if(barAcc) barAcc[pc]='__';
+    } else if(acc==='#'){
+      prefix='^';
+      if(barAcc) barAcc[pc]='^';
+    } else if(acc==='b'){
+      prefix='_';
+      if(barAcc) barAcc[pc]='_';
+    } else if(acc==='n'){
+      prefix='=';
+      if(barAcc) barAcc[pc]='=';
+    } else {
+      // Natural note — check if this pitch class was altered earlier in bar
+      // or is altered by the key signature
+      var needsNatural = false;
+      if(barAcc && barAcc[pc]) {
+        needsNatural = true; // was altered earlier in this bar
+        barAcc[pc] = null;   // cancel — now natural
+      } else {
+        var ka=KEY_ACC[cKey()]||{};
+        needsNatural=Object.keys(ka).some(function(k){return ka[k]===pc+'b'||ka[k]===pc+'#';});
+      }
+      prefix = needsNatural ? '=' : '';
+    }
+
+    // ABC octave mapping: C4=C, C5=c, C6=c', C7=c'', C8=c''', C3=C,, C2=C,,,
+    var noteLetter;
+    if (oct <= 4)      { noteLetter = pc;          }  // C4 and below = uppercase
+    else               { noteLetter = pc.toLowerCase(); } // C5+ = lowercase
+
+    var octMod = '';
+    if (oct === 3)     octMod = ',';
+    else if (oct === 2) octMod = ',,';
+    else if (oct === 1) octMod = ',,,';
+    else if (oct === 6) octMod = "'";
+    else if (oct === 7) octMod = "''";
+    else if (oct === 8) octMod = "'''";
+
+    var noteStr = prefix + noteLetter + octMod + dur;
+
+    // Wrap triplet
+    if (tup) return '(3' + noteStr;  // ABCjs handles triplet bracket with (3 prefix on first note
+    return noteStr;
+  }
+
+  function buildAbcString(pat, pitches, clef) {
+    var keyMap = {'C':'C','G':'G','D':'D','A':'A','E':'E','B':'B','Fs':'F#',
+      'F':'F','Bb':'Bb','Eb':'Eb','Ab':'Ab','Db':'Db','Gb':'Gb'};
+    var abcKey = keyMap[cKey()] || 'C';
+    var abcClef = clef === 'bass' ? ' clef=bass' :
+                  clef === 'alto' ? ' clef=alto' :
+                  clef === 'tenor' ? ' clef=tenor' : '';
+    var tsN = pat.timeSig.split('/')[0];
+    var tsD = pat.timeSig.split('/')[1];
+
+    // Build note sequence — calculate exact reps needed upfront
+    // Count non-rest slots per rep
+    var pitchedPerRep = 0;
+    for (var ni = 0; ni < pat.notes.length; ni++) {
+      var c = pat.notes[ni];
+      if (c.slice(-1) !== 'r') pitchedPerRep++;
+    }
+    // How many complete reps do we need to cover all pitches?
+    var repsNeeded = pitchedPerRep > 0 ? Math.ceil(pitches.length / pitchedPerRep) : 1;
+    repsNeeded = Math.min(repsNeeded, 32); // safety cap
+
+    var pi = 0;
+    var bars = [];
+    for (var rep = 0; rep < repsNeeded; rep++) {
+      var barNotes = [];
+      for (var ni = 0; ni < pat.notes.length; ni++) {
+        var code = pat.notes[ni];
+        var isRest = code.slice(-1) === 'r';
+        var isTup  = code.indexOf('t') !== -1 && !isRest;
+        // For pitched slots: use pitch at pi, stop adding pitched notes after last pitch
+        var pitch = null;
+        if (!isRest) {
+          if (pi < pitches.length) {
+            pitch = pitches[pi];
+            pi++;
+          } else {
+            // No more pitches — skip remaining slots in this rep
+            break;
+          }
+        }
+        barNotes.push({code:code, pitch:pitch, isRest:isRest, isTup:isTup});
+      }
+      if (barNotes.length) bars.push(barNotes);
+    }
+
+    // Beat boundaries per time signature (in 32nd-note units from bar start)
+    // Space is inserted AFTER any note that lands on or crosses a beat boundary
+    var BEAT_BOUNDS = {
+      '2/8':[4], '3/8':[4,8], '2/4':[8], '3/4':[8,16], '4/4':[8,16,24],
+      '6/8':[12], '9/8':[12,24], '12/8':[12,24,36],
+      '5/8':[8], '7/8':[8,16], '8/8':[8,16,24],
+      '5/16':[4], '7/16':[4,8],
+      '3/2':[16,32], '5/4':[8,16,24,32]
+    };
+
+    // Beaming override conventions:
+    //   blank  → use automatic beat-boundary lookup
+    //   "0"    → no beaming: all notes separated (beatBounds = every position)
+    //   "4"    → single number: beam whole bar as one group (no internal boundaries)
+    //   "2+3"  → explicit groups in eighth-note units → convert to 32nd-note boundaries
+    var beatBounds;
+    if (pat.beaming && pat.beaming.trim().length > 0) {
+      var beamStr = pat.beaming.trim();
+      if (beamStr === '0') {
+        // No beaming — set boundaries at every 32nd-note position (force space after every note)
+        beatBounds = 'none';
+      } else if (beamStr.indexOf('+') === -1) {
+        // Single number — beam whole bar, no internal boundaries
+        beatBounds = [];
+      } else {
+        // x+y+z format — convert to cumulative 32nd-note boundaries
+        var groups = beamStr.split('+');
+        var cum = 0;
+        beatBounds = [];
+        for (var gi = 0; gi < groups.length - 1; gi++) {
+          cum += parseInt(groups[gi]) * 4; // eighth-note units × 4 = 32nd-note units
+          beatBounds.push(cum);
+        }
+      }
+    } else {
+      beatBounds = BEAT_BOUNDS[pat.timeSig] || [8];
+    }
+
+    function noteDur32(code) {
+      var D={'32':1,'16':2,'16.':3,'8':4,'8.':6,'q':8,'q.':12,'h':16,'h.':24,'w':32};
+      var dotted=code.indexOf('.')!==-1&&code.slice(-1)!=='r';
+      var tup=code.indexOf('t')!==-1&&code.slice(-1)!=='r';
+      var base=code.replace('.','').replace('r','').replace('t','');
+      var key=base+(dotted?'.':'');
+      var v=D[key]||D[base]||0;
+      if(tup) v*=2/3;
+      return v;
+    }
+
+    // Convert each bar to ABC string with beat-aware beaming
+    var barStrings = bars.map(function(bar) {
+      var tokens = [];
+      var cum = 0;
+      var i = 0;
+      // Track accidentals seen so far in this bar: pitchClass -> '^', '_', '^^', '__'
+      // Any natural note whose pitch class was altered must get '=' explicitly
+      var barAcc = {};
+
+      while (i < bar.length) {
+        var item = bar[i];
+        var code = item.code;
+        var isRest = item.isRest;
+        var isTup  = item.isTup;
+        var base   = code.replace('.','').replace('r','').replace('t','');
+        var canBeam = (base==='8'||base==='16'||base==='32') && !isRest;
+        var d = noteDur32(code);
+        var cumAfter = cum + d;
+
+        if (isTup) {
+          // Consume all 3 triplet notes — always isolated from surrounding beams
+          var tripStr = '(3';
+          while (i < bar.length && bar[i].isTup) {
+            tripStr += codeToAbc(bar[i].code, bar[i].pitch, barAcc);
+            cum += noteDur32(bar[i].code);
+            i++;
+          }
+          tokens.push(tripStr + ' ');
+
+        } else {
+          var abcNote = codeToAbc(code, item.pitch, barAcc);
+
+          // Force space if this note lands on OR crosses a beat boundary
+          // beatBounds === 'none' means no beaming at all (every note separated)
+          var forceSpace;
+          if (beatBounds === 'none') {
+            forceSpace = true; // always separate
+          } else {
+            var landsBeat = beatBounds.some(function(b){ return b === cumAfter; });
+            var crossBeat = beatBounds.some(function(b){ return cum < b && b < cumAfter; });
+            forceSpace = landsBeat || crossBeat;
+          }
+
+          if (forceSpace) {
+            tokens.push(abcNote + ' ');
+          } else {
+            // Beam with next only if next is also beamable, non-triplet, non-rest
+            var nextItem = bar[i+1];
+            var nextBase = nextItem ? nextItem.code.replace('.','').replace('r','').replace('t','') : '';
+            var nextBeam = canBeam && nextItem && !nextItem.isRest && !nextItem.isTup &&
+                           (nextBase==='8'||nextBase==='16'||nextBase==='32');
+            tokens.push(nextBeam ? abcNote : abcNote + ' ');
+              }
+
+          cum = cumAfter;
+          i++;
+        }
+      }
+      return tokens.join('').trim();
+    });
+
+    var abc = 'X:1\n' +
+              'M:' + tsN + '/' + tsD + '\n' +
+              'L:1/32\n' +
+              'K:' + abcKey + abcClef + '\n' +
+              barStrings.map(function(b) { return '|' + b; }).join('') + '||';
+    return abc;
+  }
+
+  // ── GENERATE ──────────────────────────────────────────
+  document.getElementById('gen-btn').addEventListener('click', function() {
+    var clef = cClef(), sec = g2s(activeGroup);
+    var pats = DB.filter(function(p) { return p.section === sec; });
+
+    var docName = document.getElementById('doc-name').value.trim();
+    var sheetTitle = docName ? docName + ' — ' + sec : sec;
+    document.getElementById('sheet-title').textContent = sheetTitle;
+    document.title = docName ? docName + ' — Mixed Up Rhythms' : 'Mixed Up Rhythms';
+    var exCont = document.getElementById('exercises');
+    exCont.innerHTML = '';
+
+    pats.forEach(function(p, i) {
+      var row = document.createElement('div');
+      row.className = 'ex-row';
+      // Label sits above the stave div — outside ABCjs's target
+      var idLabel = document.createElement('div');
+      idLabel.className = 'ex-id-label';
+      idLabel.textContent = '#' + p.id + '  ·  ' + p.timeSig + (p.beaming ? '  ·  [' + p.beaming + ']' : '');
+      row.appendChild(idLabel);
+      // ABCjs renders into this inner div only
+      var staveDiv = document.createElement('div');
+      staveDiv.id = 'ex-' + i;
+      row.appendChild(staveDiv);
+      exCont.appendChild(row);
+
+      try {
+        var abc = buildAbcString(p, selNotes.slice(), clef);
+        ABCJS.renderAbc('ex-' + i, abc, {
+          scale: 1.2,
+          paddingright: 30,
+          paddingleft: 15,
+          paddingbottom: 10,
+          paddingtop: 10,
+          add_classes: true,
+          staffwidth: 880,
+          wrap: {minSpacing: 1.8, maxSpacing: 2.8, preferredMeasuresPerLine: 4},
+        });
+      } catch(e) {
+        row.innerHTML = '<div style="color:var(--accent);font-family:monospace;font-size:.7rem;padding:6px">Error: ' + e.message + '</div>';
+        console.error(p.id, e);
+      }
+    });
+
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('sheet-wrap').style.display = 'block';
+    document.getElementById('export-bar').classList.add('visible');
+  });
+
+  // ── PDF EXPORT ────────────────────────────────────────
+;
+
+  // ── SETTINGS ──────────────────────────────────────────
+  function openHelp(){document.getElementById('help-overlay').classList.add('open');}
+  function closeHelp(){document.getElementById('help-overlay').classList.remove('open');}
+  function outsideCloseHelp(e){if(e.target===document.getElementById('help-overlay'))closeHelp();}
+  window.openHelp=openHelp;window.closeHelp=closeHelp;window.outsideCloseHelp=outsideCloseHelp;
+
+  function doExport() {
+    var sec = g2s(activeGroup);
+    var docName = document.getElementById('doc-name').value.trim();
+    var title = docName ? docName + ' — ' + sec : sec;
+    document.getElementById('print-overlay-title').textContent = title;
+    var cont = document.getElementById('print-content');
+    cont.innerHTML = '<h1>' + title + '</h1>';
+    var rows = document.querySelectorAll('.ex-row');
+    for (var i=0; i<rows.length; i++) {
+      var svg = rows[i].querySelector('svg');
+      if (svg) {
+        var s = new XMLSerializer().serializeToString(svg);
+        var vb = svg.getAttribute('viewBox');
+        if (vb) {
+          var vbH = parseFloat(vb.split(' ')[3]);
+          if (vbH) s = s.replace(/ height="[^"]*"/i, ' height="' + vbH + 'px"');
+        }
+        var div = document.createElement('div');
+        div.className = 'print-row';
+        div.innerHTML = s;
+        cont.appendChild(div);
+      }
+    }
+    document.getElementById('print-overlay').classList.add('open');
+    window.scrollTo(0, 0);
+  }
+  function closePrintOverlay() {
+    document.getElementById('print-overlay').classList.remove('open');
+    document.getElementById('print-content').innerHTML = '';
+  }
+  window.doExport=doExport;
+  function doPrint() {
+    document.body.classList.add('printing');
+    window.print();
+    setTimeout(function() { document.body.classList.remove('printing'); }, 1000);
+  }
+  window.doPrint = doPrint;
+
+  window.closePrintOverlay=closePrintOverlay;
+  window.closePrintOverlay=closePrintOverlay;
+
+  function openSettings()  { document.getElementById('settings-overlay').classList.add('open'); updateStats(); }
+  function closeSettings() { document.getElementById('settings-overlay').classList.remove('open'); }
+  function outsideClose(e) { if (e.target === document.getElementById('settings-overlay')) closeSettings(); }
+  window.openSettings = openSettings; window.closeSettings = closeSettings; window.outsideClose = outsideClose;
+
+  function updateStats() {
+    var secs = [];
+    DB.forEach(function(p) { if (secs.indexOf(p.section) === -1) secs.push(p.section); });
+    document.getElementById('db-stats').innerHTML = secs.map(function(s) {
+      return '<strong>' + DB.filter(function(p) { return p.section === s; }).length + '</strong> patterns — ' + s;
+    }).join('<br>') || 'No patterns loaded';
+  }
+
+  document.getElementById('csv-input').addEventListener('change', function(e) {
+    var f = e.target.files[0]; if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var pats = parseCSV(ev.target.result);
+      if (pats.length) {
+        DB = pats;
+        document.getElementById('upload-zone').classList.add('loaded');
+        document.getElementById('uz-lbl').textContent = f.name + ' — ' + pats.length + ' patterns';
+        updateStats(); checkReady();
+      }
+    };
+    reader.readAsText(f);
+  });
+
+  function parseCSV(text) {
+    var lines = text.trim().split('\n').filter(function(l) { return l.trim(); });
+    var hdrs = lines[0].split(',').map(function(h) { return h.trim().toLowerCase(); });
+    var tsIdx = -1; hdrs.forEach(function(h, i) { if (h.indexOf('time') !== -1) tsIdx = i; });
+    // Detect optional Beaming column immediately after Time Sig
+    var beamIdx = -1;
+    if (hdrs[tsIdx + 1] && hdrs[tsIdx + 1].indexOf('beam') !== -1) {
+      beamIdx = tsIdx + 1;
+    }
+    var nIdx = beamIdx !== -1 ? beamIdx + 1 : tsIdx + 1;
+    return lines.slice(1).map(function(line, i) {
+      var cols = csvSplit(line); if (!cols[1] || !cols[2]) return null;
+      var notes = cols.slice(nIdx).map(function(n) { return n.trim(); }).filter(function(n) { return n; });
+      if (!notes.length) return null;
+      var beaming = beamIdx !== -1 ? cols[beamIdx].trim() : '';
+      return {id: cols[0] ? parseInt(cols[0]) : i+1, section: cols[1].trim(),
+              timeSig: cols[2].trim(), beaming: beaming, notes: notes};
+    }).filter(Boolean);
+  }
+
+  function csvSplit(line) {
+    var r = [], c = '', q = false;
+    for (var i = 0; i < line.length; i++) {
+      var ch = line[i];
+      if (ch === '"') { q = !q; continue; }
+      if (ch === ',' && !q) { r.push(c); c = ''; continue; }
+      c += ch;
+    }
+    r.push(c); return r;
+  }
+
+  // ── PDF OVERLAY ──────────────────────────────────────
+  function closePdfOverlay() {
+    var overlay = document.getElementById('pdf-overlay');
+    if (overlay) overlay.classList.remove('open');
+    var frame = document.getElementById('pdf-frame');
+    if (frame) frame.src = 'about:blank';
+  }
+  window.closePdfOverlay = closePdfOverlay;
+
+
+  // Start Over — reset all state
+  document.getElementById('start-over-btn').addEventListener('click', function() {
+    // Clear notes
+    selNotes = [];
+    updateChips(); upPrompt(); upHint(); checkReady();
+
+    // Clear group selection
+    activeGroup = null;
+    document.querySelectorAll('.group-btn').forEach(function(b) { b.classList.remove('active'); });
+
+    // Hide ede exercises and export bar
+    document.getElementById('empty-state').style.display = '';
+    document.getElementById('sheet-wrap').style.display = 'none';
+    document.getElementById('export-bar').classList.remove('visible');
+    document.getElementById('exercises').innerHTML = '';
+
+    // Reset clef/key/instrument to defaults
+    document.getElementById('clef-sel').selectedIndex = 0;
+    document.getElementById('instrument-sel').selectedIndex = 0;
+    // Reset wizard
+    ['step2','step3','step4'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) { el.classList.add('wizard-step-hidden'); el.classList.remove('done','revealing'); }
+    });
+    document.getElementById('step1').classList.remove('done');
+
+    // Scroll back to top
+    window.scrollTo(0, 0);
+  });
+
+  // ── PLAY PASSAGE ─────────────────────────────────────
+  function playPassage() {
+    if (!selNotes.length) return;
+    var btn = document.getElementById('play-btn');
+    btn.classList.add('playing');
+
+    var noteDuration = 0.45; // seconds per note
+    var gap = 0.08;          // gap between notes
+
+    selNotes.forEach(function(note, i) {
+      setTimeout(function() {
+        playNote(note);
+        // Flash the corresponding chip
+        var chips = document.querySelectorAll('.chip');
+        if (chips[i]) {
+          chips[i].style.background = '#c8601a';
+          setTimeout(function() {
+            chips[i].style.background = '';
+          }, 300);
+        }
+      }, i * (noteDuration + gap) * 1000);
+    });
+
+    // Re-enable button after all notes have played
+    setTimeout(function() {
+      btn.classList.remove('playing');
+    }, selNotes.length * (noteDuration + gap) * 1000 + 200);
+  }
+  window.playPassage = playPassage;
+
+  // ── ORIENTATION ───────────────────────────────────────
+  function checkOrientation() {
+    // Rotation prompt disabled - app works in portrait on all devices
+    var overlay = document.getElementById('rotate-overlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+
+  
+  // Live staff
+  function renderLiveStaffDesktop() {
+    var div = document.getElementById('live-staff-desktop');
+    if (!div) return;
+    if (!selNotes.length) {
+      div.innerHTML = '<div style="font-family:\'Cormorant Garamond\',serif;font-style:italic;font-size:0.85rem;color:rgba(245,240,232,0.55);padding:10px 16px;">Notes will appear here as you enter them</div>';
+      return;
+    }
+    var clef = cClef();
+    var clefStr = clef === 'bass' ? ' clef=bass' : clef === 'alto' ? ' clef=alto' : clef === 'tenor' ? ' clef=tenor' : '';
+    var keyMap = {'C':'C','G':'G','D':'D','A':'A','E':'E','B':'B','Fs':'F#','F':'F','Bb':'Bb','Eb':'Eb','Ab':'Ab','Db':'Db','Gb':'Gb'};
+    var abcKey = keyMap[cKey()] || 'C';
+    var barAcc = {};
+    var notes = selNotes.map(function(n) { return codeToAbc('q', n, barAcc); }).join(' ');
+    var abc = 'X:1\nL:1/32\nK:' + abcKey + clefStr + '\n' + notes;
+    div.innerHTML = '<div id="live-staff-desktop-render"></div>';
+    try {
+      var w = Math.max(div.offsetWidth - 16, selNotes.length * 30);
+      ABCJS.renderAbc('live-staff-desktop-render', abc, {
+        scale: 1.1, staffwidth: w,
+        paddingright: 10, paddingleft: 10, paddingtop: 6, paddingbottom: 4,
+        add_classes: true,
+        wrap: { minSpacing: 1.5, maxSpacing: 2.5, preferredMeasuresPerLine: 1 }
+      });
+    } catch(e) { console.log('live staff error:', e); }
+  }
+
+
+  // Sharps/Flats toggle
+  var _accModeDesktop = 'sharp';
+  var S2F = {'C#':'Db','D#':'Eb','F#':'Gb','G#':'Ab','A#':'Bb'};
+  var F2S = {'Db':'C#','Eb':'D#','Gb':'F#','Ab':'G#','Bb':'A#'};
+  function toggleAccidentalDesktop() {
+    _accModeDesktop = _accModeDesktop === 'sharp' ? 'flat' : 'sharp';
+    var btn = document.getElementById('acc-toggle-desktop');
+    if (btn) {
+      btn.textContent = _accModeDesktop === 'sharp' ? 'Sharps' : 'Flats';
+      btn.style.color = _accModeDesktop === 'flat' ? '#6050a0' : 'var(--mid)';
+      btn.style.borderColor = _accModeDesktop === 'flat' ? '#9080c0' : 'var(--rule)';
+    }
+  }
+  function applyAccModeDesktop(name) {
+    if (_accModeDesktop === 'flat' && S2F[name]) return S2F[name];
+    if (_accModeDesktop === 'sharp' && F2S[name]) return F2S[name];
+    return name;
+  }
+  window.toggleAccidentalDesktop = toggleAccidentalDesktop;
+  window.startInsertDesktop = startInsertDesktop;
+  window.cancelInsertDesktop = cancelInsertDesktop;
+
+  // Insert note functionality
+  var _insertAtDesktop = -1;
+  function startInsertDesktop(idx) {
+    _insertAtDesktop = idx;
+    updateChips();
+    // Show hint
+    var hint = document.getElementById('insert-hint-desktop');
+    if (hint) { hint.style.display = 'block'; }
+  }
+  function cancelInsertDesktop() {
+    _insertAtDesktop = -1;
+    var hint = document.getElementById('insert-hint-desktop');
+    if (hint) hint.style.display = 'none';
+    updateChips();
+  }
+
+
+  // Input tab switching
+  function switchInputTab(tab) {
+    document.getElementById('input-tab-keys').classList.toggle('active', tab === 'keys');
+    document.getElementById('input-tab-mic').classList.toggle('active', tab === 'mic');
+    var pianoWrap = document.querySelector('.piano-wrap');
+    var micPanel = document.getElementById('mic-panel-desktop');
+    var accToggle = document.getElementById('acc-toggle-desktop');
+    if (pianoWrap) pianoWrap.style.display = tab === 'keys' ? '' : 'none';
+    if (micPanel) micPanel.style.display = tab === 'mic' ? 'block' : 'none';
+    if (accToggle) accToggle.style.display = tab === 'keys' ? '' : 'none';
+    if (tab === 'mic' && _micActive) stopMicDesktop();
+  }
+  window.switchInputTab = switchInputTab;
+
+  // Mic pitch detection
+  var _micActive = false, _micStream = null, _micCtx = null, _micAnalyser = null, _micTimer = null;
+  var _prevRms = 0, _noteActive = false, _stableCount = 0, _lastFreq = 0;
+  var _lockoutUntil = 0, _lockoutMs = 400, _lastSoundTime = 0, _autoStopMs = 3000;
+  var _onsetThresh = 0.04, _releaseThresh = 0.015, _stableNeeded = 4;
+  var NOTE_NAMES_MIC_D = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  function autoCorr(buf, sr) {
+    var SIZE = buf.length, rms = 0;
+    for (var i=0; i<SIZE; i++) rms += buf[i]*buf[i];
+    rms = Math.sqrt(rms/SIZE);
+    if (rms < 0.008) return {freq:-1, rms:rms};
+    var r1=0, r2=SIZE-1, th=0.2;
+    for (var i=0; i<SIZE/2; i++) { if (Math.abs(buf[i])<th) { r1=i; break; } }
+    for (var i=1; i<SIZE/2; i++) { if (Math.abs(buf[SIZE-i])<th) { r2=SIZE-i; break; } }
+    var b2=buf.slice(r1,r2), SZ=b2.length;
+    var c=new Float32Array(SZ);
+    for (var i=0; i<SZ; i++) for (var j=0; j<SZ-i; j++) c[i]+=b2[j]*b2[j+i];
+    var d=0; while(c[d]>c[d+1]) d++;
+    var mx=-1, mp=-1;
+    for (var i=d; i<SZ; i++) { if (c[i]>mx) { mx=c[i]; mp=i; } }
+    if (mp<2||mp>=SZ-1) return {freq:-1, rms:rms};
+    var x1=c[mp-1], x2=c[mp], x3=c[mp+1];
+    var a=(x1+x3-2*x2)/2, b=(x3-x1)/2;
+    var T=a ? mp-b/(2*a) : mp;
+    return {freq: sr/T, rms: rms};
+  }
+
+  function freqToNoteDesktop(freq) {
+    if (!freq||freq<25||freq>4200) return null;
+    var midi = Math.round(12*Math.log2(freq/440)+69);
+    if (midi<33||midi>108) return null;
+    var oct = Math.floor(midi/12)-1;
+    return NOTE_NAMES_MIC_D[midi%12] + oct;
+  }
+
+  function transposeNoteForMicDesktop(noteName) {
+    var offset = transposeOffset();
+    if (!offset) return noteName;
+    var name = noteName.slice(0,-1), oct = parseInt(noteName.slice(-1));
+    var idx = NOTE_NAMES_MIC_D.indexOf(name);
+    if (idx === -1) return noteName;
+    var midi = (oct+1)*12 + idx - offset;
+    return NOTE_NAMES_MIC_D[((midi%12)+12)%12] + (Math.floor(midi/12)-1);
+  }
+
+  function toggleRecDesktop() {
+    if (_micActive) { stopMicDesktop(); return; }
+    navigator.mediaDevices.getUserMedia({audio:true, video:false})
+    .then(function(stream) {
+      _micStream = stream;
+      _micCtx = new (window.AudioContext||window.webkitAudioContext)();
+      _micAnalyser = _micCtx.createAnalyser();
+      _micAnalyser.fftSize = 2048;
+      _micCtx.createMediaStreamSource(stream).connect(_micAnalyser);
+          _micActive = true;
+      _noteActive=false; _stableCount=0; _lastFreq=0; _prevRms=0; _lockoutUntil=0; _lastSoundTime=0;
+      var btn = document.getElementById('rec-btn-desktop');
+      var inner = document.getElementById('rec-inner-desktop');
+      if (btn) btn.classList.add('recording');
+      if (inner) inner.style.opacity = '0';
+      document.getElementById('rec-label-desktop').textContent = 'RECORDING \u2014 TAP TO STOP';
+      detectLoopDesktop();
+    })
+    .catch(function() {
+      document.getElementById('rec-status-desktop').textContent = 'Mic access denied';
+    });
+  }
+  window.toggleRecDesktop = toggleRecDesktop;
+
+  function stopMicDesktop() {
+    _micActive = false;
+    if (_micTimer) clearTimeout(_micTimer);
+    if (_micStream) _micStream.getTracks().forEach(function(t){t.stop();});
+    if (_micCtx) _micCtx.close();
+    _micStream = _micCtx = _micAnalyser = null;
+    var btn = document.getElementById('rec-btn-desktop');
+    var inner = document.getElementById('rec-inner-desktop');
+    if (btn) btn.classList.remove('recording');
+    if (inner) inner.style.opacity = '0';
+    document.getElementById('rec-label-desktop').textContent = 'TAP TO RECORD';
+    document.getElementById('rec-status-desktop').textContent = '';
+  }
+
+  function detectLoopDesktop() {
+    if (!_micActive) return;
+    var buf = new Float32Array(_micAnalyser.fftSize);
+    _micAnalyser.getFloatTimeDomainData(buf);
+    var res = autoCorr(buf, _micCtx.sampleRate);
+    var rms = res.rms, freq = res.freq, now = Date.now();
+
+    if (!_noteActive) {
+      if (now > _lockoutUntil && rms > _onsetThresh && rms > _prevRms * 1.5) {
+        _noteActive=true; _stableCount=0; _lastFreq=freq;
+        document.getElementById('rec-status-desktop').textContent = '...';
+      }
+    } else {
+      if (rms < _releaseThresh) {
+        _noteActive=false; _stableCount=0;
+      } else if (freq > 0) {
+        var note = freqToNoteDesktop(freq);
+        var lastNote = freqToNoteDesktop(_lastFreq);
+        if (note && note === lastNote) {
+          _stableCount++;
+          if (_stableCount === _stableNeeded) {
+            var written = transposeNoteForMicDesktop(note);
+            // Apply sharps/flats mode
+            written = applyAccModeDesktop(written.slice(0,-1)) + written.slice(-1);
+            selNotes.push(written);
+            updateChips(); upPrompt(); upHint(); checkReady();
+            document.getElementById('rec-status-desktop').textContent = written;
+            _lockoutUntil = now + _lockoutMs;
+            _noteActive=false; _stableCount=0;
+          }
+        } else {
+          _stableCount=1; _lastFreq=freq;
+        }
+      }
+    }
+    if (rms > 0.008) _lastSoundTime = now;
+    if (_lastSoundTime > 0 && (now - _lastSoundTime) > _autoStopMs) {
+      stopMicDesktop(); return;
+    }
+    _prevRms = rms;
+    _micTimer = setTimeout(detectLoopDesktop, 25);
+  }
+
+  // Keyboard drag scroll
+  (function() {
+    var band = document.getElementById('kb-drag-band');
+    var scroll = document.getElementById('piano-scroll-area');
+    if (!band || !scroll) return;
+    var _x = 0;
+    band.addEventListener('touchstart', function(e) { _x = e.touches[0].clientX; }, {passive:true});
+    band.addEventListener('touchmove', function(e) {
+      var dx = _x - e.touches[0].clientX;
+      scroll.scrollLeft += dx;
+      _x = e.touches[0].clientX;
+      e.preventDefault();
+    }, {passive:false});
+    band.addEventListener('mousedown', function(e) {
+      var sx = e.clientX, ss = scroll.scrollLeft;
+      function mv(e2) { scroll.scrollLeft = ss + (sx - e2.clientX); }
+      function up() { document.removeEventListener('mousemove', mv); document.removeEventListener('mouseup', up); }
+      document.addEventListener('mousemove', mv);
+      document.addEventListener('mouseup', up);
+    });
+    // Scroll to C4 on load
+    setTimeout(function() { scroll.scrollLeft = 450; }, 300);
+  })();
+
+  // Wizard step reveal
+  function revealStep(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('wizard-step-hidden');
+    el.classList.add('revealing');
+    // Scroll into view smoothly
+    setTimeout(function() { el.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 50);
+  }
+  function markDone(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('done');
+  }
+  function wizardCheckStep2() {
+    // Step 2 complete when instrument selected - reveal steps 3 and 4 together
+    var instr = document.getElementById('instrument-sel');
+    if (instr && instr.selectedIndex > 0) {
+      markDone('step2');
+      revealStep('step3');
+      revealStep('step4');
+    }
+  }
+  window.wizardCheckStep2 = wizardCheckStep2;
+  window.revealStep = revealStep;
+  window.markDone = markDone;
+
+
+  // Chip popover
+  var _popoverIdx = -1;
+  var SEMI_SPELLINGS = [
+    ['C','B#','Dbb'],
+    ['C#','Db','B##'],
+    ['D','C##','Ebb'],
+    ['D#','Eb','Fbb'],
+    ['E','Fb','D##'],
+    ['F','E#','Gbb'],
+    ['F#','Gb','E##'],
+    ['G','F##','Abb'],
+    ['G#','Ab'],
+    ['A','G##','Bbb'],
+    ['A#','Bb','Cbb'],
+    ['B','Cb','A##']
+  ];
+  var SEMI_MAP = {
+    'C':0,'B#':0,'Dbb':0,'C#':1,'Db':1,'B##':1,'D':2,'C##':2,'Ebb':2,
+    'D#':3,'Eb':3,'Fbb':3,'E':4,'Fb':4,'D##':4,'F':5,'E#':5,'Gbb':5,
+    'F#':6,'Gb':6,'E##':6,'G':7,'F##':7,'Abb':7,'G#':8,'Ab':8,
+    'A':9,'G##':9,'Bbb':9,'A#':10,'Bb':10,'Cbb':10,'B':11,'Cb':11,'A##':11
+  };
+  function openChipPopover(e, idx) {
+    e.stopPropagation();
+    _popoverIdx = idx;
+    var note = selNotes[idx];
+    var m = note.match(/^([A-G](?:##|bb|#|b|n)?)(\d)$/);
+    if (!m) return;
+    var name = m[1], oct = m[2];
+    var nameForSemi = name.replace('n','');
+    var semi = SEMI_MAP[nameForSemi];
+    var spellings = (semi !== undefined) ? SEMI_SPELLINGS[semi] : [nameForSemi];
+    var spHTML = spellings.map(function(s) {
+      var isCurrent = (s === name);
+      return '<button onclick="applySpelling(\'' + s + '\')" style="'
+        + 'background:' + (isCurrent ? 'var(--accent)' : '#2a231d') + ';'
+        + 'color:' + (isCurrent ? 'white' : 'rgba(245,240,232,0.85)') + ';'
+        + 'border:1px solid ' + (isCurrent ? 'var(--accent)' : '#3a2e24') + ';'
+        + 'padding:6px 12px;font-family:\'Inconsolata\',monospace;font-size:1rem;'
+        + 'cursor:pointer;min-width:48px;text-align:center;">' + dn(s + oct) + '</button>';
+    }).join('');
+    document.getElementById('popover-spellings').innerHTML = spHTML;
+    document.getElementById('popover-custom-input').value = '';
+    var pop = document.getElementById('chip-popover');
+    var back = document.getElementById('chip-popover-backdrop');
+    pop.style.display = 'block';
+    back.style.display = 'block';
+    var rect = e.currentTarget.getBoundingClientRect();
+    var pw = 260;
+    var left = Math.min(rect.left, window.innerWidth - pw - 10);
+    var top = rect.bottom + 8;
+    if (top + 220 > window.innerHeight) top = rect.top - 220;
+    pop.style.left = Math.max(8, left) + 'px';
+    pop.style.top = top + 'px';
+    pop.style.width = pw + 'px';
+    // Highlight current forced accidental
+    var curAcc = m[1].slice(1) || '';
+    var accIds = {'':'fa-none','n':'fa-nat','#':'fa-sh','b':'fa-fl','##':'fa-dsh','bb':'fa-dfl'};
+    Object.keys(accIds).forEach(function(k) {
+      var btn = document.getElementById(accIds[k]);
+      if (btn) btn.style.background = (k === curAcc) ? 'var(--accent)' : '#2a231d';
+    });
+    // Don't auto-focus on mobile - causes keyboard to jump
+    if (window.innerWidth > 768) { setTimeout(function() { document.getElementById('popover-custom-input').focus(); }, 60); }
+  }
+  function closeChipPopover() {
+    document.getElementById('chip-popover').style.display = 'none';
+    document.getElementById('chip-popover-backdrop').style.display = 'none';
+    _popoverIdx = -1;
+  }
+  function applySpelling(s) {
+    if (_popoverIdx < 0 || _popoverIdx >= selNotes.length) return;
+    var oct = selNotes[_popoverIdx].match(/\d$/)[0];
+    selNotes[_popoverIdx] = s + oct;
+    closeChipPopover();
+    updateChips(); upPrompt(); upHint(); checkReady();
+  }
+  function applyCustomSpelling() {
+    if (_popoverIdx < 0) return;
+    document.getElementById('popover-custom-input').blur();
+    var val = document.getElementById('popover-custom-input').value.trim();
+    var m = val.match(/^([A-Ga-g])(##|bb|#|b)?([1-8])$/);
+    var inp = document.getElementById('popover-custom-input');
+    if (!m) { inp.style.borderColor = '#e53535'; setTimeout(function(){ inp.style.borderColor = '#3a2e24'; }, 800); return; }
+    selNotes[_popoverIdx] = m[1].toUpperCase() + (m[2] || '') + m[3];
+    closeChipPopover();
+    updateChips(); upPrompt(); upHint(); checkReady();
+  }
+  function deletePopoverNote() {
+    if (_popoverIdx < 0) return;
+    selNotes.splice(_popoverIdx, 1);
+    if (_insertAtDesktop > _popoverIdx) _insertAtDesktop--;
+    closeChipPopover();
+    updateChips(); upPrompt(); upHint(); checkReady();
+  }
+  function forceAccidental(acc) {
+    if (_popoverIdx < 0) return;
+    var note = selNotes[_popoverIdx];
+    var m = note.match(/^([A-G])(##|bb|#|b|n)?(\d)$/);
+    if (!m) return;
+    selNotes[_popoverIdx] = m[1] + acc + m[3];
+    // Update button highlights
+    var ids = {'':'fa-none','n':'fa-nat','#':'fa-sh','b':'fa-fl','##':'fa-dsh','bb':'fa-dfl'};
+    Object.keys(ids).forEach(function(k) {
+      var btn = document.getElementById(ids[k]);
+      if (btn) btn.style.background = (k === acc) ? 'var(--accent)' : '#2a231d';
+    });
+    updateChips(); upPrompt(); upHint(); checkReady();
+    // Keep popover open so user can see result
+    // Rebuild spellings for new note name
+    var newNote = selNotes[_popoverIdx];
+    var m2 = newNote.match(/^([A-G](?:##|bb|#|b|n)?)(\d)$/);
+    if (m2) {
+      var name2 = m2[1].replace('n',''), oct2 = m2[2];
+      var semi2 = SEMI_MAP[name2];
+      var spellings2 = (semi2 !== undefined) ? SEMI_SPELLINGS[semi2] : [name2];
+      var spHTML2 = spellings2.map(function(s) {
+        var isCurrent = (s === name2);
+        return '<button onclick="applySpelling(\'' + s + '\')" style="'
+          + 'background:' + (isCurrent ? 'var(--accent)' : '#2a231d') + ';'
+          + 'color:' + (isCurrent ? 'white' : 'rgba(245,240,232,0.85)') + ';'
+          + 'border:1px solid ' + (isCurrent ? 'var(--accent)' : '#3a2e24') + ';'
+          + 'padding:6px 12px;font-family:\'Inconsolata\',monospace;font-size:1rem;'
+          + 'cursor:pointer;min-width:48px;text-align:center;">' + dn(s + oct2) + '</button>';
+      }).join('');
+      document.getElementById('popover-spellings').innerHTML = spHTML2;
+    }
+  }
+  window.forceAccidental = forceAccidental;
+  window.openChipPopover = openChipPopover;
+  window.closeChipPopover = closeChipPopover;
+  window.applySpelling = applySpelling;
+  window.applyCustomSpelling = applyCustomSpelling;
+  window.deletePopoverNote = deletePopoverNote;
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeChipPopover(); });
+
+// ── INIT ──────────────────────────────────────────────
+  // PROFILE / SAVE / LIBRARY
+  var SB_URL = 'https://twjdatheptwcskqhinie.supabase.co';
+  var SB_KEY = 'sb_publishable_BwKwqYjD_TTeL2BTu7jpTw_YQfdqvQ7';
+  var SB_HEADERS = {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'};
+
+  function sbGet(path) {
+    return fetch(SB_URL + path, {method:'GET', headers: {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+  }
+  function sbPost(path, body) {
+    return fetch(SB_URL + path, {method:'POST', headers: SB_HEADERS, body: JSON.stringify(body)});
+  }
+  function sbUpsert(path, body) {
+    return fetch(SB_URL + path, {method:'POST', headers: Object.assign({}, SB_HEADERS, {'Prefer':'resolution=merge-duplicates,return=representation'}), body: JSON.stringify(body)});
+  }
+
+  var libTab = 'community';
+
+  function getProfile() { try { return JSON.parse(localStorage.getItem('murProfile')||'{}'); } catch(e) { return {}; } }
+  function setProfile(p) { localStorage.setItem('murProfile', JSON.stringify(p)); updateProfileBtn(); }
+  function updateProfileBtn(){
+    var p=getProfile(),btn=document.getElementById('profile-topbar-btn');
+    if(!btn)return;
+    if(!p.email){btn.textContent='△ Sign In';btn.onclick=openSignin;}
+    else{btn.textContent='△ '+(p.name||p.email.split('@')[0]);btn.onclick=openProfile;}
+  }
+
+  function openProfile() {
+    var p = getProfile();
+    document.getElementById('profile-name').value = p.name || '';
+    document.getElementById('profile-email').value = p.email || '';
+    document.getElementById('profile-instrument').value = p.instrument || '';
+    document.getElementById('profile-modal').classList.add('open');
+  }
+  function closeProfile() { document.getElementById('profile-modal').classList.remove('open'); }
+  function saveProfile() {
+    setProfile({ name: document.getElementById('profile-name').value.trim(), email: document.getElementById('profile-email').value.trim(), instrument: document.getElementById('profile-instrument').value });
+    closeProfile();
+  }
+  window.openProfile=openProfile; window.closeProfile=closeProfile; window.saveProfile=saveProfile;
+
+  function openSave() {
+    var p = getProfile();
+    document.getElementById('save-docname').value = document.getElementById('doc-name').value.trim();
+    document.getElementById('save-name').value = p.name || '';
+    document.getElementById('save-email').value = p.email || '';
+    document.getElementById('save-instrument').value = p.instrument || '';
+    var msg = document.getElementById('save-msg');
+    msg.textContent = p.email ? '' : 'Enter your details once to build your personal library.';
+    msg.className = 'modal-msg';
+    document.getElementById('save-modal').classList.add('open');
+  }
+  function closeSave() { document.getElementById('save-modal').classList.remove('open'); }
+  function submitSave() {
+    var name = document.getElementById('save-name').value.trim();
+    var email = document.getElementById('save-email').value.trim();
+    var instrument = document.getElementById('save-instrument').value;
+    var docName = document.getElementById('save-docname').value.trim();
+    var msg = document.getElementById('save-msg');
+    if (!email) { msg.textContent = 'Please enter your email.'; msg.className = 'modal-msg err'; return; }
+    if (!instrument) { msg.textContent = 'Please select your instrument.'; msg.className = 'modal-msg err'; return; }
+    setProfile({name:name, email:email, instrument:instrument});
+    var composer = document.getElementById('save-composer').value.trim();
+    msg.textContent = 'Saving...'; msg.className = 'modal-msg';
+    // Save to Supabase
+    var row = {user_email:email, doc_name:docName, composer:composer,
+      grouping:g2s(activeGroup), clef:cClef(),
+      key:document.getElementById('key-sel').value, notes:selNotes.join(','),
+      instrument:instrument};
+    // Upsert profile
+    sbUpsert('/rest/v1/profiles', {email:email, name:name, instrument:instrument})
+    .then(function(){
+      return sbPost('/rest/v1/exercises', row);
+    })
+    .then(function(r){
+      if(r.ok||r.status===201){
+        msg.textContent='Saved!'; msg.className='modal-msg ok';
+        setTimeout(closeSave,1200);
+      } else {
+        return r.text().then(function(t){ throw new Error(t); });
+      }
+    })
+    .catch(function(e){ msg.textContent='Error saving.'; msg.className='modal-msg err'; console.log('save error',e); });
+  }
+  window.openSave=openSave; window.closeSave=closeSave; window.submitSave=submitSave;
+
+  function openLibrary() { document.getElementById('library-panel').classList.add('open'); doLibrarySearch(); }
+  function closeLibrary() { document.getElementById('library-panel').classList.remove('open'); }
+  function switchTab(tab) {
+    libTab = tab;
+    document.getElementById('tab-community').className = 'library-tab'+(tab==='community'?' active':'');
+    document.getElementById('tab-mine').className = 'library-tab'+(tab==='mine'?' active':'');
+    doLibrarySearch();
+  }
+  function doLibrarySearch() {
+    var results = document.getElementById('library-results');
+    results.innerHTML = '<div class="library-empty">Loading...</div>';
+    var q = document.getElementById('lib-query').value.trim();
+    var inst = document.getElementById('lib-instrument').value;
+    var p = getProfile();
+    if (libTab === 'mine' && !p.email) { results.innerHTML = '<div class="library-empty">Sign in to see your saved exercises.</div>'; return; }
+    window._libRows = {};
+    // Build Supabase query URL
+    var sbPath;
+    if (libTab === 'mine') {
+      sbPath = '/rest/v1/exercises?user_email=eq.' + encodeURIComponent(p.email) + '&order=created_at.desc&limit=50';
+    } else {
+      sbPath = '/rest/v1/exercises?order=created_at.desc&limit=50';
+      if (inst) sbPath += '&instrument=eq.' + encodeURIComponent(inst);
+      // Also join profile to get instrument - for now filter on exercises
+    }
+    // Also need instrument from profiles for community - use exercises table instrument field
+    // First get exercises, then get profile instrument
+    sbGet(sbPath)
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if (!rows||!rows.length) { results.innerHTML = '<div class="library-empty">No exercises found.</div>'; return; }
+      // Get profiles for these emails to show instrument
+      var emails = [...new Set(rows.map(function(r){return r.user_email;}))];
+      sbGet('/rest/v1/profiles?email=in.('+emails.map(encodeURIComponent).join(',')+')')
+      .then(function(r2){return r2.json();})
+      .then(function(profiles){
+        var profMap = {};
+        (profiles||[]).forEach(function(pr){profMap[pr.email]=pr;});
+        results.innerHTML = '';
+        rows.forEach(function(row,i){
+          window._libRows[i] = row;
+          var prof = profMap[row.user_email]||{};
+          var date = row.created_at ? new Date(row.created_at).toLocaleDateString() : '';
+          var meta = [row.composer,prof.instrument,row.grouping,row.clef,row.key,date].filter(Boolean).join(' · ');
+          var div = document.createElement('div');
+          div.className = 'library-row';
+          div.innerHTML = '<div class="library-row-title">'+(row.doc_name||'Untitled')+'</div>'
+            +'<div class="library-row-meta">'+meta+'</div>';
+          div.addEventListener('click',(function(idx){return function(){
+            var r=window._libRows[idx];
+            loadFromLibrary({notes:r.notes,docName:r.doc_name,clef:r.clef,key:r.key,grouping:r.grouping});
+          };})(i));
+          results.appendChild(div);
+        });
+      })
+      .catch(function(){
+        // If profile fetch fails, show without instrument
+        results.innerHTML = '';
+        rows.forEach(function(row,i){
+          window._libRows[i] = row;
+          var date = row.created_at ? new Date(row.created_at).toLocaleDateString() : '';
+          var meta = [row.composer,row.grouping,row.clef,row.key,date].filter(Boolean).join(' · ');
+          var div = document.createElement('div');
+          div.className = 'library-row';
+          div.innerHTML = '<div class="library-row-title">'+(row.doc_name||'Untitled')+'</div>'
+            +'<div class="library-row-meta">'+meta+'</div>';
+          div.addEventListener('click',(function(idx){return function(){
+            var r=window._libRows[idx];
+            loadFromLibrary({notes:r.notes,docName:r.doc_name,clef:r.clef,key:r.key,grouping:r.grouping});
+          };})(i));
+          results.appendChild(div);
+        });
+      });
+    })
+    .catch(function(){ results.innerHTML = '<div class="library-empty">Could not load library.</div>'; });
+  }
+  var _S2N={'Three-Note Rhythm Patterns':3,'Four-Note Rhythm Patterns':4,'Five-Note Rhythm Patterns':5,'Six-Note Rhythm Patterns':6,'Seven-Note Rhythm Patterns':7,'Eight-Note Rhythm Patterns':8};
+  function loadFromLibrary(r) {
+    try {
+      if (typeof r==='string') r=JSON.parse(r);
+      if (!r.notes) return;
+      selNotes=r.notes.split(',').filter(Boolean);
+      if (r.docName) document.getElementById('doc-name').value=r.docName;
+      if (r.clef) document.getElementById('clef-sel').value=r.clef;
+      if (r.key) document.getElementById('key-sel').value=r.key;
+      var n=_S2N[r.grouping];
+      if(n){activeGroup=n;document.querySelectorAll('.group-btn').forEach(function(b){b.classList.toggle('active',parseInt(b.dataset.n)===n);});}
+      updateChips();upPrompt();upHint();checkReady();
+      closeLibrary();
+      setTimeout(function(){var btn=document.getElementById('gen-btn');if(btn&&!btn.disabled)btn.click();},150);
+    } catch(e){console.log('loadFromLibrary error:',e);}
+  }
+  window.openLibrary=openLibrary; window.closeLibrary=closeLibrary;
+  window.switchTab=switchTab; window.doLibrarySearch=doLibrarySearch;
+  window.loadFromLibrary=loadFromLibrary;
+  function openSignin(){var p=getProfile();document.getElementById('signin-email').value=p.email||'';document.getElementById('signin-msg').textContent='';document.getElementById('signin-modal').classList.add('open');}
+  function closeSignin(){document.getElementById('signin-modal').classList.remove('open');}
+  function submitSignin(){
+    var email=document.getElementById('signin-email').value.trim();
+    var msg=document.getElementById('signin-msg');
+    if(!email){msg.textContent='Please enter your email.';msg.className='modal-msg err';return;}
+    msg.textContent='Looking up your profile...';msg.className='modal-msg';
+    sbGet('/rest/v1/profiles?email=eq.'+encodeURIComponent(email)+'&limit=1')
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      var p={email:email};
+      if(rows&&rows.length>0){p.name=rows[0].name||'';p.instrument=rows[0].instrument||'';}
+      setProfile(p);
+      msg.textContent=rows&&rows.length?'Welcome back, '+(p.name||email)+'!':'Signed in as '+email;
+      msg.className='modal-msg ok';
+      setTimeout(closeSignin,1200);
+    })
+    .catch(function(){
+      var p=getProfile();p.email=email;setProfile(p);
+      msg.textContent='Signed in as '+email;msg.className='modal-msg ok';
+      setTimeout(closeSignin,1200);
+    });
+  }
+  window.openSignin=openSignin;window.closeSignin=closeSignin;window.submitSignin=submitSignin;
+  updateProfileBtn();
+
+  buildPiano();
+  // Unlock AudioContext on first touch for iOS Safari
+  function unlockAudio() {
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    document.removeEventListener('touchstart', unlockAudio);
+    document.removeEventListener('touchend', unlockAudio);
+  }
+  document.addEventListener('touchstart', unlockAudio, {passive: true});
+  document.addEventListener('touchend', unlockAudio, {passive: true});
+  document.addEventListener('click', unlockAudio, {once: true});
+
+  updateStats();
+  upPrompt();
+  checkOrientation();
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', function() { setTimeout(checkOrientation, 200); });
+
+})();
+</script>
+
+<!-- Print overlay -->
+<div class="print-overlay" id="print-overlay">
+  <div class="print-toolbar">
+    <div class="print-toolbar-title" id="print-overlay-title"></div>
+    <div class="print-toolbar-btns">
+      <button class="print-action-btn" onclick="doPrint()">Print / Save PDF</button>
+      <button class="print-close-btn" onclick="closePrintOverlay()">&#x2715; Close</button>
+    </div>
+  </div>
+  <div class="print-content" id="print-content"></div>
+</div>
+
+<!-- Profile modal -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal-box">
+    <div class="modal-title">Your Profile</div>
+    <div class="modal-field"><label class="modal-label">Name</label><input class="modal-input" id="profile-name" type="text" placeholder="Your name"></div>
+    <div class="modal-field"><label class="modal-label">Email</label><input class="modal-input" id="profile-email" type="email" placeholder="you@example.com"></div>
+    <div class="modal-field"><label class="modal-label">Your Instrument</label><select class="modal-select" id="profile-instrument"><option value="">Select instrument...</option><option>Flute</option><option>Oboe</option><option>Clarinet</option><option>Bassoon</option><option>Saxophone</option><option>Horn</option><option>Trumpet</option><option>Trombone</option><option>Tuba</option><option>Violin</option><option>Viola</option><option>Cello</option><option>Double Bass</option><option>Harp</option><option>Piano</option><option>Percussion</option><option>Voice</option><option>Other</option></select></div>
+    <div class="modal-btns"><button class="modal-btn-secondary" onclick="closeProfile()">Cancel</button><button class="modal-btn-primary" onclick="saveProfile()">Save Profile</button></div>
+  </div>
+</div>
+
+<!-- Save modal -->
+<div class="modal-overlay" id="save-modal">
+  <div class="modal-box">
+    <div class="modal-title">Save Exercise</div>
+    <div class="modal-field"><label class="modal-label">Document Name</label><input class="modal-input" id="save-docname" type="text" placeholder="e.g. Brahms mvt 1"></div>
+    <div class="modal-field"><label class="modal-label">Composer Last Name</label><input class="modal-input" id="save-composer" type="text" placeholder="e.g. Brahms"></div>
+    <div class="modal-field"><label class="modal-label">Name</label><input class="modal-input" id="save-name" type="text" placeholder="Your name"></div>
+    <div class="modal-field"><label class="modal-label">Email</label><input class="modal-input" id="save-email" type="email" placeholder="you@example.com"></div>
+    <div class="modal-field"><label class="modal-label">Instrument</label><select class="modal-select" id="save-instrument"><option value="">Select instrument...</option><option>Flute</option><option>Oboe</option><option>Clarinet</option><option>Bassoon</option><option>Saxophone</option><option>Horn</option><option>Trumpet</option><option>Trombone</option><option>Tuba</option><option>Violin</option><option>Viola</option><option>Cello</option><option>Double Bass</option><option>Harp</option><option>Piano</option><option>Percussion</option><option>Voice</option><option>Other</option></select></div>
+    <div class="modal-msg" id="save-msg"></div>
+    <div class="modal-btns"><button class="modal-btn-secondary" onclick="closeSave()">Cancel</button><button class="modal-btn-primary" onclick="submitSave()">Save</button></div>
+  </div>
+</div>
+
+<!-- Library panel -->
+<div class="library-panel" id="library-panel">
+  <div class="library-box">
+    <div class="library-header"><div class="library-title">Exercise Library</div><button class="library-close" onclick="closeLibrary()">✕ Close</button></div>
+    <div class="library-tabs"><div class="library-tab active" id="tab-community" onclick="switchTab('community')">Community</div><div class="library-tab" id="tab-mine" onclick="switchTab('mine')">My Exercises</div></div>
+    <div class="library-header" style="padding:10px 24px;"><div class="library-filters"><input class="library-search" id="lib-query" placeholder="Search piece name..." type="text"><select class="library-sel" id="lib-instrument"><option value="">All instruments</option><option>Flute</option><option>Oboe</option><option>Clarinet</option><option>Bassoon</option><option>Saxophone</option><option>Horn</option><option>Trumpet</option><option>Trombone</option><option>Tuba</option><option>Violin</option><option>Viola</option><option>Cello</option><option>Double Bass</option><option>Harp</option><option>Piano</option><option>Percussion</option><option>Voice</option><option>Other</option></select><button class="library-search-btn" onclick="doLibrarySearch()">Search</button></div></div>
+    <div class="library-results" id="library-results"><div class="library-empty">Search for exercises or browse the community library.</div></div>
+  </div>
+</div>
+
+<!-- Sign in modal -->
+<div class="modal-overlay" id="signin-modal">
+  <div class="modal-box">
+    <div class="modal-title">Sign In</div>
+    <div class="sp-p" style="font-size:0.82rem;color:rgba(245,240,232,0.55);margin-bottom:16px;">Enter your email to access your saved exercises on any device.</div>
+    <div class="modal-field"><label class="modal-label">Email</label><input class="modal-input" id="signin-email" type="email" placeholder="you@example.com"></div>
+    <div class="modal-msg" id="signin-msg"></div>
+    <div class="modal-btns"><button class="modal-btn-secondary" onclick="closeSignin()">Cancel</button><button class="modal-btn-primary" onclick="submitSignin()">Sign In</button></div>
+  </div>
+</div>
+
+<!-- Chip edit popover -->
+<div id="chip-popover" style="display:none;position:fixed;z-index:500;background:#1a1410;border:1px solid #3a2e24;box-shadow:0 8px 32px rgba(0,0,0,0.6);min-width:240px;border-radius:3px;-webkit-overflow-scrolling:touch;overflow-y:auto;max-height:80vh;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #2a231d;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.5);">Edit Note</div>
+    <button onclick="closeChipPopover()" style="background:none;border:none;color:rgba(245,240,232,0.5);font-size:1.1rem;cursor:pointer;padding:0 2px;line-height:1;" title="Close">&times;</button>
+  </div>
+  <div style="padding:10px 14px 10px;border-bottom:1px solid #2a231d;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Respell</div>
+    <div id="popover-spellings" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+  </div>
+  <div style="padding:10px 14px;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:6px;">Type any spelling</div>
+    <div style="display:flex;gap:6px;">
+      <input id="popover-custom-input" type="text" placeholder="e.g. B#4, Fb3, Dbb4"
+        style="flex:1;background:#0e0c09;border:1px solid #3a2e24;color:var(--cream);padding:6px 8px;font-family:'Inconsolata',monospace;font-size:0.85rem;outline:none;">
+      <button onclick="applyCustomSpelling()" style="background:var(--accent);color:white;border:none;padding:6px 12px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.1em;cursor:pointer;">OK</button>
+    </div>
+  </div>
+  <div style="padding:8px 14px;border-top:1px solid #2a231d;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Force Accidental</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <button onclick="forceAccidental('')" id="fa-none" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">&#9711;</button>
+      <button onclick="forceAccidental('n')" id="fa-nat" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">♮</button>
+      <button onclick="forceAccidental('#')" id="fa-sh" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">♯</button>
+      <button onclick="forceAccidental('b')" id="fa-fl" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">♭</button>
+      <button onclick="forceAccidental('##')" id="fa-dsh" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">𝄪</button>
+      <button onclick="forceAccidental('bb')" id="fa-dfl" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">𝄫</button>
+    </div>
+  </div>
+  <div style="padding:8px 14px 12px;border-top:1px solid #2a231d;">
+    <button onclick="deletePopoverNote()" style="width:100%;background:none;border:1px solid rgba(229,53,53,0.4);color:rgba(229,53,53,0.9);padding:7px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.15em;cursor:pointer;">Delete This Note</button>
+  </div>
+</div>
+<div id="chip-popover-backdrop" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:499;" onclick="closeChipPopover()"></div>
+</body>
+</html>  // Exercise state for phone one-at-a-time
+  var _allExercises = []; // {abc, pat} objects
+  var _exIdx = 0;
+
+  function isPhone() { return window.innerWidth < 768; }
+
+  getElementById('gen-btn').addEventListener('click', function() {
+    var clef = cClef(), sec = g2s(activeGroup);
+    var pats = DB.filter(function(p) { return p.section === sec; });
+
+    var docName = document.getElementById('doc-name').value.trim();
+    var sheetTitle = docName ? docName + ' — ' + sec : sec;
+    document.getElementById('sheet-title').textContent = sheetTitle;
+    document.title = docName ? docName + ' — Mixed Up Rhythms' : 'Mixed Up Rhythms';
+
+    // Build all ABC strings
+    _allExercises = pats.map(function(p, i) {
+      try { return {abc: buildAbcString(p, selNotes.slice(), clef), pat: p, idx: i}; }
+      catch(e) { return null; }
+    }).filter(Boolean);
+    _exIdx = 0;
+
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('sheet-wrap').style.display = 'block';
+    document.getElementById('export-bar').classList.add('visible');
+
+    if (isPhone()) {
+      renderPhoneExercise();
+    } else {
+      renderAllExercisesDesktop(pats, clef);
+    }
+  });
+
+  function renderPhoneExercise() {
+    var nav = document.getElementById('ex-nav-bar');
+    var exCont = document.getElementById('exercises');
+    if (nav) nav.style.display = 'flex';
+    exCont.innerHTML = '';
+
+    var item = _allExercises[_exIdx];
+    if (!item) return;
+
+    var counter = document.getElementById('ex-counter');
+    if (counter) counter.textContent = (_exIdx + 1) + ' / ' + _allExercises.length;
+    var prev = document.getElementById('ex-prev');
+    var next = document.getElementById('ex-next');
+    if (prev) prev.style.opacity = _exIdx === 0 ? '0.3' : '1';
+    if (next) next.style.opacity = _exIdx === _allExercises.length - 1 ? '0.3' : '1';
+
+    var row = document.createElement('div');
+    row.className = 'ex-row';
+    var idLabel = document.createElement('div');
+    idLabel.className = 'ex-id-label';
+    idLabel.textContent = (_exIdx + 1) + ' / ' + _allExercises.length + '  �  ' + item.pat.timeSig;
+    var staveDiv = document.createElement('div');
+    staveDiv.id = 'ex-phone-0';
+    row.appendChild(idLabel);
+    row.appendChild(staveDiv);
+    exCont.appendChild(row);
+
+    var w = exCont.offsetWidth > 32 ? exCont.offsetWidth - 20 : window.innerWidth - 20;
+    try {
+      ABCJS.renderAbc('ex-phone-0', item.abc, {
+        scale: 1.1, staffwidth: w,
+        paddingright: 10, paddingleft: 10, paddingbottom: 10, paddingtop: 10,
+        add_classes: true,
+        wrap: {minSpacing: 1.5, maxSpacing: 2.5, preferredMeasuresPerLine: 4}
+      });
+    } catch(e) { row.innerHTML = '<div style="color:var(--accent);padding:8px">Render error</div>'; }
+  }
+
+  function renderAllExercisesDesktop(pats, clef) {
+    var nav = document.getElementById('ex-nav-bar');
+    if (nav) nav.style.display = 'none';
+    var exCont = document.getElementById('exercises');
+    exCont.innerHTML = '';
+    pats.forEach(function(p, i) {
+      var row = document.createElement('div');
+      row.className = 'ex-row';
+      var idLabel = document.createElement('div');
+      idLabel.className = 'ex-id-label';
+      idLabel.textContent = '#' + p.id + '  �  ' + p.timeSig + (p.beaming ? '  �  [' + p.beaming + ']' : '');
+      var staveDiv = document.createElement('div');
+      staveDiv.id = 'ex-' + i;
+      row.appendChild(idLabel);
+      row.appendChild(staveDiv);
+      exCont.appendChild(row);
+      try {
+        var abc = buildAbcString(p, selNotes.slice(), clef);
+        ABCJS.renderAbc('ex-' + i, abc, {
+          scale: 1.2, paddingright: 30, paddingleft: 15,
+          paddingbottom: 10, paddingtop: 10, add_classes: true, staffwidth: 880,
+          wrap: {minSpacing: 1.8, maxSpacing: 2.8, preferredMeasuresPerLine: 4},
+        });
+      } catch(e) {
+        row.innerHTML = '<div style="color:var(--accent);font-size:.7rem;padding:6px">Error: ' + e.message + '</div>';
+      }
+    });
+  }
+
+  function exPrev() { if (_exIdx > 0) { _exIdx--; renderPhoneExercise(); } }
+  function exNext() { if (_exIdx < _allExercises.length - 1) { _exIdx++; renderPhoneExercise(); } }
+  window.exPrev = exPrev; window.exNext = exNext;
+
+  // Re-render on resize/orientation change
+  window.addEventListener('resize', function() {
+    if (_allExercises.length) {
+      if (isPhone()) renderPhoneExercise();
+      // Desktop re-render not needed - browser handles reflow
+    }
+  });
+
 
   // ── KEY SPELLING ─────────────────────────────────────
   var KEY_ACC = {
