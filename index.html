@@ -1832,6 +1832,14 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   window.switchInputTab = switchInputTab;
 
   // Mic pitch detection
+  function unlockAudio() {
+    try {
+      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === 'suspended' || AC.state === 'interrupted') AC.resume();
+    } catch(e) {}
+    document.removeEventListener('touchstart', unlockAudio);
+    document.removeEventListener('touchend', unlockAudio);
+  }
   var _micActive = false, _micStream = null, _micCtx = null, _micAnalyser = null, _micTimer = null;
   var _prevRms = 0, _noteActive = false, _stableCount = 0, _lastFreq = 0;
   var _lockoutUntil = 0, _lockoutMs = 400, _lastSoundTime = 0, _autoStopMs = 3000;
@@ -1893,7 +1901,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
       var btn = document.getElementById('rec-btn-desktop');
       var inner = document.getElementById('rec-inner-desktop');
       if (btn) btn.classList.add('recording');
-      if (inner) inner.style.opacity = '0';
+      if (inner) inner.style.opacity = '1';
       document.getElementById('rec-label-desktop').textContent = 'RECORDING \u2014 TAP TO STOP';
       detectLoopDesktop();
     })
@@ -2331,15 +2339,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
   buildPiano();
   initPianoScroll();
-  // Unlock AudioContext on first touch for iOS Safari
-  function unlockAudio() {
-    try {
-      if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
-      if (AC.state === 'suspended' || AC.state === 'interrupted') AC.resume();
-    } catch(e) {}
-    document.removeEventListener('touchstart', unlockAudio);
-    document.removeEventListener('touchend', unlockAudio);
-  }
+  // (unlockAudio defined earlier)
   document.addEventListener('touchstart', unlockAudio, {passive: true});
   document.addEventListener('touchend', unlockAudio, {passive: true});
 
