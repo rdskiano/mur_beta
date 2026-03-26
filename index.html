@@ -26,18 +26,18 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .rotate-icon { font-size: 3rem; animation: tilt 2s ease-in-out infinite; }
 @keyframes tilt { 0%,100%{transform:rotate(0deg)} 40%,60%{transform:rotate(90deg)} }
 .rotate-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.14em; color: var(--cream); }
-.rotate-sub { font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
+.rotate-sub { font-family: 'Inconsolata', monospace; font-size: 1rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
 
 /* Top bar */
 .topbar { background: var(--ink); border-bottom: 3px solid var(--accent); padding: 0 14px; height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 8px; overflow: hidden; }
 .app-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.14em; color: var(--cream); }
-.settings-btn { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); height: 30px; padding: 0 12px; cursor: pointer; font-size: 0.75rem; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; white-space: nowrap; transition: all 0.12s; }
+.settings-btn { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); height: 30px; padding: 0 12px; cursor: pointer; font-size: 1rem; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; white-space: nowrap; transition: all 0.12s; }
 .settings-btn:hover { border-color: var(--accent); color: var(--accent); }
 .settings-btn.x { border-color: var(--accent); color: var(--accent); }
 
 /* Controls bar */
 .ctl-block { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
-.ctl-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.25em; color: rgba(245,240,232,0.5); text-transform: uppercase; }
+.ctl-label { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.25em; color: rgba(245,240,232,0.5); text-transform: uppercase; }
 .group-btns { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
 .group-btn { min-width: 52px; height: 72px; border: 2px solid #2a231d; background: transparent; color: rgba(245,240,232,0.75); cursor: pointer; transition: all 0.12s; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 6px 4px; gap: 3px; }
 .group-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -49,9 +49,9 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .group-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
 
 .sel-wrap { position: relative; }
-.app-sel { appearance: none; -webkit-appearance: none; background: #1a1410; border: 1px solid #333; color: var(--cream); padding: 7px 26px 7px 10px; font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; cursor: pointer; }
+.app-sel { appearance: none; -webkit-appearance: none; background: #1a1410; border: 1px solid #333; color: var(--cream); padding: 7px 26px 7px 10px; font-family: 'Cormorant Garamond', serif; font-size: 1rem; cursor: pointer; }
 .app-sel:focus { outline: 1px solid var(--accent); }
-.sel-arrow { pointer-events: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: rgba(245,240,232,0.75); font-size: 0.75rem; }
+.sel-arrow { pointer-events: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: rgba(245,240,232,0.75); font-size: 1rem; }
 #key-sel { min-width: 140px; max-width: 100%; }
 #instrument-sel { min-width: 180px; max-width: 100%; }
 
@@ -60,7 +60,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .kb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
 .kb-prompt { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: var(--cream); }
 .kb-prompt strong { color: white; }
-.clear-btn { background: none; border: none; color: rgba(245,240,232,0.75); font-family: 'Inconsolata', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; text-decoration: underline; }
+.clear-btn { background: none; border: none; color: rgba(245,240,232,0.75); font-family: 'Inconsolata', monospace; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; text-decoration: underline; }
 .clear-btn:hover { color: var(--accent); }
 .piano-wrap { width: 1400px; height: 180px; user-select: none; -webkit-user-select: none; overflow: hidden; }
 .piano-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
@@ -69,11 +69,11 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 
 /* Note chips */
 .chips-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; min-height: 28px; align-items: center; padding: 4px 28px; }
-.chip { background: var(--accent); color: white; font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.04em; padding: 3px 7px 3px 9px; display: inline-flex; align-items: center; gap: 3px; animation: pop 0.1s ease; }
+.chip { background: var(--accent); color: white; font-family: 'Inconsolata', monospace; font-size: 1rem; letter-spacing: 0.04em; padding: 3px 7px 3px 9px; display: inline-flex; align-items: center; gap: 3px; animation: pop 0.1s ease; }
 @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.chip .enh { background: rgba(255,255,255,0.18); border: none; color: rgba(255,255,255,0.8); font-family: 'Inconsolata', monospace; font-size: 0.75rem; padding: 1px 4px; cursor: pointer; border-radius: 1px; }
+.chip .enh { background: rgba(255,255,255,0.18); border: none; color: rgba(255,255,255,0.8); font-family: 'Inconsolata', monospace; font-size: 1rem; padding: 1px 4px; cursor: pointer; border-radius: 1px; }
 .chip .enh:hover { background: rgba(255,255,255,0.32); }
-.chip .rm { background: none; border: none; color: rgba(255,255,255,0.75); cursor: pointer; font-size: 0.9rem; line-height: 1; padding: 0 0 0 2px; }
+.chip .rm { background: none; border: none; color: rgba(255,255,255,0.75); cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 0 0 2px; }
 .chip .rm:hover { color: white; }
 .no-notes { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.75); }
 .count-hint { padding: 0 28px; font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.7); margin-top: 5px; }
@@ -84,7 +84,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   background: #2a231d; color: var(--cream); border: 1px solid #444;
   margin: 8px 0 0;
   width: 100%;
-  padding: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem;
+  padding: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem;
   letter-spacing: 0.12em; cursor: pointer; transition: all 0.15s;
   width: 100%; display: block; margin-top: 8px; margin-bottom: 4px;
 }
@@ -98,11 +98,11 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 /* Export bar */
 .export-bar { background: #0d0b09; border-bottom: 2px solid #2a231d; padding: 12px 28px; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
 .export-bar.visible { display: flex; }
-.export-label { font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: rm: uppercase; color: rgba(245,240,232,0.75); white-space: nowrap; }
+.export-label { font-family: 'Inconsolata', monospace; font-size: 1rem; letter-spacing: 0.14em; text-transform: rm: uppercase; color: rgba(245,240,232,0.75); white-space: nowrap; }
 
-.export-pdf-btn { background: var(--accent); color: white; border: none; padding: 8px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; }
+.export-pdf-btn { background: var(--accent); color: white; border: none; padding: 8px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; }
 .export-pdf-btn:hover { background: #a04520; }
-.export-btn { background: var(--accent); color: white; border: none; padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.12em; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+.export-btn { background: var(--accent); color: white; border: none; padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.12em; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
 .export-btn:hover { background: #a04520; }
 
 /* Output area */
@@ -158,20 +158,20 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   letter-spacing: 0.12em; color: var(--cream); flex: 1;
 }
 .pdf-share-hint {
-  font-family: "Inconsolata", monospace; font-size: 0.75rem;
+  font-family: "Inconsolata", monospace; font-size: 1rem;
   letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,240,232,0.75);
 }
 .pdf-close-btn {
   background: none; border: 1px solid #444; color: rgba(245,240,232,0.75);
   padding: 6px 14px; font-family: "Bebas Neue", sans-serif;
-  font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer;
+  font-size: 1rem; letter-spacing: 0.1em; cursor: pointer;
 }
 .pdf-close-btn:hover { border-color: var(--accent); color: var(--accent); }
 .pdf-frame { flex: 1; border: none; width: 100%; display: block; }/* Fullscreen button on export bar */
 .start-over-btn {
   background: #2a231d; color: rgba(245,240,232,0.7); border: 1px solid #444;
   padding: 8px 18px; font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.95rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap;
+  font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap;
 }
 .start-over-btn:hover { border-color: var(--accent); color: var(--cream); }
 
@@ -209,16 +209,16 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .close-btn { background: none; border: none; color: rgba(245,240,232,0.75); font-size: 1.1rem; cursor: pointer; }
 .close-btn:hover { color: var(--accent); }
 .sp-sec { margin-bottom: 20px; }
-.sp-h3 { font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; padding-bottom: 3px; border-bottom: 1px solid var(--rule); }
-.sp-p { font-size: 0.86rem; color: rgba(245,240,232,0.7); line-height: 1.6; margin-bottom: 10px; }
+.sp-h3 { font-family: 'Inconsolata', monospace; font-size: 1rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; padding-bottom: 3px; border-bottom: 1px solid var(--rule); }
+.sp-p { font-size: 1rem; color: rgba(245,240,232,0.7); line-height: 1.6; margin-bottom: 10px; }
 .upload-zone { border: 2px dashed var(--rule); padding: 14px; text-align: center; cursor: pointer; transition: all 0.15s; position: relative; }
 .upload-zone:hover { border-color: var(--accent); }
 .upload-zone.loaded { border-color: #3a8e4a; }
 .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
-.uz-lbl { font-family: 'Inconsolata', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
+.uz-lbl { font-family: 'Inconsolata', monospace; font-size: 1rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,240,232,0.75); }
 .upload-zone.loaded .uz-lbl { color: #3a8e4a; }
-.uz-sub { font-size: 0.78rem; color: rgba(245,240,232,0.75); margin-top: 3px; font-style: italic; }
-.db-stats { font-family: 'Inconsolata', monospace; font-size: 0.75rem; color: rgba(245,240,232,0.7); margin-top: 10px; line-height: 1.9; }
+.uz-sub { font-size: 1rem; color: rgba(245,240,232,0.75); margin-top: 3px; font-style: italic; }
+.db-stats { font-family: 'Inconsolata', monospace; font-size: 1rem; color: rgba(245,240,232,0.7); margin-top: 10px; line-height: 1.9; }
 .db-stats strong { color: var(--cream); }
 
 
@@ -235,7 +235,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 }
 
 /* Profile & Save & Library */
-.profile-btn { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 0 12px; height: 30px; font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; transition: all 0.12s; }
+.profile-btn { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 0 12px; height: 30px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; transition: all 0.12s; }
 .profile-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 .topbar-btns { display: flex; gap: 6px; align-items: center; flex-shrink: 1; flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
@@ -245,31 +245,31 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   .app-title { font-size: 1.1rem; letter-spacing: 0.08em; }
   .topbar > div:first-child > div:last-child { display: none; }
   .topbar-btns { gap: 4px; }
-  .topbar-btns .settings-btn { font-size: 0.75rem; padding: 0 6px; height: 24px; letter-spacing: 0.06em; }
+  .topbar-btns .settings-btn { font-size: 1rem; padding: 0 6px; height: 24px; letter-spacing: 0.06em; }
   .ctl-row { gap: 8px; flex-wrap: wrap; }
   .group-btn { min-width: 44px; height: 62px; }
   .group-btn svg { transform: scale(0.85); transform-origin: center bottom; }
 }
 @media (max-width: 400px) {
-  .app-title { font-size: 0.95rem; }
-  .topbar-btns .settings-btn { font-size: 0.75rem; padding: 0 5px; height: 22px; }
+  .app-title { font-size: 1rem; }
+  .topbar-btns .settings-btn { font-size: 1rem; padding: 0 5px; height: 22px; }
 }
 .profile-btn.active { border-color: var(--accent); color: var(--accent); }
-.save-btn { background: none; border: 1px solid var(--accent); color: var(--accent); padding: 8px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; }
+.save-btn { background: none; border: 1px solid var(--accent); color: var(--accent); padding: 8px 18px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; }
 .save-btn:hover { background: var(--accent); color: white; }
 .modal-overlay { display: none; position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.75); align-items: center; justify-content: center; }
 .modal-overlay.open { display: flex; }
 .modal-box { background: #1a1410; border: 1px solid #333; padding: 28px 32px; max-width: 420px; width: 90%; }
 .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.12em; color: var(--cream); margin-bottom: 20px; border-bottom: 1px solid #2a231d; padding-bottom: 10px; }
 .modal-field { margin-bottom: 14px; }
-.modal-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--accent); display: block; margin-bottom: 4px; }
-.modal-input { width: 100%; background: #111009; border: 1px solid #333; color: var(--cream); padding: 8px 10px; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; box-sizing: border-box; }
+.modal-label { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.2em; color: var(--accent); display: block; margin-bottom: 4px; }
+.modal-input { width: 100%; background: #111009; border: 1px solid #333; color: var(--cream); padding: 8px 10px; font-family: 'Cormorant Garamond', serif; font-size: 1rem; box-sizing: border-box; }
 .modal-input:focus { outline: 1px solid var(--accent); }
-.modal-select { width: 100%; background: #111009; border: 1px solid #333; color: var(--cream); padding: 8px 10px; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; box-sizing: border-box; appearance: none; -webkit-appearance: none; }
+.modal-select { width: 100%; background: #111009; border: 1px solid #333; color: var(--cream); padding: 8px 10px; font-family: 'Cormorant Garamond', serif; font-size: 1rem; box-sizing: border-box; appearance: none; -webkit-appearance: none; }
 .modal-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-.modal-btn-primary { background: var(--accent); color: white; border: none; padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer; }
-.modal-btn-secondary { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.1em; cursor: pointer; }
-.modal-msg { font-family: 'Inconsolata', monospace; font-size: 0.75rem; margin-top: 10px; min-height: 16px; }
+.modal-btn-primary { background: var(--accent); color: white; border: none; padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; }
+.modal-btn-secondary { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; cursor: pointer; }
+.modal-msg { font-family: 'Inconsolata', monospace; font-size: 1rem; margin-top: 10px; min-height: 16px; }
 .modal-msg.ok { color: #4caf50; } .modal-msg.err { color: #e57373; }
 .library-panel { display: none; position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.75); align-items: flex-start; justify-content: center; padding-top: 60px; }
 .library-panel.open { display: flex; }
@@ -277,19 +277,19 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .library-header { padding: 16px 24px 10px; border-bottom: 1px solid #2a231d; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 .library-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.12em; color: var(--cream); }
 .library-filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.library-search { background: #111009; border: 1px solid #333; color: var(--cream); padding: 5px 10px; font-family: 'Inconsolata', monospace; font-size: 0.75rem; width: 140px; }
-.library-sel { background: #111009; border: 1px solid #333; color: var(--cream); padding: 5px 8px; font-family: 'Inconsolata', monospace; font-size: 0.75rem; appearance: none; -webkit-appearance: none; }
-.library-search-btn { background: var(--accent); color: white; border: none; padding: 5px 12px; font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 0.08em; cursor: pointer; }
-.library-close { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 5px 12px; font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 0.08em; cursor: pointer; }
+.library-search { background: #111009; border: 1px solid #333; color: var(--cream); padding: 5px 10px; font-family: 'Inconsolata', monospace; font-size: 1rem; width: 140px; }
+.library-sel { background: #111009; border: 1px solid #333; color: var(--cream); padding: 5px 8px; font-family: 'Inconsolata', monospace; font-size: 1rem; appearance: none; -webkit-appearance: none; }
+.library-search-btn { background: var(--accent); color: white; border: none; padding: 5px 12px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.08em; cursor: pointer; }
+.library-close { background: none; border: 1px solid #444; color: rgba(245,240,232,0.75); padding: 5px 12px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.08em; cursor: pointer; }
 .library-tabs { display: flex; border-bottom: 1px solid #2a231d; }
-.library-tab { padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.75); cursor: pointer; border-bottom: 2px solid transparent; }
+.library-tab { padding: 8px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.1em; color: rgba(245,240,232,0.75); cursor: pointer; border-bottom: 2px solid transparent; }
 .library-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 .library-results { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .library-row { padding: 10px 24px; border-bottom: 1px solid #1a1410; cursor: pointer; }
 .library-row:hover { background: #111009; }
-.library-row-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.08em; color: var(--cream); }
-.library-row-meta { font-family: 'Inconsolata', monospace; font-size: 0.75rem; color: rgba(245,240,232,0.75); margin-top: 2px; }
-.library-empty { padding: 24px; font-family: 'Inconsolata', monospace; font-size: 0.75rem; color: rgba(245,240,232,0.7); text-align: center; }
+.library-row-title { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.08em; color: var(--cream); }
+.library-row-meta { font-family: 'Inconsolata', monospace; font-size: 1rem; color: rgba(245,240,232,0.75); margin-top: 2px; }
+.library-empty { padding: 24px; font-family: 'Inconsolata', monospace; font-size: 1rem; color: rgba(245,240,232,0.7); text-align: center; }
 
 /* Live staff desktop */
 #live-staff-desktop {
@@ -313,7 +313,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .chip-ins-btn {
   width: 16px; height: 16px; border-radius: 50%;
   background: none; border: 1px solid var(--rule);
-  color: rgba(245,240,232,0.75); font-size: 0.75rem; line-height: 1;
+  color: rgba(245,240,232,0.75); font-size: 1rem; line-height: 1;
   cursor: pointer; padding: 0; vertical-align: middle;
   transition: all 0.1s;
 }
@@ -325,7 +325,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   border: 1px solid var(--ink);
   color: rgba(255,255,255,0.7);
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.75rem;
+  font-size: 1rem;
   letter-spacing: 0.1em;
   padding: 3px 10px;
   cursor: pointer;
@@ -356,7 +356,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 }
 #kb-drag-band span {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.75rem;
+  font-size: 1rem;
   letter-spacing: 0.18em;
   color: rgba(245,240,232,0.7);
 }
@@ -397,7 +397,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 }
 .wizard-step-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   letter-spacing: 0.25em;
   color: var(--cream);
   flex: 1;
@@ -414,7 +414,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   border: 1px solid rgba(245,240,232,0.25);
   color: rgba(245,240,232,0.7);
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.75rem;
+  font-size: 1rem;
   letter-spacing: 0.1em;
   padding: 4px 12px;
   cursor: pointer;
@@ -427,7 +427,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 /* completed step gets a subtle tick */
 .wizard-step.done .wizard-step-num::after {
   content: ' \u2713';
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: rgba(245,240,232,0.4);
 }
 
@@ -554,7 +554,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
         <button id="rec-btn-desktop" onclick="toggleRecDesktop()" style="width:72px;height:72px;border-radius:50%;background:#e53535;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 rgba(229,53,53,0.4);transition:transform 0.1s;">
           <div id="rec-inner-desktop" style="width:24px;height:24px;background:white;border-radius:3px;opacity:0;transition:opacity 0.2s;"></div>
         </button>
-        <div id="rec-label-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.7);margin-top:10px;">TAP TO RECORD</div>
+        <div id="rec-label-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:0.2em;color:rgba(245,240,232,0.7);margin-top:10px;">TAP TO RECORD</div>
         <div id="rec-status-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);min-height:2.5rem;margin-top:4px;"></div>
         <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.9rem;color:rgba(245,240,232,0.7);max-width:380px;margin:8px auto 0;line-height:1.5;">
           Play each note separately and clearly &mdash; one at a time with a brief silence between each not note. The app detects each pitch automatically and stops after 3 seconds of silence.
@@ -977,16 +977,16 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   function upPrompt() {
     var el = document.getElementById('kb-prompt');
     if (!el) return;
-    if (!activeGroup) el.innerHTML = '';
-    else if (!selNotes.length) el.innerHTML = 'Enter your passage below';
+    if (!activeGroup || !selNotes.length) el.innerHTML = '';
     else el.innerHTML = '<strong>' + selNotes.length + '</strong> note' + (selNotes.length !== 1 ? 's' : '') + ' entered';
   }
   function upHint() {
+    // Pattern count shown in generate button area, not duplicated here
     var el = document.getElementById('count-hint');
     if (!el) return;
     if (!activeGroup || !selNotes.length) { el.innerHTML = ''; return; }
     var sec = g2s(activeGroup), ct = DB.filter(function(p) { return p.section === sec; }).length;
-    el.innerHTML = ct ? '<strong>' + selNotes.length + '</strong> pitches &middot; <strong>' + ct + '</strong> patterns' : '<span style="color:var(--accent)">No patterns for ' + sec + '</span>';
+    if (ct) el.innerHTML = '<strong>' + ct + '</strong> patterns available';
   }
   function checkReady() {
     var sec = g2s(activeGroup);
@@ -2251,15 +2251,15 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 <!-- Chip edit popover -->
 <div id="chip-popover" style="display:none;position:fixed;z-index:500;background:#1a1410;border:1px solid #3a2e24;box-shadow:0 8px 32px rgba(0,0,0,0.6);min-width:240px;border-radius:3px;-webkit-overflow-scrolling:touch;overflow-y:auto;max-height:80vh;">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #2a231d;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.5);">Edit Note</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:0.2em;color:rgba(245,240,232,0.5);">Edit Note</div>
     <button onclick="closeChipPopover()" style="background:none;border:none;color:rgba(245,240,232,0.5);font-size:1.1rem;cursor:pointer;padding:0 2px;line-height:1;" title="Close">&times;</button>
   </div>
   <div style="padding:10px 14px 10px;border-bottom:1px solid #2a231d;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Respell</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Respell</div>
     <div id="popover-spellings" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
   </div>
   <div style="padding:10px 14px;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:6px;">Type any spelling</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:6px;">Type any spelling</div>
     <div style="display:flex;gap:6px;">
       <input id="popover-custom-input" type="text" placeholder="e.g. B#4, Fb3, Dbb4"
         style="flex:1;background:#0e0c09;border:1px solid #3a2e24;color:var(--cream);padding:6px 8px;font-family:'Inconsolata',monospace;font-size:0.85rem;outline:none;">
@@ -2267,7 +2267,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     </div>
   </div>
   <div style="padding:8px 14px;border-top:1px solid #2a231d;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Force Accidental</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Force Accidental</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
       <button onclick="forceAccidental('')" id="fa-none" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">&#9711;</button>
       <button onclick="forceAccidental('n')" id="fa-nat" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">♮</button>
@@ -2715,16 +2715,16 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   function upPrompt() {
     var el = document.getElementById('kb-prompt');
     if (!el) return;
-    if (!activeGroup) el.innerHTML = '';
-    else if (!selNotes.length) el.innerHTML = 'Enter your passage below';
+    if (!activeGroup || !selNotes.length) el.innerHTML = '';
     else el.innerHTML = '<strong>' + selNotes.length + '</strong> note' + (selNotes.length !== 1 ? 's' : '') + ' entered';
   }
   function upHint() {
+    // Pattern count shown in generate button area, not duplicated here
     var el = document.getElementById('count-hint');
     if (!el) return;
     if (!activeGroup || !selNotes.length) { el.innerHTML = ''; return; }
     var sec = g2s(activeGroup), ct = DB.filter(function(p) { return p.section === sec; }).length;
-    el.innerHTML = ct ? '<strong>' + selNotes.length + '</strong> pitches &middot; <strong>' + ct + '</strong> patterns' : '<span style="color:var(--accent)">No patterns for ' + sec + '</span>';
+    if (ct) el.innerHTML = '<strong>' + ct + '</strong> patterns available';
   }
   function checkReady() {
     var sec = g2s(activeGroup);
@@ -3989,15 +3989,15 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 <!-- Chip edit popover -->
 <div id="chip-popover" style="display:none;position:fixed;z-index:500;background:#1a1410;border:1px solid #3a2e24;box-shadow:0 8px 32px rgba(0,0,0,0.6);min-width:240px;border-radius:3px;-webkit-overflow-scrolling:touch;overflow-y:auto;max-height:80vh;">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #2a231d;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.5);">Edit Note</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:0.2em;color:rgba(245,240,232,0.5);">Edit Note</div>
     <button onclick="closeChipPopover()" style="background:none;border:none;color:rgba(245,240,232,0.5);font-size:1.1rem;cursor:pointer;padding:0 2px;line-height:1;" title="Close">&times;</button>
   </div>
   <div style="padding:10px 14px 10px;border-bottom:1px solid #2a231d;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Respell</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Respell</div>
     <div id="popover-spellings" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
   </div>
   <div style="padding:10px 14px;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:6px;">Type any spelling</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:6px;">Type any spelling</div>
     <div style="display:flex;gap:6px;">
       <input id="popover-custom-input" type="text" placeholder="e.g. B#4, Fb3, Dbb4"
         style="flex:1;background:#0e0c09;border:1px solid #3a2e24;color:var(--cream);padding:6px 8px;font-family:'Inconsolata',monospace;font-size:0.85rem;outline:none;">
@@ -4005,7 +4005,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     </div>
   </div>
   <div style="padding:8px 14px;border-top:1px solid #2a231d;">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Force Accidental</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:0.78rem;letter-spacing:0.2em;color:rgba(245,240,232,0.4);margin-bottom:8px;">Force Accidental</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
       <button onclick="forceAccidental('')" id="fa-none" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">&#9711;</button>
       <button onclick="forceAccidental('n')" id="fa-nat" style="background:#2a231d;color:rgba(245,240,232,0.85);border:1px solid #3a2e24;padding:6px 12px;font-family:'Inconsolata',monospace;font-size:1rem;cursor:pointer;min-width:44px;">♮</button>
