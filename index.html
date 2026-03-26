@@ -2057,28 +2057,43 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
       var scheduledNotes = []; // {time, freq}
       var t = 0;
 
+      // Build full note sequence matching buildAbcString logic
+      var pitchedPerRep = 0;
       notes.forEach(function(code) {
-        var isRest = code.slice(-1) === 'r';
-        var isTup = code.indexOf('t') !== -1 && !isRest;
-        var base = code.replace('.','').replace('r','').replace('t','');
-        var dotted = code.indexOf('.') !== -1;
-        var durKey = base + (dotted ? '.' : '');
-        var beats = (DUR_BEATS[durKey] || DUR_BEATS[base] || 0.5) * (isTup ? 2/3 : 1);
-        var dur = beats * secPerBeat;
-
-        if (!isRest && pi < pitches.length) {
-          var note = pitches[pi];
-          // Strip forced accidental for MIDI
-          var m = note.match(/^([A-G])(##|bb|#|b|n)?(\d)$/);
-          if (m) {
-            var freq = 440 * Math.pow(2, (midi(note) + transposeOffset() - 69) / 12);
-            scheduledNotes.push({time: t, freq: freq, dur: dur * 0.85});
-          }
-          pi++;
-          if (pi >= pitches.length) pi = 0; // loop pitches if pattern is longer
-        }
-        t += dur;
+        if (code.slice(-1) !== 'r') pitchedPerRep++;
       });
+      var repsNeeded = pitchedPerRep > 0 ? Math.ceil(pitches.length / pitchedPerRep) : 1;
+      repsNeeded = Math.min(repsNeeded, 32);
+
+      for (var rep = 0; rep < repsNeeded; rep++) {
+        notes.forEach(function(code) {
+          var isRest = code.slice(-1) === 'r';
+          var isTup = code.indexOf('t') !== -1 && !isRest;
+          var base = code.replace('.','').replace('r','').replace('t','');
+          var dotted = code.indexOf('.') !== -1;
+          var durKey = base + (dotted ? '.' : '');
+          var beats = (DUR_BEATS[durKey] || DUR_BEATS[base] || 0.5) * (isTup ? 2/3 : 1);
+          var dur = beats * secPerBeat;
+
+          if (!isRest) {
+            if (pi < pitches.length) {
+              var note = pitches[pi];
+              var mNote = note.match(/^([A-G](?:##|bb|#|b|n)?)(\d)$/);
+              if (mNote) {
+                var freq = 440 * Math.pow(2, (midi(note) + transposeOffset() - 69) / 12);
+                scheduledNotes.push({time: t, freq: freq, dur: dur * 0.85});
+              }
+              pi++;
+            } else {
+              // No more pitches - stop this rep early
+              t += dur;
+              return;
+            }
+          }
+          t += dur;
+        });
+        if (pi >= pitches.length) break;
+      }
 
       var totalTime = t * 1000;
 
@@ -2405,18 +2420,34 @@ body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--
     exCont.innerHTML = '';
     pats.forEach(function(p, i) {
       var row = document.createElement('div'); row.className = 'ex-row';
+      // Header row with play button + label
+      var idRow = document.createElement('div');
+      idRow.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:4px;';
+      var playBtn = document.createElement('button');
+      playBtn.id = 'play-ex-' + i;
+      playBtn.innerHTML = '&#9654;';
+      playBtn.title = 'Play this exercise';
+      playBtn.style.cssText = 'background:none;border:1px solid #c8b89a;color:#c8b89a;'
+        + 'width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.7rem;'
+        + 'display:flex;align-items:center;justify-content:center;flex-shrink:0;padding-left:2px;';
+      playBtn.addEventListener('click', (function(pat, idx) { return function() {
+        playExercise(pat, idx);
+      }; })(p, i));
       var idLabel = document.createElement('div'); idLabel.className = 'ex-id-label';
-      idLabel.textContent = '#' + p.id + '  ï¿½  ' + p.timeSig;
+      idLabel.textContent = '#' + p.id + '  ·  ' + p.timeSig + (p.beaming ? '  ·  [' + p.beaming + ']' : '');
+      idRow.appendChild(playBtn); idRow.appendChild(idLabel);
       var staveDiv = document.createElement('div'); staveDiv.id = 'ex-' + i;
-      row.appendChild(idLabel); row.appendChild(staveDiv); exCont.appendChild(row);
+      row.appendChild(idRow); row.appendChild(staveDiv); exCont.appendChild(row);
       try {
         var abc = buildAbcString(p, selNotes.slice(), clef);
         ABCJS.renderAbc('ex-' + i, abc, {
           scale: 1.2, paddingright: 30, paddingleft: 15,
           paddingbottom: 10, paddingtop: 10, add_classes: true, staffwidth: 880,
-          wrap: {minSpacing: 1.8, maxSpacing: 2.8, preferredMeasuresPerLine: 4}
+          wrap: {minSpacing: 1.8, maxSpacing: 2.8, preferredMeasuresPerLine: 4},
         });
-      } catch(e) { row.innerHTML = '<div style="color:var(--accent);font-size:.8rem;padding:6px">Error: ' + e.message + '</div>'; }
+      } catch(e) {
+        row.innerHTML = '<div style="color:var(--accent);font-size:.7rem;padding:6px">Error: ' + e.message + '</div>';
+      }
     });
   }
 
