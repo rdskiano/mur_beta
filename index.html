@@ -15,7 +15,8 @@
   --accent: #8b3a1a; --gold: #9a7010;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Garamond', Georgia, serif; }
+html { overflow-x: hidden; }
+body { overflow-x: hidden; max-width: 1200px; margin: 0 auto; background: var(--ink); color: var(--cream); font-family: 'Cormorant Garamond', Georgia, serif; }
 
 /* Rotate overlay */
 .rotate-overlay {
@@ -63,7 +64,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 .clear-btn { background: none; border: none; color: rgba(245,240,232,0.75); font-family: 'Inconsolata', monospace; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; text-decoration: underline; }
 .clear-btn:hover { color: var(--accent); }
 .piano-wrap { width: 1400px; height: 180px; user-select: none; -webkit-user-select: none; overflow: hidden; }
-.piano-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+.piano-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; max-width: 100%; }
 #piano-svg { width: 1400px; height: 180px; display: block; }
 #piano-svg { cursor: pointer; touch-action: none; }
 
@@ -2231,7 +2232,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     if (next) next.style.opacity = _exIdx === _allExercises.length - 1 ? '0.3' : '1';
     var row = document.createElement('div'); row.className = 'ex-row';
     var idLabel = document.createElement('div'); idLabel.className = 'ex-id-label';
-    idLabel.textContent = (_exIdx + 1) + ' / ' + _allExercises.length + '  ·  ' + item.pat.timeSig;
+    idLabel.textContent = (_exIdx + 1) + ' / ' + _allExercises.length + '  ï¿½  ' + item.pat.timeSig;
     var staveDiv = document.createElement('div'); staveDiv.id = 'ex-phone-0';
     row.appendChild(idLabel); row.appendChild(staveDiv); exCont.appendChild(row);
     var w = Math.max((exCont.offsetWidth || window.innerWidth) - 20, 200);
@@ -2253,7 +2254,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
     pats.forEach(function(p, i) {
       var row = document.createElement('div'); row.className = 'ex-row';
       var idLabel = document.createElement('div'); idLabel.className = 'ex-id-label';
-      idLabel.textContent = '#' + p.id + '  ·  ' + p.timeSig;
+      idLabel.textContent = '#' + p.id + '  ï¿½  ' + p.timeSig;
       var staveDiv = document.createElement('div'); staveDiv.id = 'ex-' + i;
       row.appendChild(idLabel); row.appendChild(staveDiv); exCont.appendChild(row);
       try {
@@ -3081,6 +3082,7 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   window.addEventListener('resize', checkOrientation);
   window.addEventListener('orientationchange', function() { setTimeout(checkOrientation, 200); });
 
+  // Exercise state for phone one-at-a-time
 })();
 </script>
 
@@ -3176,8 +3178,6 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
   </div>
 </div>
 <div id="chip-popover-backdrop" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:499;" onclick="closeChipPopover()"></div>
-</body>
-</html>  // Exercise state for phone one-at-a-time
 
 
 <!-- Print overlay -->
@@ -3274,4 +3274,6 @@ body { background: var(--ink); color: var(--cream); font-family: 'Cormorant Gara
 <div id="chip-popover-backdrop" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:499;" onclick="closeChipPopover()"></div>
 </body>
 </
+</h
+</body>
 </html>
