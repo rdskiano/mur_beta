@@ -1890,14 +1890,14 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   var _micActive = false, _micStream = null, _micCtx = null, _micAnalyser = null, _micTimer = null;
   var _prevRms = 0, _noteActive = false, _stableCount = 0, _lastFreq = 0;
   var _lockoutUntil = 0, _lockoutMs = 400, _lastSoundTime = 0, _autoStopMs = 3000;
-  var _onsetThresh = 0.04, _releaseThresh = 0.015, _stableNeeded = 4;
+  var _onsetThresh = 0.02, _releaseThresh = 0.008, _stableNeeded = 4;
   var NOTE_NAMES_MIC_D = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
   function autoCorr(buf, sr) {
     var SIZE = buf.length, rms = 0;
     for (var i=0; i<SIZE; i++) rms += buf[i]*buf[i];
     rms = Math.sqrt(rms/SIZE);
-    if (rms < 0.008) return {freq:-1, rms:rms};
+    if (rms < 0.004) return {freq:-1, rms:rms};
     var r1=0, r2=SIZE-1, th=0.2;
     for (var i=0; i<SIZE/2; i++) { if (Math.abs(buf[i])<th) { r1=i; break; } }
     for (var i=1; i<SIZE/2; i++) { if (Math.abs(buf[SIZE-i])<th) { r2=SIZE-i; break; } }
@@ -1943,38 +1943,20 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     document.getElementById('rec-status-desktop').textContent = 'Requesting mic...';
     navigator.mediaDevices.getUserMedia({audio:true, video:false})
     .then(function(stream) {
-      document.getElementById('rec-status-desktop').textContent = 'Got stream...';
-      _micStream = stream;
-      try {
-        _micCtx = new (window.AudioContext||window.webkitAudioContext)();
-        // iOS requires explicit resume after creation
-        try { _micCtx.resume(); } catch(e) {}
-        var _setupAnalyser = function() {
-          _micAnalyser = _micCtx.createAnalyser();
-          _micAnalyser.fftSize = 2048;
-          _micCtx.createMediaStreamSource(stream).connect(_micAnalyser);
-          _micActive = true;
-          _noteActive=false; _stableCount=0; _lastFreq=0; _prevRms=0; _lockoutUntil=0; _lastSoundTime=0;
-          var btn = document.getElementById('rec-btn-desktop');
-          var inner = document.getElementById('rec-inner-desktop');
-          if (btn) btn.classList.add('recording');
-          if (inner) inner.style.opacity = '1';
-          document.getElementById('rec-label-desktop').textContent = 'RECORDING \u2014 TAP TO STOP';
-          document.getElementById('rec-status-desktop').textContent = '';
-          detectLoopDesktop();
-        };
-        if (_micCtx.state === 'suspended' || _micCtx.state === 'interrupted') {
-          _micCtx.resume().then(_setupAnalyser).catch(function(e) {
-            document.getElementById('rec-status-desktop').textContent = 'Resume error: '+e.message;
-          });
-        } else {
-          _setupAnalyser();
-        }
-        return; // _setupAnalyser handles the rest
-      } catch(acErr) {
-        document.getElementById('rec-status-desktop').textContent = 'AC error: '+acErr.message;
-        return;
-      }
+        _micStream = stream;
+      _micCtx = new (window.AudioContext||window.webkitAudioContext)();
+      _micAnalyser = _micCtx.createAnalyser();
+      _micAnalyser.fftSize = 2048;
+      _micCtx.createMediaStreamSource(stream).connect(_micAnalyser);
+      _micActive = true;
+      _noteActive=false; _stableCount=0; _lastFreq=0; _prevRms=0; _lockoutUntil=0; _lastSoundTime=0;
+      var btn = document.getElementById('rec-btn-desktop');
+      var inner = document.getElementById('rec-inner-desktop');
+      if (btn) btn.classList.add('recording');
+      if (inner) inner.style.borderRadius = '4px';
+      document.getElementById('rec-label-desktop').textContent = 'RECORDING \u2014 TAP TO STOP';
+      document.getElementById('rec-status-desktop').textContent = 'Play notes one at a time';
+      detectLoopDesktop();
     })
     .catch(function(err) {
       var msg = err && err.name === 'NotAllowedError' ? 'Mic access denied'
