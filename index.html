@@ -1161,7 +1161,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     var debugEl = document.getElementById('rec-debug');
     if (!div) return;
     if (!selNotes.length) {
-      div.innerHTML = '<div style="font-family:'Bebas Neue',sans-serif;font-size:0.72rem;letter-spacing:0.18em;color:rgba(245,240,232,0.4);padding:10px 28px;text-transform:uppercase;">Tap a note to edit or delete · Tap + to insert</div>';
+      div.innerHTML = '<div style="font-family:\' Bebas Neue\',sans-serif;font-size:0.72rem;letter-spacing:0.18em;color:rgba(245,240,232,0.4);padding:10px 28px;text-transform:uppercase;">Tap a note to edit or delete &middot; Tap + to insert</div>';
       return;
     }
     var clef = cClef();
