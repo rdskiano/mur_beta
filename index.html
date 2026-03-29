@@ -36,7 +36,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 .ctl-block { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
 .ctl-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.6rem; letter-spacing: 0.25em; color: rgba(245,240,232,0.5); text-transform: uppercase; }
 .group-btns { display: flex; gap: 5px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
-.group-btn { min-width: 52px; height: 72px; border: 2px solid #2a231d; background: transparent; color: #666; cursor: pointer; transition: all 0.12s; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 6px 4px; gap: 3px; }
+.group-btn { min-width: 52px; height: 72px; border: 2px solid #2a231d; background: transparent; color: #666; cursor: pointer; transition: all 0.12s; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 6px 4px; gap: 3px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .group-btn:hover { border-color: var(--accent); color: var(--accent); }
 .group-btn:hover svg { opacity: 1; }
 .group-btn .btn-num { font-family: 'Bebas Neue', sans-serif; font-size: 15px; font-weight: bold; color: var(--accent); letter-spacing: 0.05em; }
@@ -522,7 +522,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
       <div class="ctl-block">
         <div class="ctl-label">Instrument</div>
         <div class="sel-wrap">
-          <select class="app-sel" id="instrument-sel" onchange="wizardCheckStep2()">
+          <select class="app-sel" id="instrument-sel" onchange="wizardCheckStep2()" style="touch-action:manipulation;">
             <option value="0" selected>Select instrument...</option>
             <option value="0">Flute</option>
             <option value="0">Oboe</option>
@@ -991,13 +991,19 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   });
 
   document.querySelectorAll('.group-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
+    function activateGroup() {
       document.querySelectorAll('.group-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       activeGroup = parseInt(btn.dataset.n);
       upPrompt(); upHint(); checkReady();
       markDone('step1'); revealStep('step2');
-    });
+    }
+    btn.addEventListener('click', activateGroup);
+    // iOS Safari touchend fallback — fires before click and avoids scroll-capture delay
+    btn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      activateGroup();
+    }, {passive: false});
   });
 
   function g2s(n) {
