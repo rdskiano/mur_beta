@@ -583,6 +583,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
         </button>
         <div id="rec-label-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.7);margin-top:10px;">TAP TO RECORD</div>
         <div id="rec-status-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);min-height:2.5rem;margin-top:4px;"></div>
+        <div id="rec-debug" style="font-family:'Inconsolata',monospace;font-size:0.65rem;color:#666;margin:6px auto;letter-spacing:0.08em;min-height:1.2rem;"></div>
         <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.9rem;color:rgba(245,240,232,0.7);max-width:380px;margin:8px auto 0;line-height:1.5;">
           Play each note separately and clearly &mdash; one at a time with a brief silence between each note. The app detects each pitch automatically and stops after 3 seconds of silence.
         </div>
@@ -2007,6 +2008,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     var res = autoCorr(buf, _micCtx.sampleRate);
     var rms = res.rms, freq = res.freq, now = Date.now();
     var statusEl = document.getElementById('rec-status-desktop');
+    var debugEl  = document.getElementById('rec-debug');
 
     // Auto-stop after silence
     if (rms > 0.005) _lastSoundTime = now;
@@ -2016,12 +2018,14 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
     // Lockout after note commit — skip detection
     if (now < _lockoutUntil) {
+      if (debugEl) debugEl.textContent = 'rms:' + rms.toFixed(4) + '  LOCKOUT';
       _prevRms = rms;
       _micTimer = setTimeout(detectLoopDesktop, 25);
       return;
     }
 
     var note = (freq > 0) ? freqToNoteDesktop(freq) : null;
+    if (debugEl) debugEl.textContent = 'rms:' + rms.toFixed(4) + '  freq:' + (freq > 0 ? Math.round(freq) + 'Hz' : 'none') + '  note:' + (note || '—') + '  stable:' + _stableCount;
 
     if (rms < _releaseThresh) {
       // Gone silent — reset all tracking state
