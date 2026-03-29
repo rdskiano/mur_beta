@@ -1155,9 +1155,10 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
   function renderLiveStaffDesktop() {
     var div = document.getElementById('live-staff-desktop');
+    var debugEl = document.getElementById('rec-debug');
     if (!div) return;
     if (!selNotes.length) {
-      div.innerHTML = '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:0.72rem;letter-spacing:0.18em;color:rgba(245,240,232,0.4);padding:10px 28px;text-transform:uppercase;">Tap a note to edit or delete &nbsp;&middot;&nbsp; Tap + to insert</div>';
+      div.innerHTML = '<div style="font-family:'Bebas Neue',sans-serif;font-size:0.72rem;letter-spacing:0.18em;color:rgba(245,240,232,0.4);padding:10px 28px;text-transform:uppercase;">Tap a note to edit or delete · Tap + to insert</div>';
       return;
     }
     var clef = cClef();
@@ -1167,19 +1168,27 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     var barAcc = {};
     var notes = selNotes.map(function(n) { return codeToAbc('q', n, barAcc); }).join(' ');
     var abc = 'X:1\nM:none\nL:1/32\nK:' + abcKey + clefStr + '\n|' + notes + '|';
-    div.innerHTML = '<div id="live-staff-render"></div>';
-    try {
-      var w = Math.max(div.offsetWidth > 32 ? div.offsetWidth : window.innerWidth, 200);
-      var staffW = Math.max(selNotes.length * 80 + 200, w + 100);
-      ABCJS.renderAbc('live-staff-render', abc, {
-        scale: 1.3,
-        staffwidth: staffW,
-        paddingright: 20, paddingleft: 8, paddingtop: 8, paddingbottom: 6,
-        add_classes: true,
-        wrap: null,
-        selectTypes: false
-      });
-    } catch(e) {}
+    div.innerHTML = '<div id="live-staff-render" style="min-height:100px;"></div>';
+    if (typeof ABCJS === 'undefined') {
+      div.innerHTML = '<div style="padding:12px 20px;font-family:Inconsolata,monospace;font-size:0.8rem;color:#8b3a1a;">ABCJS not loaded</div>';
+      if (debugEl) debugEl.textContent = 'ABCJS UNDEFINED - check network';
+      return;
+    }
+    setTimeout(function() {
+      try {
+        var w = Math.max(div.offsetWidth > 32 ? div.offsetWidth : window.innerWidth, 200);
+        var staffW = Math.max(selNotes.length * 80 + 200, w + 100);
+        ABCJS.renderAbc('live-staff-render', abc, {
+          scale: 1.3, staffwidth: staffW,
+          paddingright: 20, paddingleft: 8, paddingtop: 8, paddingbottom: 6,
+          add_classes: true, wrap: null, selectTypes: false
+        });
+        if (debugEl) debugEl.textContent = 'staff ok · ' + selNotes.length + ' notes · abc: ' + abc.replace(/\n/g,' ');
+      } catch(e) {
+        if (debugEl) debugEl.textContent = 'ABCJS ERR: ' + e.message;
+        div.innerHTML = '<div style="padding:8px 20px;color:#8b3a1a;font-size:0.75rem;">' + e.message + '</div>';
+      }
+    }, 40);
   }
   function updateChips() {
     renderLiveStaffDesktop();
@@ -1911,10 +1920,31 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     for (var i=d; i<SZ; i++) { if (c[i]>mx) { mx=c[i]; mp=i; } }
     if (mp<2||mp>=SZ-1) return {freq:-1, rms:rms};
     var x1=c[mp-1], x2=c[mp], x3=c[mp+1];
-    var a=(x1+x3-2*x2)/2, b=(x3-x1)/2;
-    var T=a ? mp-b/(2*a) : mp;
-    return {freq: sr/T, rms: rms};
+    var a=(x1+x3-2*x2)/2, b2v=(x3-x1)/2;
+    var T=a ? mp-b2v/(2*a) : mp;
+    var freq = sr/T;
+
+    // Sub-harmonic check: if freq/2 or freq/3 produces a strong autocorrelation
+    // peak, prefer the lower frequency (avoids locking onto overtones).
+    // Critical for clarinet which has strong odd harmonics (3f, 5f...).
+    var candidates = [freq];
+    [2, 3].forEach(function(div) {
+      var fLow = freq / div;
+      if (fLow < 25 || fLow > 4200) return;
+      var TLow = Math.round(sr / fLow);
+      if (TLow >= 2 && TLow < SZ-1) {
+        // Interpolated autocorr value at TLow
+        var cl = c[TLow], strength = (c[0] > 0) ? cl / c[0] : 0;
+        if (strength > 0.35) candidates.push(fLow);
+      }
+    });
+    // Pick lowest valid candidate (the true fundamental)
+    candidates.sort(function(a,b){return a-b;});
+    freq = candidates[0];
+
+    return {freq: freq, rms: rms};
   }
+
 
   function freqToNoteDesktop(freq) {
     if (!freq||freq<25||freq>4200) return null;
