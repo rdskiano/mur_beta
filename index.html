@@ -98,10 +98,13 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 #live-staff-desktop::-webkit-scrollbar-track { background: #e8e0d4; }
 #live-staff-desktop::-webkit-scrollbar-thumb { background: #8b3a1a; border-radius: 4px; }
 #live-staff-desktop svg path,
-#live-staff-desktop svg rect,
 #live-staff-desktop svg ellipse,
 #live-staff-desktop svg line,
 #live-staff-desktop svg text { fill: #1a1208 !important; stroke: #1a1208 !important; }
+#live-staff-desktop svg rect { fill: #1a1208 !important; stroke: #1a1208 !important; }
+#live-staff-desktop svg rect.abcjs-staff-extra, #live-staff-desktop svg > svg > rect:first-child,
+#live-staff-render > svg > rect:first-child, #live-staff-render svg rect[height][width]:first-of-type
+  { fill: white !important; stroke: none !important; }
 #live-staff-desktop * { user-select: none; pointer-events: none; }
 #live-staff-render { display: inline-block; white-space: nowrap; }
 #live-staff-render svg { display: block; }
@@ -1183,7 +1186,10 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
           paddingright: 20, paddingleft: 8, paddingtop: 8, paddingbottom: 6,
           add_classes: true, wrap: null, selectTypes: false
         });
-        if (debugEl) debugEl.textContent = 'staff ok · ' + selNotes.length + ' notes · abc: ' + abc.replace(/\n/g,' ');
+        // Force background rect white — the blanket CSS rule darkens it otherwise
+        var bgRect = div.querySelector('svg rect:first-child');
+        if (bgRect) { bgRect.style.fill = 'white'; bgRect.style.stroke = 'none'; }
+        if (debugEl) debugEl.textContent = 'staff ok · ' + selNotes.length + ' notes';
       } catch(e) {
         if (debugEl) debugEl.textContent = 'ABCJS ERR: ' + e.message;
         div.innerHTML = '<div style="padding:8px 20px;color:#8b3a1a;font-size:0.75rem;">' + e.message + '</div>';
