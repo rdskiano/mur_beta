@@ -582,6 +582,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
           <div id="rec-inner-desktop" style="width:32px;height:32px;background:#e53535;border-radius:50%;transition:all 0.2s;"></div>
         </button>
         <div id="rec-label-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:rgba(245,240,232,0.7);margin-top:10px;">TAP TO RECORD</div>
+        <div id="mic-note-counter" style="font-family:'Bebas Neue',sans-serif;font-size:0.7rem;letter-spacing:0.18em;color:#9a7010;margin-top:4px;min-height:1rem;"></div>
         <div id="rec-status-desktop" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);min-height:2.5rem;margin-top:4px;"></div>
         <div id="rec-debug" style="font-family:'Inconsolata',monospace;font-size:0.65rem;color:#666;margin:6px auto;letter-spacing:0.08em;min-height:1.2rem;"></div>
         <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.9rem;color:rgba(245,240,232,0.7);max-width:380px;margin:8px auto 0;line-height:1.5;">
@@ -2060,6 +2061,8 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
               if (debugEl) debugEl.textContent = 'COMMIT: updateChips ok, selNotes=' + selNotes.length;
               upPrompt(); upHint(); checkReady();
               statusEl.textContent = written;
+              var ctr = document.getElementById('mic-note-counter');
+              if (ctr) ctr.textContent = selNotes.length + ' NOTE' + (selNotes.length !== 1 ? 'S' : '') + ' CAPTURED: ' + selNotes.join(' · ');
               _lockoutUntil = now + _lockoutMs;
               _noteActive = false; _stableCount = 0; _lastFreq = 0;
             } catch(e) {
