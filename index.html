@@ -2049,19 +2049,24 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
           statusEl.textContent = note + ' ' + _stableCount + '/' + _stableNeeded;
 
           if (_stableCount >= _stableNeeded) {
-            // Commit the note
-            var written = transposeNoteForMicDesktop(note);
-            written = applyAccModeDesktop(written.slice(0,-1)) + written.slice(-1);
-            if (_insertAtDesktop >= 0) {
-              selNotes.splice(_insertAtDesktop, 0, written);
-              _insertAtDesktop++;
-            } else {
-              selNotes.push(written);
+            try {
+              var written = transposeNoteForMicDesktop(note);
+              if (debugEl) debugEl.textContent = 'COMMIT: transpose ok to ' + written;
+              written = applyAccModeDesktop(written.slice(0,-1)) + written.slice(-1);
+              if (_insertAtDesktop >= 0) { selNotes.splice(_insertAtDesktop, 0, written); _insertAtDesktop++; }
+              else { selNotes.push(written); }
+              if (debugEl) debugEl.textContent = 'COMMIT: pushed ' + written + ', calling updateChips';
+              updateChips();
+              if (debugEl) debugEl.textContent = 'COMMIT: updateChips ok, selNotes=' + selNotes.length;
+              upPrompt(); upHint(); checkReady();
+              statusEl.textContent = written;
+              _lockoutUntil = now + _lockoutMs;
+              _noteActive = false; _stableCount = 0; _lastFreq = 0;
+            } catch(e) {
+              if (debugEl) debugEl.textContent = 'COMMIT ERROR: ' + e.message;
+              statusEl.textContent = 'err';
+              _noteActive = false; _stableCount = 0; _lastFreq = 0;
             }
-            updateChips(); upPrompt(); upHint(); checkReady();
-            statusEl.textContent = written;
-            _lockoutUntil = now + _lockoutMs;
-            _noteActive = false; _stableCount = 0; _lastFreq = 0;
           }
 
         } else {
