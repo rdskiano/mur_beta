@@ -2006,24 +2006,47 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     _micAnalyser.getFloatTimeDomainData(buf);
     var res = autoCorr(buf, _micCtx.sampleRate);
     var rms = res.rms, freq = res.freq, now = Date.now();
+    var statusEl = document.getElementById('rec-status-desktop');
 
-    if (!_noteActive) {
-      if (now > _lockoutUntil && rms > _onsetThresh && _prevRms < _onsetThresh) {
-        _noteActive=true; _stableCount=0; _lastFreq=freq;
-        document.getElementById('rec-status-desktop').textContent = '...';
-      }
-    } else {
-      if (rms < _releaseThresh) {
-        _noteActive=false; _stableCount=0;
-      } else if (freq > 0) {
-        var note = freqToNoteDesktop(freq);
-        var lastNote = freqToNoteDesktop(_lastFreq);
-        var freqClose = _lastFreq > 0 && Math.abs(freq - _lastFreq) / _lastFreq < 0.03;
-        if (note && (note === lastNote || freqClose)) {
+    // Auto-stop after silence
+    if (rms > 0.005) _lastSoundTime = now;
+    if (_lastSoundTime > 0 && (now - _lastSoundTime) > _autoStopMs) {
+      stopMicDesktop(); return;
+    }
+
+    // Lockout after note commit — skip detection
+    if (now < _lockoutUntil) {
+      _prevRms = rms;
+      _micTimer = setTimeout(detectLoopDesktop, 25);
+      return;
+    }
+
+    var note = (freq > 0) ? freqToNoteDesktop(freq) : null;
+
+    if (rms < _releaseThresh) {
+      // Gone silent — reset all tracking state
+      _noteActive = false; _stableCount = 0; _lastFreq = 0;
+
+    } else if (note) {
+      if (!_noteActive) {
+        // Fresh onset — begin tracking, don't set _lastFreq yet
+        _noteActive = true; _stableCount = 1; _lastFreq = freq;
+        statusEl.textContent = note + ' 1/' + _stableNeeded;
+
+      } else {
+        // Already tracking — check if this reading matches what we've been hearing
+        var prevNote = _lastFreq > 0 ? freqToNoteDesktop(_lastFreq) : null;
+        var freqClose = _lastFreq > 0 && Math.abs(freq - _lastFreq) / _lastFreq < 0.05;
+
+        if (note === prevNote || freqClose) {
+          // Same pitch — accumulate
+          _lastFreq = freq; // keep rolling toward current reading
           _stableCount++;
-          if (_stableCount === _stableNeeded) {
+          statusEl.textContent = note + ' ' + _stableCount + '/' + _stableNeeded;
+
+          if (_stableCount >= _stableNeeded) {
+            // Commit the note
             var written = transposeNoteForMicDesktop(note);
-            // Apply sharps/flats mode
             written = applyAccModeDesktop(written.slice(0,-1)) + written.slice(-1);
             if (_insertAtDesktop >= 0) {
               selNotes.splice(_insertAtDesktop, 0, written);
@@ -2032,19 +2055,22 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
               selNotes.push(written);
             }
             updateChips(); upPrompt(); upHint(); checkReady();
-            document.getElementById('rec-status-desktop').textContent = written;
+            statusEl.textContent = written;
             _lockoutUntil = now + _lockoutMs;
-            _noteActive=false; _stableCount=0;
+            _noteActive = false; _stableCount = 0; _lastFreq = 0;
           }
+
         } else {
-          _stableCount=1; _lastFreq=freq;
+          // Different pitch — restart stability counter on the new pitch
+          _stableCount = 1; _lastFreq = freq;
+          statusEl.textContent = note + ' 1/' + _stableNeeded;
         }
       }
+
+    } else {
+      // Signal present but no detectable pitch (noisy frame) — don't reset, just wait
     }
-    if (rms > 0.008) _lastSoundTime = now;
-    if (_lastSoundTime > 0 && (now - _lastSoundTime) > _autoStopMs) {
-      stopMicDesktop(); return;
-    }
+
     _prevRms = rms;
     _micTimer = setTimeout(detectLoopDesktop, 25);
   }
