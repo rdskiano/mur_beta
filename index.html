@@ -564,7 +564,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
             <button id="input-tab-mic" class="input-tab" onclick="switchInputTab('mic')"><span style="color:#e53535;">&#9679;</span> Record</button>
           </div>
         </div>
-        <button id="acc-toggle-desktop" onclick="toggleAccidentalDesktop()" class="wizard-tool-btn">Sharps</button>
+        <button id="acc-toggle-desktop" onclick="toggleAccidentalDesktop()" class="wizard-tool-btn" title="Toggle between sharps and flats for black keys">&#9839; Sharps &nbsp;&#8644;&nbsp; &#9837; Flats</button>
         <button onclick="clearNotes()" class="wizard-tool-btn">Clear</button>
       </div>
     </div>
@@ -604,6 +604,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
       </div>
       <!-- Chips -->
       <div style="padding:8px 28px 16px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.85rem;letter-spacing:0.12em;color:var(--cream);margin-bottom:8px;text-transform:uppercase;">Tap a note chip to edit or delete &nbsp;&middot;&nbsp; Tap + to insert a note</div>
       <div class="chips-row" id="chips"><span class="no-notes">No notes entered</span></div>
       <div id="chips-hint-line" style="font-family:'Bebas Neue',sans-serif;font-size:0.6rem;letter-spacing:0.15em;color:rgba(245,240,232,0.3);margin-top:4px;display:none;">TAP A NOTE TO EDIT &nbsp;&middot;&nbsp; TAP + TO INSERT</div>
       <div class="count-hint" id="count-hint"></div>
@@ -664,14 +665,24 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 <div class="settings-overlay" id="help-overlay" onclick="outsideCloseHelp(event)">
   <div class="settings-panel">
     <div class="sp-h2">How to Use <button class="close-btn" onclick="closeHelp()">&#x2715;</button></div>
-    <div class="sp-sec"><div class="sp-h3">What is this?</div><div class="sp-p">Mixed Up Rhythms is a rhythm practice tool for working musicians and serious students. Enter a melodic passage from a piece you are working on, and the app generates that passage written in every rhythm pattern for a given note grouping — a complete systematic workout in all rhythms.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 1 — Choose a note grouping</div><div class="sp-p">Choose a note grouping by tapping one of the six buttons above.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 2 — Set clef, key, and instrument</div><div class="sp-p">Choose the clef your instrument reads in and the key of your passage. The instrument setting transposes the audio preview to concert pitch — so if you play B♭ clarinet, what you hear matches what you sound.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 3 — Name and enter your passage</div><div class="sp-p">Type a document name, then tap notes on the keyboard. Tap a chip's spelling button to cycle enharmonics. Use <strong>&#x25BA; Play Passage</strong> to hear your entry back.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 4 — Generate</div><div class="sp-p">Tap <strong>Generate Exercises</strong> to produce the full set of rhythm patterns.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Step 5 — Save &amp; explore</div><div class="sp-p">Tap <strong>▲ Save Exercise</strong> to save your exercise to your personal library. You'll be asked for your name, email, and instrument once — the app remembers you after that. Use <strong>☰ Library</strong> to browse your saved exercises or search the community library by instrument or composer.</div></div>
-    <div class="sp-sec"><div class="sp-h3">Tips</div><div class="sp-p">— Your passage plays once through each pattern, stopping when all notes are used.<br>— Any passage length works — a few notes or an entire phrase.<br>— Tap <strong>&#x21BB; Start Over</strong> to reset and begin a new passage.</div></div>
-    <div class="sp-sec"><div class="sp-h3">About</div><div class="sp-p">Created by Ralph Skiano, Principal Clarinet of the Detroit Symphony Orchestra.<br><br><a href="/cdn-cgi/l/email-protection#384a5c4b5351595657785f55595154165b5755" style="color:var(--accent)"><span class="__cf_email__" data-cfemail="710315021a18101f1e31161c10181d5f121e1c">[email&#160;protected]</span></a></div></div>
+
+    <div class="sp-sec"><div class="sp-h3">What is this?</div><div class="sp-p">Mixed Up Rhythms is a rhythm practice tool for working musicians and serious students. Choose a melodic passage from a piece you are working on, enter the pitches, and the app instantly generates that passage written out in every rhythm pattern for a given note grouping &mdash; a complete, systematic rhythmic workout.</div></div>
+
+    <div class="sp-sec"><div class="sp-h3">Step 1 &mdash; Choose a note grouping</div><div class="sp-p">Tap one of the buttons numbered 3 through 8. This tells the app how many notes are in each rhythmic group of your passage. For example, if your passage moves primarily in groups of four sixteenth notes, choose 4.</div></div>
+
+    <div class="sp-sec"><div class="sp-h3">Step 2 &mdash; Set up your instrument</div><div class="sp-p">Choose your clef and your instrument. The instrument setting handles transposition automatically &mdash; if you play B&#9837; clarinet, enter your written pitches and the app handles the rest.</div></div>
+
+    <div class="sp-sec"><div class="sp-h3">Step 3 &mdash; Enter your passage</div>
+    <div class="sp-p"><strong>By keyboard:</strong> Tap notes on the piano keyboard. Black keys are shown as sharps by default &mdash; use the <em>&#9839; Sharps &harr; &#9837; Flats</em> toggle to switch.<br><br>
+    <strong>By microphone:</strong> Tap <em>Record</em>, then play each note clearly and separately on your instrument with a brief silence between each one. The app detects each pitch automatically.<br><br>
+    <strong>Editing:</strong> Tap any note chip to edit its spelling or delete it. Tap a <strong>+</strong> button between chips to insert a missing note at that position.<br><br>
+    Use <strong>&#9654; Play Passage</strong> to hear your entry played back before generating.</div></div>
+
+    <div class="sp-sec"><div class="sp-h3">Step 4 &mdash; Generate</div><div class="sp-p">Tap <strong>Generate Exercises</strong> to produce the full set of rhythm patterns for your passage. Each pattern shows your pitches written out in that rhythm. Use the tempo control and the play button next to each exercise to hear it at any speed.</div></div>
+
+    <div class="sp-sec"><div class="sp-h3">Step 5 &mdash; Save &amp; share</div><div class="sp-p">Tap <strong>&#9651; Save Exercise</strong> to save to your personal library. Use <strong>&#9776; Library</strong> to browse your saved exercises or search the community library by instrument or piece name. Tap <strong>&#8635; Start Over</strong> to reset and begin a new passage.</div></div>
+
+    <div class="sp-sec"><div class="sp-h3">About</div><div class="sp-p">Created by Ralph Skiano, Principal Clarinet of the Detroit Symphony Orchestra.</div></div>
   </div>
 </div>
 
@@ -1164,44 +1175,23 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
   function renderLiveStaffDesktop() {
     var div = document.getElementById('live-staff-desktop');
-    var debugEl = document.getElementById('rec-debug');
     if (!div) return;
-    if (!selNotes.length) {
-      div.innerHTML = '<div style="font-family:\' Bebas Neue\',sans-serif;font-size:0.72rem;letter-spacing:0.18em;color:rgba(245,240,232,0.4);padding:10px 28px;text-transform:uppercase;">Tap a note to edit or delete &middot; Tap + to insert</div>';
-      return;
-    }
+    if (!selNotes.length) { div.innerHTML = ''; return; }
     var clef = cClef();
-    var keyMap = {'C':'C','G':'G','D':'D','A':'A','E':'E','B':'B','Fs':'F#','F':'F','Bb':'Bb','Eb':'Eb','Ab':'Ab','Db':'Db','Gb':'Gb'};
-    var abcKey = keyMap[cKey()] || 'C';
-    var clefStr = clef === 'bass' ? ' clef=bass' : clef === 'alto' ? ' clef=alto' : clef === 'tenor' ? ' clef=tenor' : '';
-    var barAcc = {};
-    var notes = selNotes.map(function(n) { return codeToAbc('q', n, barAcc); }).join(' ');
-    var abc = 'X:1\nM:none\nL:1/32\nK:' + abcKey + clefStr + '\n|' + notes + '|';
-    div.innerHTML = '<div id="live-staff-render" style="min-height:100px;"></div>';
-    if (typeof ABCJS === 'undefined') {
-      div.innerHTML = '<div style="padding:12px 20px;font-family:Inconsolata,monospace;font-size:0.8rem;color:#8b3a1a;">ABCJS not loaded</div>';
-      if (debugEl) debugEl.textContent = 'ABCJS UNDEFINED - check network';
-      return;
-    }
-    setTimeout(function() {
-      try {
-        var w = Math.max(div.offsetWidth > 32 ? div.offsetWidth : window.innerWidth, 200);
-        var staffW = Math.max(selNotes.length * 80 + 200, w + 100);
-        ABCJS.renderAbc('live-staff-render', abc, {
-          scale: 1.3, staffwidth: staffW,
-          paddingright: 20, paddingleft: 8, paddingtop: 8, paddingbottom: 6,
-          add_classes: true, wrap: null, selectTypes: false
-        });
-        // Force background rect white — the blanket CSS rule darkens it otherwise
-        var bgRect = div.querySelector('svg rect:first-child');
-        if (bgRect) { bgRect.style.fill = 'white'; bgRect.style.stroke = 'none'; }
-        if (debugEl) debugEl.textContent = 'staff ok · ' + selNotes.length + ' notes';
-      } catch(e) {
-        if (debugEl) debugEl.textContent = 'ABCJS ERR: ' + e.message;
-        div.innerHTML = '<div style="padding:8px 20px;color:#8b3a1a;font-size:0.75rem;">' + e.message + '</div>';
-      }
-    }, 40);
+    var fakePat = { id:0, section:'', beaming:'', timeSig:'4/4',
+                    notes: selNotes.map(function() { return 'q'; }) };
+    div.innerHTML = '<div id="live-staff-render"></div>';
+    try {
+      var abc = buildAbcString(fakePat, selNotes.slice(), clef);
+      ABCJS.renderAbc('live-staff-render', abc, {
+        scale:1.2, staffwidth:880,
+        paddingright:30, paddingleft:15, paddingbottom:10, paddingtop:10,
+        add_classes:true, wrap:{minSpacing:1.8,maxSpacing:2.8,preferredMeasuresPerLine:4}
+      });
+    } catch(e) {}
   }
+
+
   function updateChips() {
     renderLiveStaffDesktop();
     var el = document.getElementById('chips');
@@ -1482,10 +1472,10 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   var _exIdx = 0;
   var _activeOscillators = [];
   function isPhone() {
-    // Treat iPad as desktop - only use phone layout on true phones
     var w = window.innerWidth;
-    if (navigator.maxTouchPoints > 1 && w >= 600) return false;
-    return w < 600;
+    // iPad and large tablets: treat as desktop
+    if (navigator.maxTouchPoints > 1 && w >= 768) return false;
+    return w < 768;
   }
 
   function renderPhoneExercise() {
@@ -1501,13 +1491,39 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     var next = document.getElementById('ex-next');
     if (prev) prev.style.opacity = _exIdx === 0 ? '0.3' : '1';
     if (next) next.style.opacity = _exIdx === _allExercises.length - 1 ? '0.3' : '1';
+
+    // Time sig + play label row
+    var labelRow = document.createElement('div');
+    labelRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 12px 4px;background:var(--cream-dark);';
+    var tsLabel = document.createElement('div');
+    tsLabel.style.cssText = 'font-family:"Bebas Neue",sans-serif;font-size:0.75rem;letter-spacing:0.15em;color:var(--mid);';
+    tsLabel.textContent = item.pat.timeSig + '  ·  ' + item.pat.section.replace(' Rhythm Patterns','');
+    var playBtn = document.createElement('button');
+    playBtn.id = 'phone-play-btn';
+    playBtn.innerHTML = '&#9654;';
+    playBtn.style.cssText = 'background:none;border:1px solid #c8b89a;color:#c8b89a;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:0.75rem;display:flex;align-items:center;justify-content:center;padding-left:2px;flex-shrink:0;';
+    playBtn.addEventListener('click', playCurrentPhoneExercise);
+    labelRow.appendChild(tsLabel);
+    labelRow.appendChild(playBtn);
+    exCont.appendChild(labelRow);
+
+    // Staff
     var staveDiv = document.createElement('div');
     staveDiv.id = 'ex-phone-0';
-    staveDiv.style.cssText = 'width:100%;background:white;';
+    staveDiv.style.cssText = 'width:100%;background:white;overflow:hidden;';
     exCont.appendChild(staveDiv);
+
     setTimeout(function() {
-      var w = Math.max((exCont.offsetWidth || window.innerWidth) - 4, 200);
-      try { ABCJS.renderAbc('ex-phone-0', item.abc, {scale:1.1,staffwidth:w,paddingright:8,paddingleft:8,paddingbottom:16,paddingtop:8,add_classes:true,wrap:{minSpacing:1.5,maxSpacing:2.5,preferredMeasuresPerLine:4}}); } catch(e) {}
+      var w = Math.max(window.innerWidth - 16, 200);
+      try {
+        ABCJS.renderAbc('ex-phone-0', item.abc, {
+          scale: 1.3,
+          staffwidth: w,
+          paddingright: 8, paddingleft: 8, paddingbottom: 20, paddingtop: 12,
+          add_classes: true,
+          wrap: { minSpacing: 1.2, maxSpacing: 2.8, preferredMeasuresPerLine: 2 }
+        });
+      } catch(e) {}
     }, 50);
   }
 
@@ -1544,6 +1560,20 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     window.scrollTo(0, window._savedScrollY || 0);
   }
   window.exPrev = exPrev; window.exNext = exNext; window.exitPhoneExercises = exitPhoneExercises;
+
+  // Swipe gesture on phone exercise view
+  (function() {
+    var sx = 0;
+    document.addEventListener('touchstart', function(e) {
+      if (!document.body.classList.contains('showing-exercises')) return;
+      sx = e.touches[0].clientX;
+    }, {passive:true});
+    document.addEventListener('touchend', function(e) {
+      if (!document.body.classList.contains('showing-exercises')) return;
+      var dx = e.changedTouches[0].clientX - sx;
+      if (Math.abs(dx) > 50) { dx < 0 ? exNext() : exPrev(); }
+    }, {passive:true});
+  })();
 
   // ── Playback ──────────────────────────────────────────────────────────────
   var _playTimer = null; var _playingIdx = -1;
@@ -1851,12 +1881,17 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
   function toggleAccidentalDesktop() {
     _accModeDesktop = _accModeDesktop === 'sharp' ? 'flat' : 'sharp';
+    updateAccToggleDisplay();
+  }
+  function updateAccToggleDisplay() {
     var btn = document.getElementById('acc-toggle-desktop');
-    if (btn) {
-      btn.textContent = _accModeDesktop === 'sharp' ? 'Sharps' : 'Flats';
-      btn.style.color = _accModeDesktop === 'flat' ? '#9080c0' : '';
-      btn.style.borderColor = _accModeDesktop === 'flat' ? '#9080c0' : '';
-    }
+    if (!btn) return;
+    var isFlat = _accModeDesktop === 'flat';
+    btn.innerHTML = isFlat
+      ? '&#9839; Sharps &nbsp;&nbsp; <strong style="color:white;text-decoration:underline;">&#9837; Flats</strong>'
+      : '<strong style="color:white;text-decoration:underline;">&#9839; Sharps</strong> &nbsp;&nbsp; &#9837; Flats';
+    btn.style.borderColor = isFlat ? '#9080c0' : 'rgba(245,240,232,0.25)';
+    btn.style.color = 'rgba(245,240,232,0.7)';
   }
   function applyAccModeDesktop(name) {
     if (_accModeDesktop === 'flat' && S2F[name]) return S2F[name];
@@ -1889,7 +1924,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     var accToggle = document.getElementById('acc-toggle-desktop');
     if (pianoWrap) pianoWrap.style.display = tab === 'keys' ? '' : 'none';
     if (micPanel) micPanel.style.display = tab === 'mic' ? 'block' : 'none';
-    if (accToggle) accToggle.style.display = tab === 'keys' ? '' : 'none';
+    if (accToggle) accToggle.style.display = '';
     // Hide keyboard-specific elements when on mic tab
     var dragBand = document.getElementById('kb-drag-band');
     var scrollArea = document.getElementById('piano-scroll-area');
@@ -1910,10 +1945,11 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     document.removeEventListener('touchstart', unlockAudio);
     document.removeEventListener('touchend', unlockAudio);
   }
+  var _accModeDesktop = 'sharp';
   var _micActive = false, _micStream = null, _micCtx = null, _micAnalyser = null, _micTimer = null;
-  var _prevRms = 0, _noteActive = false, _stableCount = 0, _lastFreq = 0;
-  var _lockoutUntil = 0, _lockoutMs = 400, _lastSoundTime = 0, _autoStopMs = 3000;
-  var _onsetThresh = 0.02, _releaseThresh = 0.008, _stableNeeded = 3;
+  var _prevRms = 0, _noteActive = false, _stableCount = 0, _lastFreq = 0, _silentFrames = 0;
+  var _lockoutUntil = 0, _lockoutMs = 300, _lastSoundTime = 0, _autoStopMs = 3000;
+  var _onsetThresh = 0.02, _releaseThresh = 0.008, _stableNeeded = 2;
   var NOTE_NAMES_MIC_D = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 
   function autoCorr(buf, sr) {
@@ -1934,34 +1970,14 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     var x1=c[mp-1], x2=c[mp], x3=c[mp+1];
     var a=(x1+x3-2*x2)/2, b2v=(x3-x1)/2;
     var T=a ? mp-b2v/(2*a) : mp;
-    var freq = sr/T;
-
-    // Sub-harmonic check: if freq/2 or freq/3 produces a strong autocorrelation
-    // peak, prefer the lower frequency (avoids locking onto overtones).
-    // Critical for clarinet which has strong odd harmonics (3f, 5f...).
-    var candidates = [freq];
-    [2, 3].forEach(function(div) {
-      var fLow = freq / div;
-      if (fLow < 25 || fLow > 4200) return;
-      var TLow = Math.round(sr / fLow);
-      if (TLow >= 2 && TLow < SZ-1) {
-        // Interpolated autocorr value at TLow
-        var cl = c[TLow], strength = (c[0] > 0) ? cl / c[0] : 0;
-        if (strength > 0.35) candidates.push(fLow);
-      }
-    });
-    // Pick lowest valid candidate (the true fundamental)
-    candidates.sort(function(a,b){return a-b;});
-    freq = candidates[0];
-
-    return {freq: freq, rms: rms};
+    return {freq: sr/T, rms: rms};
   }
 
 
   function freqToNoteDesktop(freq) {
-    if (!freq||freq<25||freq>4200) return null;
+    if (!freq||freq<80||freq>4200) return null;
     var midi = Math.round(12*Math.log2(freq/440)+69);
-    if (midi<33||midi>108) return null;
+    if (midi<45||midi>108) return null;
     var oct = Math.floor(midi/12)-1;
     return NOTE_NAMES_MIC_D[midi%12] + oct;
   }
@@ -2059,9 +2075,9 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
       stopMicDesktop(); return;
     }
 
-    // Lockout after note commit — skip detection
+    // Lockout after note commit — extend while note is still sounding
     if (now < _lockoutUntil) {
-      if (debugEl) debugEl.textContent = 'rms:' + rms.toFixed(4) + '  LOCKOUT';
+      if (rms > _releaseThresh) _lockoutUntil = now + _lockoutMs; // re-arm while note sustains
       _prevRms = rms;
       _micTimer = setTimeout(detectLoopDesktop, 25);
       return;
@@ -2071,47 +2087,39 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     if (debugEl) debugEl.textContent = 'rms:' + rms.toFixed(4) + '  freq:' + (freq > 0 ? Math.round(freq) + 'Hz' : 'none') + '  note:' + (note || '—') + '  stable:' + _stableCount;
 
     if (rms < _releaseThresh) {
-      // Gone silent — reset all tracking state
-      _noteActive = false; _stableCount = 0; _lastFreq = 0;
+      // Count consecutive silent frames — require 3 before resetting (75ms holdover)
+      _silentFrames = (_silentFrames || 0) + 1;
+      if (_silentFrames >= 3) {
+        _noteActive = false; _stableCount = 0; _lastFreq = 0; _silentFrames = 0;
+      }
 
     } else if (note) {
+      _silentFrames = 0;
       if (!_noteActive) {
-        // Fresh onset — begin tracking, don't set _lastFreq yet
         _noteActive = true; _stableCount = 1; _lastFreq = freq;
         statusEl.textContent = note + ' 1/' + _stableNeeded;
-
       } else {
-        // Already tracking — check if this reading matches what we've been hearing
         var prevNote = _lastFreq > 0 ? freqToNoteDesktop(_lastFreq) : null;
-        var freqClose = _lastFreq > 0 && Math.abs(freq - _lastFreq) / _lastFreq < 0.05;
-
+        var freqClose = _lastFreq > 0 && Math.abs(freq - _lastFreq) / _lastFreq < 0.10;
         if (note === prevNote || freqClose) {
-          // Same pitch — accumulate
-          _lastFreq = freq; // keep rolling toward current reading
+          _lastFreq = (_lastFreq + freq) / 2;
           _stableCount++;
           statusEl.textContent = note + ' ' + _stableCount + '/' + _stableNeeded;
-
           if (_stableCount >= _stableNeeded) {
             try {
               var written = transposeNoteForMicDesktop(note);
-              if (debugEl) debugEl.textContent = 'COMMIT: transpose ok to ' + written;
               written = applyAccModeDesktop(written.slice(0,-1)) + written.slice(-1);
               if (_insertAtDesktop >= 0) { selNotes.splice(_insertAtDesktop, 0, written); _insertAtDesktop++; }
               else { selNotes.push(written); }
-              if (debugEl) debugEl.textContent = 'COMMIT: pushed ' + written + ', calling updateChips';
-              updateChips();
-              if (debugEl) debugEl.textContent = 'COMMIT: updateChips ok, selNotes=' + selNotes.length;
-              upPrompt(); upHint(); checkReady();
+              updateChips(); upPrompt(); upHint(); checkReady();
               statusEl.textContent = written;
-              var ctr = document.getElementById('mic-note-counter');
-              if (ctr) ctr.textContent = selNotes.length + ' NOTE' + (selNotes.length !== 1 ? 'S' : '') + ' CAPTURED: ' + selNotes.join(' · ');
-              _lockoutUntil = now + _lockoutMs;
-              _noteActive = false; _stableCount = 0; _lastFreq = 0;
+              if (debugEl) debugEl.textContent = selNotes.length + ' notes: ' + selNotes.join(', ');
             } catch(e) {
-              if (debugEl) debugEl.textContent = 'COMMIT ERROR: ' + e.message;
-              statusEl.textContent = 'err';
-              _noteActive = false; _stableCount = 0; _lastFreq = 0;
+              if (debugEl) debugEl.textContent = 'ERR: ' + (e.message||e);
+              statusEl.textContent = (e.message||'err').slice(0,20);
             }
+            _lockoutUntil = now + _lockoutMs;
+            _noteActive = false; _stableCount = 0; _lastFreq = 0;
           }
 
         } else {
