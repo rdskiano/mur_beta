@@ -650,9 +650,9 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 <div id="ex-nav-bar" style="display:none;background:var(--ink);padding:8px 16px;align-items:center;justify-content:space-between;flex-shrink:0;">
   <button onclick="exitPhoneExercises()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);padding:0 10px;height:38px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;cursor:pointer;border-radius:4px;">&#9664; Edit</button>
   <button id="phone-play-btn" onclick="playCurrentPhoneExercise()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1rem;padding-left:2px;">&#9654;</button>
-  <button id="ex-prev" onclick="exPrev()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:44px;height:38px;font-size:1.2rem;cursor:pointer;border-radius:4px;">&#8592;</button>
+  <button id="ex-prev" onclick="exPrev()" ontouchend="event.preventDefault();exPrev();" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:44px;height:38px;font-size:1.2rem;cursor:pointer;border-radius:4px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">&#8592;</button>
   <span id="ex-counter" style="font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.15em;color:var(--cream);">1 / 0</span>
-  <button id="ex-next" onclick="exNext()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:44px;height:38px;font-size:1.2rem;cursor:pointer;border-radius:4px;">&#8594;</button>
+  <button id="ex-next" onclick="exNext()" ontouchend="event.preventDefault();exNext();" style="background:none;border:1px solid rgba(255,255,255,0.3);color:var(--cream);width:44px;height:38px;font-size:1.2rem;cursor:pointer;border-radius:4px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">&#8594;</button>
   <button onclick="openSave()" style="background:var(--accent);border:none;color:white;padding:0 10px;height:38px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;cursor:pointer;border-radius:4px;">&#9651; Save</button>
 </div>
   <div id="sheet-wrap" style="display:none">
@@ -1494,6 +1494,15 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     var next = document.getElementById('ex-next');
     if (prev) prev.style.opacity = _exIdx === 0 ? '0.3' : '1';
     if (next) next.style.opacity = _exIdx === _allExercises.length - 1 ? '0.3' : '1';
+
+    // Portrait tip
+    var portrait = window.innerHeight > window.innerWidth;
+    if (portrait) {
+      var tip = document.createElement('div');
+      tip.style.cssText = 'font-family:"Bebas Neue",sans-serif;font-size:0.6rem;letter-spacing:0.14em;color:rgba(26,22,18,0.4);text-align:center;padding:4px 8px 0;background:var(--cream-dark);';
+      tip.textContent = 'Rotate to landscape for best view';
+      exCont.appendChild(tip);
+    }
 
     // Time sig + play label row
     var labelRow = document.createElement('div');
