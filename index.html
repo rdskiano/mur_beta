@@ -260,6 +260,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 .db-stats strong { color: var(--ink); }
 
 
+@media print {
   body { background: white !important; }
   .output-area { background: white !important; padding: 0 !important; }
   .sheet { box-shadow: none !important; padding: 20px !important; max-width: 100% !important; }
@@ -271,15 +272,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   .ex-row svg text { fill: black !important; stroke: black !important; }
 }
 
-/* Phone exercise view — zero side padding so staff isn't pushed right */
-@media screen and (max-width: 767px) {
-  body.showing-exercises .sheet {
-    padding: 8px 12px !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-  }
-}
+
 
 /* Profile & Save & Library */
 .profile-btn { background: none; border: 1px solid #444; color: #888; padding: 0 12px; height: 30px; font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; cursor: pointer; white-space: nowrap; transition: all 0.12s; }
@@ -473,7 +466,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 .chip-clickable:active { transform: translateY(0); }
 
 .chip-clickable{cursor:pointer;transition:background 0.12s,transform 0.1s;user-select:none;-webkit-tap-highlight-color:transparent;}.chip-clickable:hover{background:#a04420;transform:translateY(-1px);}.chip-clickable:active{transform:translateY(0);}
-@media screen and (max-width:767px){body.showing-exercises{overflow:hidden;position:fixed;width:100%;}body.showing-exercises #controls{display:none;}body.showing-exercises .topbar{display:none;}body.showing-exercises #ex-nav-bar{position:fixed;top:0;left:0;right:0;z-index:20;height:52px;}body.showing-exercises #sheet-wrap{position:fixed;top:52px;left:0;right:0;bottom:0;display:block!important;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:10;background:white;}body.showing-exercises .sheet{padding-bottom:40px;padding-left:0!important;padding-right:0!important;}body.showing-exercises #exercises{min-height:100%;}body.showing-exercises #export-bar{display:none!important;}.topbar{padding:6px 10px;}.settings-btn{font-size:0.7rem!important;padding:3px 6px!important;}.app-title{font-size:1.2rem!important;}}
+@media screen and (max-width:767px){body.showing-exercises{overflow:hidden;position:fixed;width:100%;}body.showing-exercises #controls{display:none;}body.showing-exercises .topbar{display:none;}body.showing-exercises #ex-nav-bar{position:fixed;top:0;left:0;right:0;z-index:20;height:52px;}body.showing-exercises #sheet-wrap{position:fixed;top:52px;left:0;right:0;bottom:0;display:block!important;overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;z-index:10;background:white;}body.showing-exercises .sheet{padding:8px 12px!important;max-width:100%!important;margin:0!important;box-sizing:border-box!important;}body.showing-exercises #exercises{min-height:100%;}body.showing-exercises #export-bar{display:none!important;}.topbar{padding:6px 10px;}.settings-btn{font-size:0.7rem!important;padding:3px 6px!important;}.app-title{font-size:1.2rem!important;}}
 #exercises svg path,#exercises svg rect,#exercises svg ellipse,#exercises svg polygon{fill:#1a1208!important;}
 #ex-phone-0 svg { width: auto !important; max-width: 100% !important; display: block; }
 #exercises svg line{stroke:#1a1208!important;}
