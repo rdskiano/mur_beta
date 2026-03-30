@@ -1514,14 +1514,17 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     exCont.appendChild(staveDiv);
 
     setTimeout(function() {
+      var portrait = window.innerHeight > window.innerWidth;
       var w = Math.max(window.innerWidth - 16, 200);
+      var scale = portrait ? 0.9 : 1.1;
+      var mpl   = portrait ? 3   : 4;
       try {
         ABCJS.renderAbc('ex-phone-0', item.abc, {
-          scale: 1.3,
+          scale: scale,
           staffwidth: w,
           paddingright: 8, paddingleft: 8, paddingbottom: 20, paddingtop: 12,
           add_classes: true,
-          wrap: { minSpacing: 1.2, maxSpacing: 2.8, preferredMeasuresPerLine: 2 }
+          wrap: { minSpacing: 1.2, maxSpacing: 2.8, preferredMeasuresPerLine: mpl }
         });
       } catch(e) {}
     }, 50);
@@ -1659,6 +1662,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     }
   });
   window.addEventListener('resize',function(){if(_allExercises.length&&isPhone())renderPhoneExercise();});
+  window.addEventListener('orientationchange',function(){setTimeout(function(){if(_allExercises.length&&isPhone())renderPhoneExercise();},150);});
 
 
 
