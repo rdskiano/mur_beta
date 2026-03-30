@@ -1515,14 +1515,14 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
     setTimeout(function() {
       var portrait = window.innerHeight > window.innerWidth;
-      var w = Math.max(window.innerWidth - 40, 200);
+      var w = Math.max(window.innerWidth - 16, 200);
       var scale = portrait ? 0.9 : 1.1;
       var mpl   = portrait ? 3   : 4;
       try {
         ABCJS.renderAbc('ex-phone-0', item.abc, {
           scale: scale,
           staffwidth: w,
-          paddingright: 8, paddingleft: 8, paddingbottom: 20, paddingtop: 12,
+          paddingright: 36, paddingleft: 8, paddingbottom: 20, paddingtop: 12,
           add_classes: true,
           wrap: { minSpacing: 1.2, maxSpacing: 2.8, preferredMeasuresPerLine: mpl }
         });
