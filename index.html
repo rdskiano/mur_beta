@@ -266,10 +266,20 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
   .sheet-title { font-size: 18pt !important; border-bottom: 2pt solid black !important; }
   .ex-row { margin-bottom: 4px !important; page-break-inside: avoid; }
   .ex-row svg { width: 100% !important; }
-  /* Force dark ink for print */
   .ex-row svg path, .ex-row svg rect, .ex-row svg ellipse,
   .ex-row svg circle, .ex-row svg polygon, .ex-row svg line,
   .ex-row svg text { fill: black !important; stroke: black !important; }
+}
+
+/* Phone exercise view — zero side padding so staff isn't pushed right */
+@media screen and (max-width: 767px) {
+  body.showing-exercises .sheet {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 8px !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
 }
 
 /* Profile & Save & Library */
@@ -1511,7 +1521,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     // Staff
     var staveDiv = document.createElement('div');
     staveDiv.id = 'ex-phone-0';
-    staveDiv.style.cssText = 'width:100%;background:white;overflow:hidden;';
+    staveDiv.style.cssText = 'width:100%;background:white;overflow:visible;';
     exCont.appendChild(staveDiv);
 
     setTimeout(function() {
