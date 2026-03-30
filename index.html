@@ -1524,10 +1524,18 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
     exCont.appendChild(staveDiv);
 
     setTimeout(function() {
+      // Force sheet padding via JS so CSS specificity fights don't matter
+      var sheet = document.querySelector('.sheet');
+      if (sheet) sheet.style.cssText += ';padding:8px 12px!important;max-width:100%!important;margin:0!important;box-sizing:border-box!important;';
+
       var portrait = window.innerHeight > window.innerWidth;
-      var w = Math.max(window.innerWidth - 24 - 20, 200); // 24px sheet padding + 20px barline buffer
       var scale = portrait ? 0.9 : 1.1;
       var mpl   = portrait ? 3   : 4;
+
+      // Measure actual container width AFTER padding is applied
+      var container = document.getElementById('ex-phone-0');
+      var w = container ? Math.max(container.offsetWidth - 8, 200) : Math.max(window.innerWidth - 44, 200);
+
       try {
         ABCJS.renderAbc('ex-phone-0', item.abc, {
           scale: scale,
@@ -1537,7 +1545,7 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
           wrap: { minSpacing: 1.2, maxSpacing: 2.8, preferredMeasuresPerLine: mpl }
         });
       } catch(e) {}
-    }, 50);
+    }, 80);
   }
 
   function renderAllExercisesDesktop(pats, clef) {
