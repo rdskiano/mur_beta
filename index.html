@@ -274,11 +274,10 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 /* Phone exercise view — zero side padding so staff isn't pushed right */
 @media screen and (max-width: 767px) {
   body.showing-exercises .sheet {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    padding-top: 8px !important;
+    padding: 8px 12px !important;
     max-width: 100% !important;
     margin: 0 !important;
+    box-sizing: border-box !important;
   }
 }
 
@@ -1526,14 +1525,14 @@ body{overflow-x:hidden;max-width:1200px;margin:0 auto;background:var(--ink);colo
 
     setTimeout(function() {
       var portrait = window.innerHeight > window.innerWidth;
-      var w = Math.max(window.innerWidth - 56, 200);
+      var w = Math.max(window.innerWidth - 24 - 20, 200); // 24px sheet padding + 20px barline buffer
       var scale = portrait ? 0.9 : 1.1;
       var mpl   = portrait ? 3   : 4;
       try {
         ABCJS.renderAbc('ex-phone-0', item.abc, {
           scale: scale,
           staffwidth: w,
-          paddingright: 24, paddingleft: 8, paddingbottom: 20, paddingtop: 12,
+          paddingright: 16, paddingleft: 4, paddingbottom: 20, paddingtop: 12,
           add_classes: true,
           wrap: { minSpacing: 1.2, maxSpacing: 2.8, preferredMeasuresPerLine: mpl }
         });
